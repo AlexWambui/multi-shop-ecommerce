@@ -1,0 +1,53 @@
+.HomePage {
+    .Hero {
+        @apply relative bg-accent border border-gray-200 rounded-2xl p-10 overflow-hidden;
+
+        .hero-wrapper {
+            @apply lg:grid lg:grid-cols-2 gap-4;
+
+            .content,
+            .stats {
+                @apply relative z-10;
+            }
+
+            .content {
+                .eyebrow {
+                    @apply tracking-wider uppercase text-xs font-medium text-gray-400 mb-2.5;
+                }
+
+                .title {
+                    @apply font-serif text-4xl leading-tight mb-3.5 max-w-md;
+
+                    span {
+                        @apply text-gray-500 not-italic;
+                    }
+                }
+
+                .sub-title {
+                    @apply text-sm text-gray-500 max-w-sm mb-5
+                }
+
+                .hero-actions {
+                    @apply flex gap-2.5;
+                }
+            }
+
+            .stats {
+                @apply grid grid-cols-3 lg:grid-cols-1 gap-4 mt-8 lg:text-right;
+
+                .stat {
+                    .number {
+                        @apply font-serif text-3xl;
+                    }
+                    .label {
+                        @apply text-sm text-gray-400;
+                    }
+                }
+            }
+
+            .decorative-circle {
+                @apply absolute w-72 h-72 rounded-full -right-14 -top-14 bg-gray-100 opacity-60 z-0 dark:bg-gray-600;
+            }
+        }
+    }
+}

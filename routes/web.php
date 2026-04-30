@@ -2,10 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
+use App\Http\Controllers\Guest\HomePageController;
 
-Route::inertia('/', 'Welcome', [
+Route::get('/', [HomePageController::class, 'homePage'])->name('home');
+
+Route::inertia('/welcome', 'Welcome', [
     'canRegister' => Features::enabled(Features::registration()),
-])->name('home');
+])->name('welcome');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');

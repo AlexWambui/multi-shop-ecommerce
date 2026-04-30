@@ -1,0 +1,39 @@
+.guest-navbar {
+    @apply py-4 px-4 lg:px-16 border-b border-border;
+
+    nav {
+        @apply flex items-center justify-between;
+
+        .branding {
+            text-decoration: none;
+
+            span {
+                @apply font-medium;
+
+                &:last-of-type {
+                    @apply italic text-muted-foreground;
+                }
+            }
+        }
+
+        .links {
+            @apply flex items-center gap-8;
+        }
+
+        .extras {
+            @apply flex items-center justify-center gap-4;
+
+            .icon {
+                @apply w-5 h-5;
+            }
+
+            .auth-pages-links {
+                @apply flex items-center gap-2;
+
+                a {
+                    @apply px-3 py-1.5 bg-foreground text-background hover:text-foreground font-medium tracking-wide rounded-sm;
+                }
+            }
+        }
+    }
+}
