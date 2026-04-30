@@ -42,7 +42,10 @@
         "clsx": "^2.1.1",
         "laravel-vite-plugin": "^3.1",
         "lucide-vue-next": "^0.468.0",
+<<<<<<< HEAD
         "pinia": "^3.0.4",
+=======
+>>>>>>> 0915937 (first commit after re-install and daisy ui failure.)
         "reka-ui": "^2.6.1",
         "tailwind-merge": "^3.2.0",
         "tailwindcss": "^4.1.1",
