@@ -1,13 +1,10 @@
-<<<<<<< HEAD
 @import './tailwind';
-@plugin "daisyui";
 
 @import './components/index';
 
 @import './pages/index';
 
 /* * {outline: 1px solid rgb(107, 107, 107)} */
-=======
 @import 'tailwindcss';
 
 @import 'tw-animate-css';
@@ -180,4 +177,3 @@
         @apply bg-background text-foreground;
     }
 }
->>>>>>> 0915937 (first commit after re-install and daisy ui failure.)
