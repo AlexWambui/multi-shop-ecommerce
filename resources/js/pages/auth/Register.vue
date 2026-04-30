@@ -12,7 +12,7 @@ import { store } from '@/routes/register';
 
 defineOptions({
     layout: {
-        title: 'Create an account',
+        title: 'Signup',
         description: 'Enter your details below to create your account',
     },
 });
