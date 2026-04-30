@@ -10,9 +10,9 @@ Route::inertia('/welcome', 'Welcome', [
     'canRegister' => Features::enabled(Features::registration()),
 ])->name('welcome');
 
-Route::inertia('/', 'Welcome', [
+Route::inertia('/welcome', 'Welcome', [
     'canRegister' => Features::enabled(Features::registration()),
-])->name('home');
+])->name('welcome');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
