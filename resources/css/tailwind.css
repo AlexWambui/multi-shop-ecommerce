@@ -12,6 +12,7 @@
         Instrument Sans, ui-sans-serif, system-ui, sans-serif,
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
+    --font-accent: 'DM Serif Display',serif;
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
@@ -90,7 +91,10 @@
 }
 
 :root {
-    --background: hsl(0 0% 100%);
+    --font-accent: 'DM Serif Display', serif;
+
+
+    --background: #fafaf8;
     --foreground: hsl(0 0% 3.9%);
     --card: hsl(0 0% 100%);
     --card-foreground: hsl(0 0% 3.9%);

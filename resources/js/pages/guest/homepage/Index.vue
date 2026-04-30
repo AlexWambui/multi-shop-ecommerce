@@ -5,8 +5,8 @@ import HeroSection from './components/Hero.vue';
 
 <template>
     <GuestLayout>
-        <main class="HomePage">
+        <div class="HomePage">
             <HeroSection />
-        </main>
+        </div>
     </GuestLayout>
 </template>

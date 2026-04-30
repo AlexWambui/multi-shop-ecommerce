@@ -5,7 +5,8 @@ import Navbar from '@/components/custom/Navbar/Index.vue';
 <template>
     <div class="GuestLayout">
         <Navbar />
-
-        <slot />
+        <main>
+            <slot />
+        </main>
     </div>
 </template>

@@ -10,8 +10,8 @@ import { Link } from '@inertiajs/vue3';
                 <h1 class="title">Shop local.<br><span class="hero-dim">Support bold</span><br>businesses.</h1>
                 <p class="sub-title">Discover curated shops, exclusive deals, and the people behind every product.</p>
                 <div class="hero-actions">
-                    <Link>Browse Offers</Link>
-                    <Link>Get Started</Link>
+                    <Link class="btn">Browse Offers</Link>
+                    <Link class="btn btn-outline">Get Started</Link>
                 </div>
             </div>
 
