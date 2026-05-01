@@ -1,4 +1,10 @@
 a.btn,
+button.btn
+button {
+    @apply cursor-pointer;
+}
+
+a.btn,
 button.btn {
     @apply bg-foreground text-background py-2 px-4 rounded-sm tracking-wide font-medium;
 }

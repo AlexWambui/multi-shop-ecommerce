@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { Head, Link, useForm } from '@inertiajs/vue3';
-import users from '@/routes/users';
-import Label from '@/components/ui/label/Label.vue';
-import Input from '@/components/ui/input/Input.vue';
-import Button from '@/components/ui/button/Button.vue';
+import { Form, Head, Link } from '@inertiajs/vue3';
+import InputError from '@/components/InputError.vue';
+import PasswordInput from '@/components/PasswordInput.vue';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import FormError from '@/components/custom/FormError.vue';
+import usersRoutes from '@/routes/users';
 
 interface Props {
     user: {
@@ -21,8 +23,6 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
-// Extract the actual user data from the nested structure
 const userData = props.user.data;
 
 const ROLES = {
@@ -42,126 +42,142 @@ const roleOptions = [
 ];
 
 const statusOptions = [
-    { value: STATUS.INACTIVE, label: 'Inactive' },
     { value: STATUS.ACTIVE, label: 'Active' },
+    { value: STATUS.INACTIVE, label: 'Inactive' },
     { value: STATUS.SUSPENDED, label: 'Suspended' },
 ];
 
-const form = useForm({
-    name: userData.name,
-    email: userData.email,
-    password: '',
-    password_confirmation: '',
-    role: userData.role,
-    status: userData.status,
+defineOptions({
+    layout: {
+        title: 'Edit User',
+        description: 'Update user information',
+    },
 });
-
-const handleSubmit = () => {
-    form.put(users.update(userData.id).url);
-};
 </script>
 
 <template>
     <Head title="Edit User" />
 
-    <div class="app-container">
-        <div class="form edit-user">
-            <div class="form-header">
-                <Link :href="users.index().url">&larr;</Link>
-                <h2>Edit User</h2>
+    <div class="form edit-user">
+        <div class="header">
+            <Link :href="usersRoutes.index().url" class="back-link">&larr;</Link>
+            <h2>Edit User</h2>
+        </div>
+
+        <Form :action="usersRoutes.update(userData.id).url" method="put" v-slot="{ errors, processing }">
+            <div class="section-title">Basic Information</div>
+            
+            <div class="inputs-group-wrapper">
+                <div class="inputs-group">
+                    <Label for="name" class="required">Name</Label>
+                    <Input
+                        id="name"
+                        type="text"
+                        required
+                        autofocus
+                        autocomplete="name"
+                        name="name"
+                        :default-value="userData.name"
+                        placeholder="Full name"
+                    />
+                    <InputError :message="errors.name" />
+                </div>
+
+                <div class="inputs-group">
+                    <Label for="email" class="required">Email Address</Label>
+                    <Input
+                        id="email"
+                        type="email"
+                        required
+                        autocomplete="email"
+                        name="email"
+                        :default-value="userData.email"
+                        placeholder="Email address"
+                    />
+                    <InputError :message="errors.email" />
+                </div>
             </div>
 
-            <form @submit.prevent="handleSubmit">
-                <div class="section-title">Basic Information</div>
-                
-                <div class="inputs-group-wrapper">
-                    <div class="inputs-group">
-                        <Label for="name" class="required">Name</Label>
-                        <Input v-model="form.name" type="text" placeholder="Full name" autofocus />
-                        <FormError :error="form.errors.name" />
-                    </div>
-
-                    <div class="inputs-group">
-                        <Label for="email" class="required">Email Address</Label>
-                        <Input v-model="form.email" type="email" placeholder="Email address" />
-                        <FormError :error="form.errors.email" />
-                    </div>
+            <div class="inputs-group-wrapper">
+                <div class="inputs-group">
+                    <Label for="role" class="required">User Role</Label>
+                    <Select name="role" :default-value="String(userData.role)">
+                        <SelectTrigger class="w-full">
+                            <SelectValue placeholder="Select user role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectItem 
+                                    v-for="option in roleOptions" 
+                                    :key="option.value" 
+                                    :value="String(option.value)"
+                                >
+                                    {{ option.label }}
+                                </SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                    <InputError :message="errors.role" />
                 </div>
 
-                <div class="inputs-group-wrapper">
-                    <div class="inputs-group">
-                        <Label for="role" class="required">User Role</Label>
-                        <Select v-model="form.role">
-                            <SelectTrigger class="w-full">
-                                <SelectValue placeholder="Select user role" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup>
-                                    <SelectItem 
-                                        v-for="option in roleOptions" 
-                                        :key="option.value" 
-                                        :value="option.value"
-                                    >
-                                        {{ option.label }}
-                                    </SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
-                        <FormError :error="form.errors.role" />
-                    </div>
+                <div class="inputs-group">
+                    <Label for="status" class="required">Account Status</Label>
+                    <Select name="status" :default-value="String(userData.status)">
+                        <SelectTrigger class="w-full">
+                            <SelectValue placeholder="Select account status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectItem 
+                                    v-for="option in statusOptions" 
+                                    :key="option.value" 
+                                    :value="String(option.value)"
+                                >
+                                    {{ option.label }}
+                                </SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                    <InputError :message="errors.status" />
+                </div>
+            </div>
 
-                    <div class="inputs-group">
-                        <Label for="status" class="required">Account Status</Label>
-                        <Select v-model="form.status">
-                            <SelectTrigger class="w-full">
-                                <SelectValue placeholder="Select account status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup>
-                                    <SelectItem 
-                                        v-for="option in statusOptions" 
-                                        :key="option.value" 
-                                        :value="option.value"
-                                    >
-                                        {{ option.label }}
-                                    </SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
-                        <FormError :error="form.errors.status" />
-                    </div>
+            <div class="inputs-group-wrapper">
+                <div class="inputs-group">
+                    <Label for="password">Password (leave blank to keep current)</Label>
+                    <PasswordInput
+                        id="password"
+                        autocomplete="new-password"
+                        name="password"
+                        placeholder="New password"
+                    />
+                    <InputError :message="errors.password" />
                 </div>
 
-                <div class="inputs-group-wrapper">
-                    <div class="inputs-group">
-                        <Label for="password" class="required">Password</Label>
-                        <Input v-model="form.password" type="password" placeholder="Password" />
-                        <FormError :error="form.errors.password" />
-                    </div>
-
-                    <div class="inputs-group">
-                        <Label for="password_confirmation" class="required">Confirm Password</Label>
-                        <Input v-model="form.password_confirmation" type="password" placeholder="Confirm password" />
-                        <FormError :error="form.errors.password_confirmation" />
-                    </div>
+                <div class="inputs-group">
+                    <Label for="password_confirmation">Confirm Password</Label>
+                    <PasswordInput
+                        id="password_confirmation"
+                        autocomplete="new-password"
+                        name="password_confirmation"
+                        placeholder="Confirm new password"
+                    />
+                    <InputError :message="errors.password_confirmation" />
                 </div>
+            </div>
 
-                <div class="submit-buttons">
-                    <Button
-                        type="submit"
-                        :disabled="form.processing"
-                        :loading="form.processing"
-                    >
-                        {{ form.processing ? 'Updating User...' : 'Update User' }}
+            <div class="submit-buttons">
+                <Button type="submit" :disabled="processing">
+                    <Spinner v-if="processing" />
+                    Update User
+                </Button>
+
+                <Link :href="usersRoutes.index().url">
+                    <Button type="button" variant="outline">
+                        Cancel and return to users
                     </Button>
-
-                    <Link :href="users.index().url">
-                        <Button type="button" variant="outline">
-                            Cancel
-                        </Button>
-                    </Link>
-                </div>
-            </form>
-        </div>
+                </Link>
+            </div>
+        </Form>
     </div>
 </template>

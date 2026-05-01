@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { Head, Link, useForm } from '@inertiajs/vue3';
-import users from '@/routes/users';
-import Label from '@/components/ui/label/Label.vue';
-import Input from '@/components/ui/input/Input.vue';
-import Button from '@/components/ui/button/Button.vue';
+import { Form, Head, Link } from '@inertiajs/vue3';
+import InputError from '@/components/InputError.vue';
+import PasswordInput from '@/components/PasswordInput.vue';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import FormError from '@/components/custom/FormError.vue';
+import usersRoutes from '@/routes/users';
 
 // Role constants matching UserRoles enum
 const ROLES = {
@@ -26,126 +28,140 @@ const roleOptions = [
 ];
 
 const statusOptions = [
-    { value: STATUS.INACTIVE, label: 'Inactive' },
     { value: STATUS.ACTIVE, label: 'Active' },
+    { value: STATUS.INACTIVE, label: 'Inactive' },
     { value: STATUS.SUSPENDED, label: 'Suspended' },
 ];
 
-const form = useForm({
-    name: '',
-    email: '',
-    password: '',
-    password_confirmation: '',
-    role: null as number | null,
-    status: STATUS.ACTIVE,
+defineOptions({
+    layout: {
+        title: 'Create User',
+        description: 'Add a new user to the system',
+    },
 });
-
-const handleSubmit = () => {
-    form.post(users.store.url());
-};
 </script>
 
 <template>
     <Head title="Create User" />
 
-    <div class="app-container">
-        <div class="form create-user">
-            <div class="form-header">
-                <Link :href="users.index().url">&larr;</Link>
-                <h2>Create User</h2>
+    <div class="form create-user">
+        <div class="header">
+            <Link :href="usersRoutes.index().url" class="text-muted-foreground hover:text-foreground">&larr;</Link>
+            <h2 class="title">Create New User</h2>
+        </div>
+
+        <Form :action="usersRoutes.store.url()" method="post" v-slot="{ errors, processing }">
+            <div class="section-title">Basic Information</div>
+
+            <div class="inputs-group-wrapper">
+                <div class="inputs-group">
+                    <Label for="name" class="required">Name</Label>
+                    <Input
+                        id="name"
+                        type="text"
+                        autofocus
+                        autocomplete="name"
+                        name="name"
+                        placeholder="Full name"
+                    />
+                    <InputError :message="errors.name" />
+                </div>
+
+                <div class="inputs-group">
+                    <Label for="email" class="required">Email address</Label>
+                    <Input
+                        id="email"
+                        type="email"
+                        autocomplete="email"
+                        name="email"
+                        placeholder="email@example.com"
+                    />
+                    <InputError :message="errors.email" />
+                </div>
             </div>
 
-            <form @submit.prevent="handleSubmit">
-                <div class="section-title">Basic Information</div>
-                
-                <div class="inputs-group-wrapper">
-                    <div class="inputs-group">
-                        <Label for="name" class="required">Name</Label>
-                        <Input v-model="form.name" type="text" placeholder="Full name" />
-                        <FormError :error="form.errors.name" />
-                    </div>
-
-                    <div class="inputs-group">
-                        <Label for="email" class="required">Email Address</Label>
-                        <Input v-model="form.email" type="email" placeholder="Email address" />
-                        <FormError :error="form.errors.email" />
-                    </div>
+            <div class="inputs-group-wrapper">
+                <div class="inputs-group">
+                    <Label for="password" class="required">Password</Label>
+                    <PasswordInput
+                        id="password"
+                        autocomplete="new-password"
+                        name="password"
+                        placeholder="Password"
+                    />
+                    <InputError :message="errors.password" />
                 </div>
 
-                <div class="inputs-group-wrapper">
-                    <div class="inputs-group">
-                        <Label for="password" class="required">Password</Label>
-                        <Input v-model="form.password" type="password" placeholder="Password" />
-                        <FormError :error="form.errors.password" />
-                    </div>
+                <div class="inputs-group">
+                    <Label for="password_confirmation" class="required">Confirm password</Label>
+                    <PasswordInput
+                        id="password_confirmation"
+                        autocomplete="new-password"
+                        name="password_confirmation"
+                        placeholder="Confirm password"
+                    />
+                    <InputError :message="errors.password_confirmation" />
+                </div>
+            </div>
 
-                    <div class="inputs-group">
-                        <Label for="password_confirmation" class="required">Confirm Password</Label>
-                        <Input v-model="form.password_confirmation" type="password" placeholder="Confirm password" />
-                        <FormError :error="form.errors.password_confirmation" />
-                    </div>
+            <div class="inputs-group-wrapper">
+                <div class="inputs-group">
+                    <Label for="role" class="required">User Role</Label>
+                    <Select name="role">
+                        <SelectTrigger class="w-full">
+                            <SelectValue placeholder="Select user role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectItem 
+                                    v-for="option in roleOptions" 
+                                    :key="option.value" 
+                                    :value="option.value"
+                                >
+                                    {{ option.label }}
+                                </SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                    <InputError :message="errors.role" />
                 </div>
 
-                <div class="inputs-group-wrapper">
-                    <div class="inputs-group">
-                        <Label for="role" class="required">User Role</Label>
-                        <Select v-model="form.role">
-                            <SelectTrigger class="w-full">
-                                <SelectValue placeholder="Select user role" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup>
-                                    <SelectItem 
-                                        v-for="option in roleOptions" 
-                                        :key="option.value" 
-                                        :value="option.value"
-                                    >
-                                        {{ option.label }}
-                                    </SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
-                        <FormError :error="form.errors.role" />
-                    </div>
-
-                    <div class="inputs-group">
-                        <Label for="status" class="required">Account Status</Label>
-                        <Select v-model="form.status">
-                            <SelectTrigger class="w-full">
-                                <SelectValue placeholder="Select account status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup>
-                                    <SelectItem 
-                                        v-for="option in statusOptions" 
-                                        :key="option.value" 
-                                        :value="option.value"
-                                    >
-                                        {{ option.label }}
-                                    </SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
-                        <FormError :error="form.errors.status" />
-                    </div>
+                <div class="inputs-group">
+                    <Label for="status" class="required">Account Status</Label>
+                    <Select name="status">
+                        <SelectTrigger class="w-full">
+                            <SelectValue placeholder="Select account status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectItem 
+                                    v-for="option in statusOptions" 
+                                    :key="option.value" 
+                                    :value="option.value"
+                                >
+                                    {{ option.label }}
+                                </SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                    <InputError :message="errors.status" />
                 </div>
+            </div>
 
-                <div class="submit-buttons">
-                    <Button
-                        type="submit"
-                        :disabled="form.processing"
-                        :loading="form.processing"
-                    >
-                        {{ form.processing ? 'Creating User...' : 'Create User' }}
-                    </Button>
+            <div class="submit-buttons">
+                <Button type="submit" :disabled="processing">
+                    <Spinner v-if="processing" />
+                    Create User
+                </Button>
 
-                    <Link :href="users.index().url">
+                <div>
+                    <Link :href="usersRoutes.index().url">
                         <Button type="button" variant="outline">
-                            Cancel
+                            Cancel and return to users
                         </Button>
                     </Link>
                 </div>
-            </form>
-        </div>
+            </div>
+        </Form>
     </div>
 </template>

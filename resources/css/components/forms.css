@@ -1,7 +1,7 @@
 .form {
     @apply bg-white p-6 mt-4 rounded-xl border border-gray-200 dark:bg-background dark:border-gray-500 lg:w-[80vw] lg:mx-auto;
 
-    .form-header {
+    .header {
         @apply flex gap-2 mb-4 py-4 border-b border-border;
 
         a {
