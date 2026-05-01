@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Menu, Search, Users, Sun, Moon } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, Menu, Search, Users, Sun, Moon, Store } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
@@ -39,6 +39,7 @@ import { dashboard } from '@/routes';
 import type { BreadcrumbItem, NavItem } from '@/types';
 import { useAppearance } from '@/composables/useAppearance';
 import userRoutes from '@/routes/users';
+import shopCategoriesRoutes from '@/routes/shop-categories';
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[];
@@ -82,7 +83,11 @@ const mainNavItems = computed(() =>{
 
     if (isAdmin.value) {
         items.push(
-            //
+            {
+                title: 'Shops',
+                href: shopCategoriesRoutes.index(),
+                icon: Store
+            }
         );
     }
 

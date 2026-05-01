@@ -73,7 +73,6 @@ defineOptions({
                     <Input
                         id="name"
                         type="text"
-                        required
                         autofocus
                         autocomplete="name"
                         name="name"
@@ -88,7 +87,6 @@ defineOptions({
                     <Input
                         id="email"
                         type="email"
-                        required
                         autocomplete="email"
                         name="email"
                         :default-value="userData.email"
