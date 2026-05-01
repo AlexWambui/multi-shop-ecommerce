@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Menu, Search, Users } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, Menu, Search, Users, Sun, Moon } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
@@ -37,6 +37,7 @@ import { getInitials } from '@/composables/useInitials';
 import { toUrl } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import type { BreadcrumbItem, NavItem } from '@/types';
+import { useAppearance } from '@/composables/useAppearance';
 import userRoutes from '@/routes/users';
 
 type Props = {
@@ -47,6 +48,7 @@ const props = withDefaults(defineProps<Props>(), {
     breadcrumbs: () => [],
 });
 
+const { appearance, updateAppearance } = useAppearance();
 const page = usePage();
 const auth = computed(() => page.props.auth);
 const { isCurrentUrl, whenCurrentUrl } = useCurrentUrl();
@@ -228,6 +230,11 @@ const rightNavItems: NavItem[] = [
 
                 <div class="ml-auto flex items-center space-x-2">
                     <div class="relative flex items-center space-x-1">
+                        <button @click="updateAppearance(appearance === 'light' ? 'dark' : 'light')" class="toggle-theme" title="Toggle theme">
+                            <Sun v-if="appearance === 'light'" class="icon sun-icon w-5 h-5" />
+                            <Moon v-else class="icon moon-icon w-5 h-5" />
+                        </button>
+
                         <Button
                             variant="ghost"
                             size="icon"
