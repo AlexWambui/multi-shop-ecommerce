@@ -16,14 +16,34 @@ defineProps<{
     <div
         class="relative grid h-dvh flex-col items-center justify-center px-8 sm:px-0 lg:max-w-none lg:grid-cols-2 lg:px-0"
     >
-        <div class="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex  dark:border-r">
-            <Link :href="home()" class="relative z-20 flex items-center text-lg font-medium">
+        <div class="auth-content relative flex h-full flex-col justify-between p-10 text-white">
+            <!-- Background Image with Overlay -->
+            <div class="absolute inset-0 overflow-hidden">
+                <img src="/assets/images/woman-shopping.jpg" alt="Woman Shopping" class="h-full w-full object-cover">
+                <div class="absolute inset-0 bg-black/70"></div>
+            </div>
+            
+            <!-- Brand -->
+            <div class="relative z-10 flex items-center gap-2 text-xl font-bold leading-tight">
                 <AppLogoIcon class="mr-2 size-8 fill-current text-white" />
                 {{ name }}
-            </Link>
+            </div>
 
-            <div class="nothing py-8">
-                <h1 class="lg:w-[80%] font-medium">Creating an account helps you easily track your orders and checkout faster.</h1>
+            <!-- Center content -->
+            <div class="relative z-10 space-y-4">
+                <h2 class="text-xl font-semibold leading-tight">
+                    Having an account helps with
+                </h2>
+
+                <ul class="mt-4 space-y-2 text-sm text-muted-foreground">
+                    <li>Fast checkout workflows</li>
+                    <li>Easier follow up on orders</li>
+                </ul>
+            </div>
+
+            <!-- Footer -->
+            <div class="relative z-10 text-xs text-muted-foreground">
+                © {{ new Date().getFullYear() }} {{ name }}
             </div>
         </div>
         
