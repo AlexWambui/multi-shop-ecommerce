@@ -16,6 +16,7 @@ return new class extends Migration
             $table->uuid()->unique();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('phone', 20)->nullable();
             $table->unsignedTinyInteger('role')->default(3);
             $table->unsignedTinyInteger('status')->default(1);
             $table->string('image')->nullable();
