@@ -46,15 +46,17 @@ class ShopCategoryController extends Controller
             DB::commit();
 
             Inertia::flash('toast', [
-                'type' => 'success',
+                'type' => "success",
                 'message' => "Category: {$request->name} created successfully"
             ]);
 
             return to_route('shop-categories.index');
         } catch (Exception $e) {
+            DB::rollBack();
+
             Inertia::flash('toast', [
-                'type' => 'error',
-                'message' => 'Failed to create shop category: ' . $e->getMessage()
+                'type' => "error",
+                'message' => "Failed to update user: {$e->getMessage()}"
             ]);
 
             return back()->withInput();
@@ -80,15 +82,17 @@ class ShopCategoryController extends Controller
             DB::commit();
 
             Inertia::flash('toast', [
-                'type' => 'success',
+                'type' => "success",
                 'message' => "Category: {$request->name} updated successfully"
             ]);
 
             return to_route('shop-categories.index');
         } catch (Exception $e) {
+            DB::rollBack();
+            
             Inertia::flash('toast', [
-                'type' => 'error',
-                'message' => 'Failed to update shop category: ' . $e->getMessage()
+                'type' => "error",
+                'message' => "Failed to update user: {$e->getMessage()}"
             ]);
 
             return back()->withInput();
@@ -101,15 +105,15 @@ class ShopCategoryController extends Controller
             $shop_category->delete();
 
             Inertia::flash('toast', [
-                'type' => 'success',
+                'type' => "success",
                 'message' => "Category deleted successfully"
             ]);
 
             return to_route('shop-categories.index');
         } catch (Exception $e) {
             Inertia::flash('toast', [
-                'type' => 'error',
-                'message' => 'Failed to delete shop category: ' . $e->getMessage()
+                'type' => "error",
+                'message' => "Failed to update user: {$e->getMessage()}"
             ]);
 
             return back()->withInput();

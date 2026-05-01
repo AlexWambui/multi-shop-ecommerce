@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 use Exception;
 use App\Models\User;
 use App\Http\Resources\UserResource;
@@ -52,7 +53,7 @@ class UserController extends Controller
         try {
             DB::beginTransaction();
 
-            $user = User::create([
+            User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
@@ -62,21 +63,21 @@ class UserController extends Controller
 
             DB::commit();
 
-            return redirect()
-                ->route('users.index')
-                ->with([
-                    'message' => 'User created successfully',
-                    'type' => 'success'
-                ]);
+            Inertia::flash('toast', [
+                'type' => "success",
+                'message' => "User created successfully"
+            ]);
+
+            return to_route('users.index');
         } catch (Exception $e) {
             DB::rollBack();
 
-            return back()
-                ->withInput()
-                ->with([
-                    'message' => 'Failed to create user: ' . $e->getMessage(),
-                    'type' => 'error'
-                ]);
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => "Failed to update user: {$e->getMessage()}"
+            ]);
+
+            return back()->withInput();
         }
     }
 
@@ -107,21 +108,21 @@ class UserController extends Controller
 
             DB::commit();
 
-            return redirect()
-                ->route('users.index')
-                ->with([
-                    'message' => 'User updated successfully',
-                    'type' => 'success'
-                ]);
+            Inertia::flash('toast', [
+                'type' => "success",
+                'message' => "User updated successfully"
+            ]);
+
+            return to_route('users.index');
         } catch (Exception $e) {
             DB::rollBack();
 
-            return back()
-                ->withInput()
-                ->with([
-                    'message' => 'Failed to update user: ' . $e->getMessage(),
-                    'type' => 'error'
-                ]);
+            Inertia::flash('toast', [
+                'type' => "error",
+                'message' => "Failed to update user: {$e->getMessage()}"
+            ]);
+
+            return back()->withInput();
         }
     }
 
@@ -137,18 +138,19 @@ class UserController extends Controller
 
             $user->delete();
 
-            return redirect()
-                ->route('users.index')
-                ->with([
-                    'message' => 'User deleted successfully',
-                    'type' => 'success'
-                ]);
+            Inertia::flash('toast', [
+                'type' => "success",
+                'message' => "User deleted successfully"
+            ]);
+
+            return to_route('users.index');
         } catch (Exception $e) {
-            return back()
-                ->with([
-                    'message' => 'Failed to delete user: ' . $e->getMessage(),
-                    'type' => 'error'
-                ]);
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => "Failed to delete user: {$e->getMessage()}"
+            ]);
+            
+            return back();
         }
     }
 
