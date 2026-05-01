@@ -127,4 +127,12 @@ class User extends Authenticatable
     {
         return $this->status->label();
     }
+
+    public function scopeSearch(Builder $query, string $term): Builder
+    {
+        return $query->where(function($query) use ($term) {
+            $query->where('name', 'LIKE', "%{$term}%")
+                ->orWhere('email', 'LIKE', "%{$term}%");
+        });
+    }
 }

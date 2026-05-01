@@ -4,21 +4,26 @@ import users from '@/routes/users';
 import Label from '@/components/ui/label/Label.vue';
 import Input from '@/components/ui/input/Input.vue';
 import Button from '@/components/ui/button/Button.vue';
-import Checkbox from '@/components/ui/checkbox/Checkbox.vue';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import FormError from '@/components/custom/FormError.vue';
 
-// Role constants matching the enum
+// Role constants matching UserRoles enum
 const ROLES = {
     SUPER_ADMIN: 0,
     ADMIN: 1
 } as const;
 
+// Status constants matching UserStatuses enum
 const STATUS = {
     INACTIVE: 0,
     ACTIVE: 1,
     SUSPENDED: 2,
 } as const;
+
+const roleOptions = [
+    { value: ROLES.SUPER_ADMIN, label: 'Super Admin' },
+    { value: ROLES.ADMIN, label: 'Admin' }
+];
 
 const statusOptions = [
     { value: STATUS.INACTIVE, label: 'Inactive' },
@@ -26,13 +31,7 @@ const statusOptions = [
     { value: STATUS.SUSPENDED, label: 'Suspended' },
 ];
 
-const roleOptions = [
-    { value: ROLES.SUPER_ADMIN, label: 'Super Admin' },
-    { value: ROLES.ADMIN, label: 'Admin' }
-];
-
 const form = useForm({
-    // User fields
     name: '',
     email: '',
     password: '',
@@ -49,10 +48,15 @@ const handleSubmit = () => {
 <template>
     <Head title="Create User" />
 
-    <div class="app_container">
-        <div class="create_user_form">
+    <div class="app-container">
+        <div class="form create-user">
+            <div class="form-header">
+                <Link :href="users.index().url">&larr;</Link>
+                <h2>Create User</h2>
+            </div>
+
             <form @submit.prevent="handleSubmit">
-                <h2>Basic Information</h2>
+                <div class="section-title">Basic Information</div>
                 
                 <div class="inputs-group-wrapper">
                     <div class="inputs-group">

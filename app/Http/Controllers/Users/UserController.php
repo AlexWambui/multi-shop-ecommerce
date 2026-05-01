@@ -57,7 +57,7 @@ class UserController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'role' => $request->role,
-                'status' => 1,
+                'status' => $request->status,
             ]);
 
             DB::commit();

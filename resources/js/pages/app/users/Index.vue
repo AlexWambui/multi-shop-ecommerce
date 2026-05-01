@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
-import { Head, usePage, Link, router } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import Button from '@/components/ui/button/Button.vue';
 import Input from '@/components/ui/input/Input.vue';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -19,8 +19,7 @@ defineOptions({
     },
 });
 
-const page = usePage<any>();
-
+// ==================== Types ====================
 interface User {
     id: number;
     name: string;
@@ -30,84 +29,98 @@ interface User {
     is_active: boolean;
 }
 
-interface PaginationLink {
-    url: string | null
-    label: string
-    active: boolean
-};
-
-interface PaginationMeta {
-    current_page: number;
-    from: number;
-    last_page: number;
-    links: PaginationLink[];
-    path: string;
-    per_page: number;
-    to: number;
-    total: number;
-}
-
-interface PaginatedUsers {
-    data: User[]
-    links: {
-        first: string | null;
-        last: string | null;
-        prev: string | null;
-        next: string | null;
-    };
-    meta: PaginationMeta;
-};
-
-interface RoleCount {
-    count: number
-    label: string
-}
-
 interface Props {
-    users: PaginatedUsers;
-    role_counts: Record<string, RoleCount>;
+    users: {
+        data: User[];
+        meta: {
+            current_page: number;
+            from: number;
+            last_page: number;
+            links: { url: string | null; label: string; active: boolean }[];
+            path: string;
+            per_page: number;
+            to: number;
+            total: number;
+        };
+        links: {
+            first: string | null;
+            last: string | null;
+            prev: string | null;
+            next: string | null;
+        };
+    };
+    role_counts: Record<string, { count: number; label: string }>;
     filters: {
         search?: string;
         role?: string;
     };
-};
+}
 
+// ==================== Props ====================
 const props = defineProps<Props>();
 
+// ==================== State ====================
 const search = ref(props.filters.search || '');
 const selectedRole = ref(props.filters.role || '');
 
-const totalUsers = computed(() => {
-    return Object.values(props.role_counts).reduce((sum, role) => sum + role.count, 0);
-});
+// ==================== Computed ====================
+const totalUsers = computed(() => 
+    Object.values(props.role_counts).reduce((sum, role) => sum + role.count, 0)
+);
 
-const roleValues = computed(() => {
-    // Convert role_counts object to array for easier rendering
-    return Object.entries(props.role_counts).map(([value, role]) => ({
-        value: value,
+const roleFilters = computed(() => 
+    Object.entries(props.role_counts).map(([value, role]) => ({
+        value,
         label: role.label,
-        count: role.count
-    }));
+        count: role.count,
+    }))
+);
+
+const hasActiveFilters = computed(() => 
+    !!(search.value || selectedRole.value)
+);
+
+const activeFilterText = computed(() => {
+    if (selectedRole.value) {
+        const role = roleFilters.value.find(r => r.value === selectedRole.value);
+        return `${role?.label} role`;
+    }
+    if (search.value) return `"${search.value}"`;
+    return '';
 });
 
-const performSearch = useDebounceFn(() => {
+// ==================== Role Badge Configuration ====================
+const roleBadgeConfig: Record<string, string> = {
+    'Super Admin': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+    'Admin': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+    'Seller': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+    'Customer': 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
+};
+
+const getRoleBadgeClass = (roleLabel: string): string => 
+    roleBadgeConfig[roleLabel] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+
+// ==================== Pagination Helpers ====================
+const getDisplayRange = computed(() => {
+    const { current_page, per_page, total } = props.users.meta;
+    const start = (current_page - 1) * per_page + 1;
+    const end = Math.min(current_page * per_page, total);
+    return { start, end, total };
+});
+
+// ==================== Actions ====================
+const debouncedSearch = useDebounceFn(() => {
     router.get(usersRoutes.index().url, {
         search: search.value,
-        role: selectedRole.value
+        role: selectedRole.value,
     }, {
         preserveState: true,
-        replace: true
+        replace: true,
     });
 }, 300);
 
-watch([search, selectedRole], () => {
-    performSearch();
-});
-
-const filterByRole = (role: string | number) => {
-    const roleString = String(role);
-    // If clicking the same role, clear filter, otherwise set to that role
-    selectedRole.value = selectedRole.value === roleString ? '' : roleString;
+const filterByRole = (roleValue: string) => {
+    selectedRole.value = selectedRole.value === roleValue ? '' : roleValue;
 };
 
 const clearFilters = () => {
@@ -115,214 +128,149 @@ const clearFilters = () => {
     selectedRole.value = '';
 };
 
-// Helper to check if a role is active
-const isRoleActive = (roleValue: string) => {
-    return selectedRole.value === roleValue;
-};
+const isRoleActive = (roleValue: string) => selectedRole.value === roleValue;
 
-const emit = defineEmits<{
-    (e: 'update:search', value: string): void
-}>();
+// ==================== Watchers ====================
+watch([search, selectedRole], () => {
+    debouncedSearch();
+});
 
-const onSearchUpdate = (value: string | number | null) => {
-    emit('update:search', value?.toString() ?? '');
-};
+// ==================== Helpers ====================
+const getRowNumber = (index: number) => (props.users.meta.current_page - 1) * props.users.meta.per_page + index + 1;
+
+console.log(props.users.data);
 </script>
 
 <template>
     <Head title="Users" />
 
-    <div class="app_container">
-        <div class="header mb-6">
-            <div class="grid gap-2 lg:flex lg:justify-between lg:items-center lg:mb-4">
-                <h1 class="text-xl font-bold">Users</h1>
-
-                <div class="search-filter-bar">
-                    <div class="flex flex-col md:flex-row md:items-center gap-4">
-                        <div class="flex-1">
-                            <Input
-                                :model-value="search"
-                                @update:model-value="onSearchUpdate"
-                                type="text"
-                                placeholder="Search by name, email"
-                                class="w-full dark:border-gray-600"
-                            />
-                        </div>
-
-                        <div class="flex flex-wrap gap-2 items-center">
-                            <span v-if="search" 
-                                class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full flex items-center gap-1">
-                                Search: "{{ search }}"
-                                <button @click="$emit('update:search', '')" class="text-blue-600 hover:text-blue-800">×</button>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <Link :href="usersRoutes.create().url">
-                    <Button>New User</Button>
-                </Link>
+    <div class="app-container">
+        <div class="header">
+            <div class="info">
+                <h1 class="title">Users</h1>
             </div>
+            
+            <div class="search">
+                <Input
+                    v-model="search"
+                    type="text"
+                    placeholder="Search by name or email..."
+                />
+            </div>
+
+            <Link :href="usersRoutes.create().url">
+                <Button>New User</Button>
+            </Link>
         </div>
 
-        <!-- Role Statistics with better visual feedback -->
-        <div class="role-stats mb-4 py-2 px-4 bg-gray-50 rounded-lg dark:bg-gray-800">
-            <div class="flex flex-wrap gap-8 text-sm">
-                <!-- All Users Filter -->
-                <div 
-                    class="stat-item cursor-pointer px-2 py-1 rounded-md transition-all"
+        <div class="stats-filters">
+            <div class="stats-filters-wrapper">
+                <button
                     :class="{
                         'bg-blue-600 text-white': !selectedRole,
                         'hover:bg-gray-200 dark:hover:bg-gray-700': selectedRole
                     }"
-                    @click="filterByRole('')">
-                    <span class="font-semibold">{{ totalUsers }}</span> Users
-                </div>
-                
-                <!-- Role Filters -->
-                <div 
-                    v-for="role in roleValues" 
+                    @click="filterByRole('')"
+                >
+                    {{ totalUsers }} Users
+                </button>
+
+                <button
+                    v-for="role in roleFilters"
                     :key="role.value"
-                    class="stat-item cursor-pointer px-2 py-1 rounded-md transition-all"
                     :class="{
                         'bg-blue-600 text-white': isRoleActive(role.value),
                         'hover:bg-gray-200 dark:hover:bg-gray-700': !isRoleActive(role.value)
                     }"
-                    @click="filterByRole(role.value)">
-                    <span class="font-semibold">{{ role.count }}</span> {{ role.label }}{{ role.count !== 1 ? 's' : '' }}
-                </div>
-                
-                <!-- Clear Filters Button (visible when filters are active) -->
-                <button 
-                    v-if="search || selectedRole"
-                    @click="clearFilters"
-                    class="ml-auto text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 underline">
+                    @click="filterByRole(role.value)"
+                >
+                    {{ role.count }} {{ role.label }}{{ role.count !== 1 ? 's' : '' }}
+                </button>
+
+                <button v-if="hasActiveFilters" @click="clearFilters" class="clear-filters">
                     Clear Filters
                 </button>
             </div>
-            
-            <!-- Active Filter Indicator -->
-            <div v-if="selectedRole" class="mt-2 text-xs text-blue-600 dark:text-blue-400">
-                <span class="font-medium">Active filter:</span> 
-                {{ roleValues.find(r => r.value === selectedRole)?.label || 'Unknown' }} role
-            </div>
-            <div v-else-if="search" class="mt-2 text-xs text-blue-600 dark:text-blue-400">
-                <span class="font-medium">Active filter:</span> 
-                Searching for "{{ search }}"
-            </div>
+
+            <p v-if="hasActiveFilters" class="active-filters-indicator">
+                <span class="font-medium">Active filter:</span> {{ activeFilterText }}
+            </p>
         </div>
 
-        <div class="users_table">
-            <div class="bg-white dark:bg-gray-900 rounded-lg border shadow-sm overflow-hidden">
-                <Table>
-                    <TableHeader>
-                        <TableRow class="bg-gray-50 dark:bg-gray-800">
-                            <TableHead class="w-[50px]">#</TableHead>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Email</TableHead>
-                            <TableHead>Role</TableHead>
-                            <TableHead class="text-center">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
+        <div class="table-wrapper">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead class="id">#</TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead class="actions">Actions</TableHead>
+                    </TableRow>
+                </TableHeader>
 
-                    <TableBody>
-                        <TableRow v-for="(user, index) in props.users.data" 
-                                 :key="user.id"
-                                 class="hover:bg-gray-50 dark:hover:bg-gray-800">
-                            <TableCell class="font-medium">
-                                {{ (props.users.meta.current_page - 1) * props.users.meta.per_page + index + 1 }}
-                            </TableCell>
-                            <TableCell :class="{ 'text-red-500' : !user.is_active, '' : user.is_active }">
-                                {{ user.name }}
-                            </TableCell>
-                            <TableCell>{{ user.email ?? '-' }}</TableCell>
-                            <TableCell>
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full"
-                                      :class="{
-                                        'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200': user.role_label === 'Super Admin',
-                                        'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200': user.role_label === 'Admin',
-                                        'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200': user.role_label === 'Seller',
-                                        'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200': user.role_label === 'Customer'
-                                      }">
-                                    {{ user.role_label }}
-                                </span>
-                            </TableCell>
-                            <TableCell class="text-center">
-                                <div class="flex justify-center space-x-2">
-                                    <Link :href="usersRoutes.edit(user.id).url" 
-                                          class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline">
-                                        Edit
-                                    </Link>
-                                    <span class="text-gray-300 dark:text-gray-600">|</span>
-                                    <DeleteConfirmationDialog 
-                                        :url="usersRoutes.destroy(user.id).url" 
-                                        title="Delete User?" 
-                                        description="This user will be deleted permanently!" 
-                                        confirm-text="Delete User">
-                                        <template #trigger>
-                                            <button class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:underline">
-                                                Delete
-                                            </button>
-                                        </template>
-                                    </DeleteConfirmationDialog>
-                                </div>
-                            </TableCell>
-                        </TableRow>
-                        <TableRow v-if="props.users.data.length === 0">
-                            <TableCell colspan="5" class="text-center py-8 text-gray-500 dark:text-gray-400">
-                                No users found.
-                            </TableCell>
-                        </TableRow>
-                    </TableBody>
-                </Table>
-            </div>
+                <TableBody>
+                    <TableRow v-for="(user, index) in props.users.data" :key="user.id">
+                        <TableCell class="id">{{ getRowNumber(index) }}</TableCell>
+                        <TableCell :class="{ 'text-red-500': !user.is_active }">
+                            {{ user.name }}
+                        </TableCell>
+                        <TableCell>{{ user.email || '-' }}</TableCell>
+                        <TableCell>
+                            <span :class="getRoleBadgeClass(user.role_label)" class="pill">
+                                {{ user.role_label }}
+                            </span>
+                        </TableCell>
+                        <TableCell class="actions">
+                            <div class="actions-wrapper">
+                                <Link :href="usersRoutes.edit(user.id).url" class="action edit">
+                                    Edit
+                                </Link>
+                                <span class="divider">|</span>
+                                <DeleteConfirmationDialog :url="usersRoutes.destroy(user.id).url" title="Delete User?" description="This user will be deleted permanently!" confirm-text="Delete User">
+                                    <template #trigger>
+                                        <button class="action delete">
+                                            Delete
+                                        </button>
+                                    </template>
+                                </DeleteConfirmationDialog>
+                            </div>
+                        </TableCell>
+                    </TableRow>
 
-            <!-- Pagination - Using meta.links -->
-            <div v-if="props.users.meta && props.users.meta.links && props.users.meta.links.length > 3" class="mt-6 flex justify-center gap-1">
-                <Link v-for="(link, linkIndex) in props.users.meta.links" 
-                     :key="linkIndex" 
-                     :href="link.url ?? ''" 
-                     v-html="link.label" 
-                     class="px-3 py-1 border rounded text-sm transition-colors"
-                     :class="{
-                        'bg-gray-100 text-gray-500 cursor-not-allowed dark:bg-gray-800 dark:text-gray-500': !link.url,
-                        'bg-blue-600 text-white border-blue-600': link.active,
-                        'hover:bg-gray-50 border-gray-300 dark:hover:bg-gray-800 dark:border-gray-700': link.url && !link.active,
-                     }"
-                     :disabled="!link.url"
-                     preserve-scroll />
-            </div>
+                    <TableRow v-if="props.users.data.length === 0">
+                        <TableCell colspan="5" class="blank-table-row">
+                            No users found.
+                        </TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
+        </div>
 
-            <!-- Results summary - Using meta properties -->
-            <div v-if="props.users.meta && props.users.meta.total" class="mt-4 text-gray-600 dark:text-gray-400 text-sm flex justify-center items-center gap-4">
-                <div>
-                    Showing {{ ((props.users.meta.current_page - 1) * props.users.meta.per_page) + 1 }} 
-                    to {{ Math.min((props.users.meta.current_page * props.users.meta.per_page), props.users.meta.total) }} 
-                    of {{ props.users.meta.total }} users
-                </div>
-                <div v-if="search || selectedRole" class="text-blue-600 dark:text-blue-400">
-                    Filtered results
-                </div>
-            </div>
+        <div v-if="props.users.meta?.links?.length > 3" class="table-pagination">
+            <Link
+                v-for="(link, index) in props.users.meta.links"
+                :key="index"
+                :href="link.url ?? ''"
+                class="pagination-link"
+                :class="{
+                    'cursor-not-allowed bg-gray-100 text-gray-500 dark:bg-gray-800': !link.url,
+                    'bg-blue-600 text-white': link.active,
+                    'hover:bg-gray-50 dark:hover:bg-gray-800': link.url && !link.active,
+                }"
+                preserve-scroll
+                v-html="link.label"
+            />
+        </div>
+
+        <div class="table-results-summary">
+            <p>
+                Showing {{ getDisplayRange.start }} to {{ getDisplayRange.end }}
+                of {{ getDisplayRange.total }} users
+            </p>
+            <p v-if="hasActiveFilters" class="filtered-results">
+                Filtered results
+            </p>
         </div>
     </div>
 </template>
-
-<style scoped>
-.stat-item {
-    transition: all 0.2s ease;
-}
-
-.stat-item:active {
-    transform: scale(0.98);
-}
-
-.role-stats {
-    border: 1px solid #e5e7eb;
-    transition: all 0.2s ease;
-}
-
-.dark .role-stats {
-    border-color: #374151;
-}
-</style>
