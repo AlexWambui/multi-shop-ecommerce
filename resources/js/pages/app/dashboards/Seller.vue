@@ -1,6 +1,18 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Head, usePage } from '@inertiajs/vue3';
+import { dashboard } from '@/routes';
+import shopsRoutes from '@/routes/shops';
+
+defineOptions({
+    layout: {
+        breadcrumbs: [
+            { title: 'Dashboard', href: dashboard() },
+            { title: 'Shop', href: shopsRoutes.index() },
+            { title: 'Overview', href: dashboard() },
+        ],
+    },
+});
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
@@ -9,8 +21,9 @@ const user = computed(() => page.props.auth.user);
 <template>
     <Head title="Seller Dashboard" />
 
-    <div class="Dashboard SellerDashboard">
-        <h1>{{ user.name }}</h1>
-        <p>{{ user.role_label }}</p>
+    <div class="app-container Dashboard SellerDashboard">
+        <div class="Hero">
+            <h1>Welcome back {{ user.name }}</h1>
+        </div>
     </div>
 </template>

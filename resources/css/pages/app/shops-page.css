@@ -1,0 +1,125 @@
+.ShopsPage {
+    .app-container {
+        @apply py-4;
+
+        .shops-wrapper {
+            @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4;
+
+            .shop-card-app {
+                @apply border border-border rounded-xl overflow-hidden cursor-pointer hover:shadow-md transition-shadow;
+
+                .images {
+                    @apply relative mb-4;
+
+                    .cover {
+                        @apply h-36 flex items-center justify-center bg-accent-foreground;
+
+                        .active-badge {
+                            @apply absolute top-3 right-3;
+
+                            span {
+                                @apply px-2 py-1 rounded-full text-sm font-medium;
+                            }
+
+                            span.active {
+                                @apply bg-green-100 text-green-700;
+                            }
+
+                            span.inactive {
+                                @apply bg-red-100 text-red-900;
+                            }
+                        }
+                    }
+
+                    .logo {
+                        @apply absolute h-10 w-10 left-4 -bottom-4 border border-border rounded-sm p-1 flex items-center justify-center text-xl bg-accent-foreground;
+                    }
+                }
+
+                .body {
+                    @apply p-4 grid gap-2;
+
+                    .name {
+                        @apply font-medium;
+                    }
+
+                    .category {
+                        @apply text-xs text-muted-foreground;
+                    }
+
+                    .description {
+                        @apply text-sm text-muted-foreground;
+                    }
+
+                    .contact-info {
+                        @apply space-y-1;
+
+                        .info {
+                            @apply text-xs text-muted-foreground;
+                        }
+                    }
+
+                    .rating {
+                        @apply flex items-center gap-1;
+
+                        .star {
+                            @apply text-orange-400 text-base;
+                        }
+
+                        .rating {
+                            @apply text-sm font-medium;
+                        }
+
+                        .reviews {
+                            @apply  text-xs text-muted-foreground;
+                        }
+                    }
+
+                    .meta {
+                        @apply flex items-center justify-between border-t border-border pt-2;
+
+                        .date {
+                            @apply text-xs text-muted-foreground;
+                        }
+
+                        .actions {
+                            @apply flex items-center gap-4;
+
+                            .icon {
+                                @apply w-4 h-4;
+                            }
+
+                            .edit {
+                                @apply text-green-600;
+                            }
+
+                            .delete {
+                                @apply text-red-600;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        .blank-shop-cards {
+            @apply grid lg:grid-cols-4 gap-6;
+
+            .blank-shop-card {
+                @apply grid justify-center text-center p-4 border-2 border-dashed border-border rounded;
+
+                .blank-shop-icon {
+                    @apply text-6xl mb-4;
+                }
+
+                .title {
+                    @apply text-lg font-medium mb-2;
+                }
+
+                .description {
+                    @apply text-muted-foreground mb-4;
+                }
+            }
+        }
+    }
+}

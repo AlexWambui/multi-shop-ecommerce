@@ -75,7 +75,7 @@ watch([search], () => {
             </Link>
         </div>
 
-                <div class="table-wrapper">
+        <div class="table-wrapper">
             <Table>
                 <TableHeader>
                     <TableRow>
