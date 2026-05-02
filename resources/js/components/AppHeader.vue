@@ -191,7 +191,7 @@ const rightNavItems: NavItem[] = [
                     </Sheet>
                 </div>
 
-                <Link :href="dashboard()" class="flex items-center gap-x-2">
+                <Link href="/" class="flex items-center gap-x-2">
                     <AppLogo />
                 </Link>
 
@@ -299,8 +299,8 @@ const rightNavItems: NavItem[] = [
                                     class="size-8 overflow-hidden rounded-full"
                                 >
                                     <AvatarImage
-                                        v-if="auth.user.avatar"
-                                        :src="auth.user.avatar"
+                                        v-if="auth.user.image_url"
+                                        :src="auth.user.image_url"
                                         :alt="auth.user.name"
                                     />
                                     <AvatarFallback

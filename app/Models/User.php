@@ -33,6 +33,7 @@ class User extends Authenticatable
     protected $appends = [
         'role_label',
         'status_label',
+        'image_url',
     ];
 
     protected function casts(): array
@@ -126,6 +127,14 @@ class User extends Authenticatable
     public function getStatusLabelAttribute(): string
     {
         return $this->status->label();
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        if ($this->image) {
+            return asset('storage/users/' . $this->image);
+        }
+        return null;
     }
 
     public function scopeSearch(Builder $query, string $term): Builder
