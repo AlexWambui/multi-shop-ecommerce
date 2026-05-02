@@ -11,5 +11,6 @@ const user = computed(() => page.props.auth.user);
 
     <div class="Dashboard SellerDashboard">
         <h1>{{ user.name }}</h1>
+        <p>{{ user.role_label }}</p>
     </div>
 </template>

@@ -83,6 +83,23 @@ defineOptions({
                 <InputError :message="errors.password_confirmation" />
             </div>
 
+            <div class="grid gap-2">
+                <Label for="role">Account Type</Label>
+                <div class="flex gap-6">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="role" value="3" checked class="h-4 w-4" />
+                        <span class="text-sm">Customer (Shop Only)</span>
+                    </label>
+
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="role" value="2" class="h-4 w-4" />
+                        <span class="text-sm">Merchant (Sell Only)</span>
+                    </label>
+                </div>
+
+                <InputError :message="errors.role" />
+            </div>
+
             <Button
                 type="submit"
                 class="mt-2 w-full"
