@@ -6,26 +6,26 @@ import Input from '@/components/ui/input/Input.vue';
 import Button from '@/components/ui/button/Button.vue';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import DeleteConfirmationDialog from '@/components/custom/DeleteConfirmation.vue';
-import shopCategoriesRoutes from '@/routes/shop-categories';
+import productCategoriesRoutes from '@/routes/product-categories';
 
 defineOptions({
     layout: {
         breadcrumbs: [
-            { title: 'Shops', href: "shops.all()" },
-            { title: 'Shop Categories', href: shopCategoriesRoutes.index() },
+            // TODO: Change "shops.all()" to "products.all()"
+            { title: 'Products', href: "shops.all()" },
+            { title: 'Product Categories', href: productCategoriesRoutes.index() },
         ],
     },
 });
 
-interface ShopCategory {
+interface ProductCategory {
     id: number;
     name: string;
     slug: string;
-    shops_count?: number;
 };
 
 interface Props {
-    categories: ShopCategory[];
+    categories: ProductCategory[];
     search?: string;
 };
 
@@ -38,7 +38,7 @@ const hasSearch = computed(() =>
 );
 
 const debouncedSearch = useDebounceFn(() => {
-    router.get(shopCategoriesRoutes.index().url, {
+    router.get(productCategoriesRoutes.index().url, {
         search: search.value,
     }, {
         preserveState: true,
@@ -59,7 +59,7 @@ watch([search], () => {
     <div class="app-container">
         <div class="header">
             <div class="info">
-                <h1 class="title">Shop Categories</h1>
+                <h1 class="title">Product Categories</h1>
             </div>
 
             <div class="search">
@@ -70,7 +70,7 @@ watch([search], () => {
                 />
             </div>
 
-            <Link :href="shopCategoriesRoutes.create().url">
+            <Link :href="productCategoriesRoutes.create().url">
                 <Button>New Category</Button>
             </Link>
         </div>
@@ -82,7 +82,6 @@ watch([search], () => {
                         <TableHead class="id">#</TableHead>
                         <TableHead>Name</TableHead>
                         <TableHead>Slug</TableHead>
-                        <TableHead>Shops</TableHead>
                         <TableHead class="actions">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -92,14 +91,13 @@ watch([search], () => {
                         <TableCell class="id">{{ index + 1 }}</TableCell>
                         <TableCell>{{ category.name }}</TableCell>
                         <TableCell>{{ category.slug }}</TableCell>
-                        <TableCell>shops_count</TableCell>
                         <TableCell class="actions">
                             <div class="actions-wrapper">
-                                <Link :href="shopCategoriesRoutes.edit(category.id).url" class="action edit">
+                                <Link :href="productCategoriesRoutes.edit(category.id).url" class="action edit">
                                     Edit
                                 </Link>
                                 <span class="divider">|</span>
-                                <DeleteConfirmationDialog :url="shopCategoriesRoutes.destroy(category.id).url" title="Delete Category?" description="This category will be deleted permanently!" confirm-text="Delete Category">
+                                <DeleteConfirmationDialog :url="productCategoriesRoutes.destroy(category.id).url" title="Delete Category?" description="This category will be deleted permanently!" confirm-text="Delete Category">
                                     <template #trigger>
                                         <button class="action delete">
                                             Delete

@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Users\UserController;
 use App\Http\Controllers\Shops\ShopCategoryController;
 use App\Http\Controllers\Shops\ShopController;
+use App\Http\Controllers\Products\ProductCategoryController;
 
 Route::get('/', [HomePageController::class, 'homePage'])->name('home');
 
@@ -30,6 +31,13 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('shop-categories/{shop_category}/edit', [ShopCategoryController::class, 'edit'])->name('shop-categories.edit');
     Route::put('shop-categories/{shop_category}', [ShopCategoryController::class, 'update'])->name('shop-categories.update');
     Route::delete('shop-categories/{shop_category}', [ShopCategoryController::class, 'destroy'])->name('shop-categories.destroy');
+
+    Route::get('product-categories', [ProductCategoryController::class, 'index'])->name('product-categories.index');
+    Route::get('product-categories/create', [ProductCategoryController::class, 'create'])->name('product-categories.create');
+    Route::post('product-categories', [ProductCategoryController::class, 'store'])->name('product-categories.store');
+    Route::get('product-categories/{product_category}/edit', [ProductCategoryController::class, 'edit'])->name('product-categories.edit');
+    Route::put('product-categories/{product_category}', [ProductCategoryController::class, 'update'])->name('product-categories.update');
+    Route::delete('product-categories/{product_category}', [ProductCategoryController::class, 'destroy'])->name('product-categories.destroy');
 });
 
 Route::middleware(['auth', 'verified', 'role:seller'])->group(function () {

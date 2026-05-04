@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import shopCategoriesRoutes from '@/routes/shop-categories';
+import productCategoriesRoutes from '@/routes/product-categories';
 
 defineOptions({
     layout: {
@@ -15,14 +15,14 @@ defineOptions({
 });
 
 interface Props {
-    shop_category: {
+    product_category: {
         id: number;
         name: string;
     };
 }
 
 const props = defineProps<Props>();
-const shopCategory = props.shop_category;
+const productCategory = props.product_category;
 </script>
 
 <template>
@@ -30,11 +30,11 @@ const shopCategory = props.shop_category;
 
     <div class="form">
         <div class="header">
-            <Link :href="shopCategoriesRoutes.index().url" class="back-link">&larr;</Link>
+            <Link :href="productCategoriesRoutes.index().url" class="back-link">&larr;</Link>
             <h2>Edit Category</h2>
         </div>
 
-        <Form :action="shopCategoriesRoutes.update(shopCategory.id).url" method="put" v-slot="{ errors, processing }">
+        <Form :action="productCategoriesRoutes.update(productCategory.id).url" method="put" v-slot="{ errors, processing }">
             <div class="inputs-group">
                 <Label for="name" class="required">Name</Label>
                 <Input
@@ -43,7 +43,7 @@ const shopCategory = props.shop_category;
                     autofocus
                     autocomplete="name"
                     name="name"
-                    :default-value="shopCategory.name"
+                    :default-value="productCategory.name"
                     placeholder="Full name"
                 />
                 <InputError :message="errors.name" />
@@ -55,7 +55,7 @@ const shopCategory = props.shop_category;
                     Update Category
                 </Button>
 
-                <Link :href="shopCategoriesRoutes.index().url">
+                <Link :href="productCategoriesRoutes.index().url">
                     <Button type="button" variant="outline">
                         Cancel
                     </Button>

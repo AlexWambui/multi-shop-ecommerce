@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Shops;
+namespace App\Http\Requests\Products;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class ShopCategoryRequest extends FormRequest
+class ProductCategoryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -28,15 +28,15 @@ class ShopCategoryRequest extends FormRequest
                 'required',
                 'string',
                 'max:100',
-                Rule::unique('shop_categories', 'name')->ignore($this->route('shop_category')?->id),
-            ],
+                Rule::unique('product_categories', 'name')->ignore($this->route('product_category')?->id),
+            ]
         ];
     }
 
     public function messages(): array
     {
         return [
-            'name.unique' => 'A shop category with this name already exists.',
+            'name.unique' => 'A product category with this name already exists.',
         ];
     }
 }

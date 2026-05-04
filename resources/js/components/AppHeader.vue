@@ -1,36 +1,16 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Menu, Search, Users, Sun, Moon, Store } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, Menu, Search, Users, Sun, Moon, Store, Barcode } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-    NavigationMenu,
-    NavigationMenuItem,
-    NavigationMenuList,
-    navigationMenuTriggerStyle,
-} from '@/components/ui/navigation-menu';
-import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from '@/components/ui/sheet';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { NavigationMenu, NavigationMenuItem, NavigationMenuList, navigationMenuTriggerStyle } from '@/components/ui/navigation-menu';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import UserMenuContent from '@/components/UserMenuContent.vue';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { getInitials } from '@/composables/useInitials';
@@ -40,6 +20,7 @@ import type { BreadcrumbItem, NavItem } from '@/types';
 import { useAppearance } from '@/composables/useAppearance';
 import userRoutes from '@/routes/users';
 import shopCategoriesRoutes from '@/routes/shop-categories';
+import productCategoriesRoutes from '@/routes/product-categories';
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[];
@@ -59,8 +40,7 @@ const isSuperAdmin = computed(() => user.value?.role_label === 'Super Admin');
 const isSeller = computed(() => user.value?.role_label === 'Seller');
 const isCustomer = computed(() => user.value?.role_label === 'Customer');
 
-const activeItemStyles =
-    'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100';
+const activeItemStyles = 'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100';
 
 const mainNavItems = computed(() =>{
     const items = [
@@ -87,6 +67,11 @@ const mainNavItems = computed(() =>{
                 title: 'Shops',
                 href: shopCategoriesRoutes.index(),
                 icon: Store
+            },
+            {
+                title: 'Products',
+                href: productCategoriesRoutes.index(),
+                icon: Barcode,
             }
         );
     }

@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Http\Controllers\Shops;
+namespace App\Http\Controllers\Products;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Exception;
-use App\Http\Requests\Shops\ShopCategoryRequest;
-use App\Models\ShopCategory;
+use App\Models\ProductCategory;
+use App\Http\Requests\Products\ProductCategoryRequest;
 
-class ShopCategoryController extends Controller
+class ProductCategoryController extends Controller
 {
     public function index(Request $request)
     {
-        $query = ShopCategory::query();
+        $query = ProductCategory::query();
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -24,22 +24,22 @@ class ShopCategoryController extends Controller
 
         $categories = $query->orderBy('name')->get();
 
-        return inertia('app/shops/categories/Index', [
+        return inertia('app/products/categories/Index', [
             'categories' => $categories
         ]);
     }
 
     public function create()
     {
-        return inertia('app/shops/categories/Create');
+        return inertia('app/products/categories/Create');
     }
 
-    public function store(ShopCategoryRequest $request)
+    public function store(ProductCategoryRequest $request)
     {
         try {
             DB::beginTransaction();
 
-            ShopCategory::create([
+            ProductCategory::create([
                 'name' => $request->name,
             ]);
 
@@ -47,35 +47,35 @@ class ShopCategoryController extends Controller
 
             Inertia::flash('toast', [
                 'type' => "success",
-                'message' => "Category: {$request->name} created successfully"
+                'message' => "Product Category created successfully"
             ]);
 
-            return to_route('shop-categories.index');
+            return to_route('product-categories.index');
         } catch (Exception $e) {
             DB::rollBack();
 
             Inertia::flash('toast', [
                 'type' => "error",
-                'message' => "Failed to save user: {$e->getMessage()}"
+                'message' => "Failed to save category: {$e->getMessage()}"
             ]);
 
             return back()->withInput();
         }
     }
 
-    public function edit(ShopCategory $shop_category)
+    public function edit(ProductCategory $product_category)
     {
-        return inertia('app/shops/categories/Edit', [
-            'shop_category' => $shop_category
+        return inertia('app/products/categories/Edit', [
+            'product_category' => $product_category
         ]);
     }
 
-    public function update(ShopCategory $shop_category, ShopCategoryRequest $request)
+    public function update(ProductCategory $product_category, ProductCategoryRequest $request)
     {
         try {
             DB::beginTransaction();
 
-            $shop_category->update([
+            $product_category->update([
                 'name' => $request->name,
             ]);
 
@@ -86,34 +86,34 @@ class ShopCategoryController extends Controller
                 'message' => "Category: {$request->name} updated successfully"
             ]);
 
-            return to_route('shop-categories.index');
+            return to_route('product-categories.index');
         } catch (Exception $e) {
             DB::rollBack();
             
             Inertia::flash('toast', [
                 'type' => "error",
-                'message' => "Failed to update user: {$e->getMessage()}"
+                'message' => "Failed to update category: {$e->getMessage()}"
             ]);
 
             return back()->withInput();
         }
     }
 
-    public function destroy(ShopCategory $shop_category)
+    public function destroy(ProductCategory $product_category)
     {
         try {
-            $shop_category->delete();
+            $product_category->delete();
 
             Inertia::flash('toast', [
                 'type' => "success",
                 'message' => "Category deleted successfully"
             ]);
 
-            return to_route('shop-categories.index');
+            return to_route('product-categories.index');
         } catch (Exception $e) {
             Inertia::flash('toast', [
                 'type' => "error",
-                'message' => "Failed to update user: {$e->getMessage()}"
+                'message' => "Failed to update category: {$e->getMessage()}"
             ]);
 
             return back()->withInput();
