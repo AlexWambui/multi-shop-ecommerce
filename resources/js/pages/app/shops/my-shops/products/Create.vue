@@ -42,55 +42,58 @@ const form = useForm({
 
 const imagePreviews = ref<string[]>([]);
 
+const MAX_IMAGES = 5;
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
-const MAX_TOTAL_SIZE = 10 * 1024 * 1024; // 10MB total
+const MAX_TOTAL_SIZE = 10 * 1024 * 1024; // 10MB
+
+const isMaxImagesReached = () => form.images.length >= MAX_IMAGES;
 
 const handleImageChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
     const files = Array.from(target.files || []);
-    
-    if (files.length === 0) return;
-    
-    // 1. Validate file sizes
-    const oversizedFiles = files.filter(file => file.size > MAX_FILE_SIZE);
-    if (oversizedFiles.length > 0) {
-        alert(`Some images exceed the 2MB limit`);
+
+    if (!files.length) return;
+
+    // Max count
+    if (form.images.length + files.length > MAX_IMAGES) {
+        alert(`Maximum ${MAX_IMAGES} images allowed.`);
         target.value = '';
         return;
     }
-    
-    // 2. Validate total size
-    const currentTotalSize = form.images.reduce((sum, file) => sum + file.size, 0);
-    const newTotalSize = files.reduce((sum, file) => sum + file.size, 0);
-    if (currentTotalSize + newTotalSize > MAX_TOTAL_SIZE) {
-        alert(`Total images size cannot exceed 10MB`);
-        target.value = '';
-        return;
-    }
-    
-    // 3. Validate max count
-    if (form.images.length + files.length > 5) {
-        alert(`Maximum 5 images allowed. You already have ${form.images.length} image(s).`);
-        target.value = '';
-        return;
-    }
-    
-    // 4. Add files AND create previews
-    files.forEach(file => {
-        if (file.type.startsWith('image/')) {
-            form.images.push(file);
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                imagePreviews.value.push(e.target?.result as string);
-            };
-            reader.readAsDataURL(file);
+
+    // Per-file size
+    for (const file of files) {
+        if (file.size > MAX_FILE_SIZE) {
+            alert(`${file.name} exceeds 2MB`);
+            target.value = '';
+            return;
         }
+    }
+
+    // Total size
+    const currentSize = form.images.reduce((sum, f) => sum + f.size, 0);
+    const newSize = files.reduce((sum, f) => sum + f.size, 0);
+
+    if (currentSize + newSize > MAX_TOTAL_SIZE) {
+        alert(`Total size cannot exceed 10MB`);
+        target.value = '';
+        return;
+    }
+
+    // Add files + previews
+    files.forEach(file => {
+        if (!file.type.startsWith('image/')) return;
+
+        form.images.push(file);
+        imagePreviews.value.push(URL.createObjectURL(file));
     });
-    
+
     target.value = '';
 };
 
 const removeImage = (index: number) => {
+    URL.revokeObjectURL(imagePreviews.value[index]);
+
     form.images.splice(index, 1);
     imagePreviews.value.splice(index, 1);
 };
@@ -242,35 +245,48 @@ const submitForm = () => {
                 <h3 class="section-title">Product Images</h3>
                 
                 <div class="inputs-group">
-                    <div class="relative w-40 h-40">
-                        <div class="w-40 h-40 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden bg-gray-50">
-                            <div class="text-center">
-                                <ImagePlus class="w-10 h-10 text-gray-400 mx-auto mb-2" />
-                                <p class="text-sm text-gray-500">Click to upload images</p>
-                            </div>
-                        </div>
-                        <label class="absolute inset-0 cursor-pointer">
-                            <input type="file" name="images[]" accept="image/*" multiple class="hidden" @change="handleImageChange" />
-                        </label>
-                    </div>
-                    
-                    <!-- Thumbnails for uploaded images -->
-                    <div v-if="imagePreviews.length > 0" class="flex gap-2 mt-2 flex-wrap">
-                        <div v-for="(preview, idx) in imagePreviews" :key="idx" class="relative w-16 h-16 rounded-lg overflow-hidden border">
+                    <div class="grid grid-cols-3 md:grid-cols-5 gap-3">
+                        
+                        <!-- Existing Images -->
+                        <div 
+                            v-for="(preview, idx) in imagePreviews" 
+                            :key="idx" 
+                            class="relative w-full aspect-square rounded-xl overflow-hidden border"
+                        >
                             <img :src="preview" class="w-full h-full object-cover" />
+
                             <button 
                                 type="button" 
-                                @click="removeImage(idx)" 
-                                class="absolute -top-1 -right-1 p-0.5 bg-red-500 text-white rounded-full hover:bg-red-600"
+                                @click="removeImage(idx)"
+                                class="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full"
                             >
                                 <X class="w-3 h-3" />
                             </button>
                         </div>
+
+                        <!-- Upload Button (acts like a tile) -->
+                        <label
+                            v-if="!isMaxImagesReached()"
+                            class="flex flex-col items-center justify-center border-2 border-dashed rounded-xl aspect-square cursor-pointer hover:bg-gray-50"
+                        >
+                            <ImagePlus class="w-8 h-8 text-gray-400 mb-1" />
+                            <span class="text-xs text-gray-500">Upload</span>
+
+                            <input
+                                type="file"
+                                multiple
+                                accept="image/*"
+                                class="hidden"
+                                @change="handleImageChange"
+                            />
+                        </label>
+
                     </div>
-                    
+
                     <p class="text-xs text-gray-400 mt-2">
-                        Upload up to 5 images. First image will be the primary product image. PNG, JPG up to 2MB each.
+                        Upload up to 5 images. First image will be primary.
                     </p>
+
                     <InputError :message="form.errors.images" />
                 </div>
             </div>
