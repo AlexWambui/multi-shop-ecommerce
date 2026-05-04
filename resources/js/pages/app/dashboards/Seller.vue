@@ -7,9 +7,8 @@ import shopsRoutes from '@/routes/my-shops';
 defineOptions({
     layout: {
         breadcrumbs: [
-            { title: 'Dashboard', href: dashboard() },
-            { title: 'Shop', href: shopsRoutes.index() },
-            { title: 'Overview', href: dashboard() },
+            { title: 'Shops', href: shopsRoutes.index() },
+            { title: 'Dashboard', href: dashboard() }
         ],
     },
 });
