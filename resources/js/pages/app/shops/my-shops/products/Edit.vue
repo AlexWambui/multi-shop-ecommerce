@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link, Head, useForm, router } from '@inertiajs/vue3';
+import { Link, Head, useForm } from '@inertiajs/vue3';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import InputError from '@/components/InputError.vue';
@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ImagePlus, X } from 'lucide-vue-next';
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import myShopProductsRoutes from '@/routes/my-shops/products';
 
 interface Category {
@@ -47,6 +47,12 @@ const props = defineProps<{
     product: Product;
 }>();
 
+type ImageItem = {
+    id?: number;
+    file?: File;
+    preview: string;
+};
+
 const form = useForm({
     name: props.product.name,
     description: props.product.description || '',
@@ -57,85 +63,84 @@ const form = useForm({
     is_active: props.product.is_active,
     product_category_id: props.product.product_category_id,
     images: [] as File[],
-    shop_id: props.shop.id,
     images_to_delete: [] as number[],
+    shop_id: props.shop.id,
     _method: 'PUT',
 });
 
-const existingImages = ref<ProductImage[]>(props.product.images || []);
-const imagesToDelete = ref<number[]>([]);
-const newImagePreviews = ref<string[]>([]);
-const newImageFiles = ref<File[]>([]);
+const MAX_IMAGES = 5;
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
-const MAX_TOTAL_SIZE = 10 * 1024 * 1024; // 10MB total
+const images = ref<ImageItem[]>(
+    props.product.images.map(img => ({
+        id: img.id,
+        preview: img.image_url,
+    }))
+);
+
+const isMaxImagesReached = () => images.value.length >= MAX_IMAGES;
 
 const handleImageChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
     const files = Array.from(target.files || []);
-    
-    if (files.length === 0) return;
-    
-    // 1. Validate file sizes
-    const oversizedFiles = files.filter(file => file.size > MAX_FILE_SIZE);
-    if (oversizedFiles.length > 0) {
-        alert(`Some images exceed the 2MB limit`);
+
+    if (!files.length) return;
+
+    if (images.value.length + files.length > MAX_IMAGES) {
+        alert(`Max ${MAX_IMAGES} images allowed`);
         target.value = '';
         return;
     }
-    
-    // 2. Validate total size
-    const currentTotalSize = newImageFiles.value.reduce((sum, file) => sum + file.size, 0);
-    const newTotalSize = files.reduce((sum, file) => sum + file.size, 0);
-    if (currentTotalSize + newTotalSize > MAX_TOTAL_SIZE) {
-        alert(`Total images size cannot exceed 10MB`);
-        target.value = '';
-        return;
-    }
-    
-    // 3. Validate max count (existing + new)
-    if (existingImages.value.length + newImageFiles.value.length + files.length > 5) {
-        alert(`Maximum 5 images allowed. You already have ${existingImages.value.length + newImageFiles.value.length} image(s).`);
-        target.value = '';
-        return;
-    }
-    
-    // 4. Add files AND create previews
-    files.forEach(file => {
-        if (file.type.startsWith('image/')) {
-            newImageFiles.value.push(file);
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                newImagePreviews.value.push(e.target?.result as string);
-            };
-            reader.readAsDataURL(file);
+
+    for (const file of files) {
+        if (file.size > MAX_FILE_SIZE) {
+            alert(`${file.name} exceeds 2MB`);
+            target.value = '';
+            return;
         }
+    }
+
+    files.forEach(file => {
+        if (!file.type.startsWith('image/')) return;
+
+        images.value.push({
+            file,
+            preview: URL.createObjectURL(file),
+        });
     });
-    
+
     target.value = '';
 };
 
-const removeExistingImage = (index: number) => {
-    const image = existingImages.value[index];
-    if (image && image.id) {
-        imagesToDelete.value.push(image.id);
-    }
-    existingImages.value.splice(index, 1);
-};
+const removeImage = (index: number) => {
+    const item = images.value[index];
 
-const removeNewImage = (index: number) => {
-    newImageFiles.value.splice(index, 1);
-    newImagePreviews.value.splice(index, 1);
+    if (item.id) {
+        form.images_to_delete.push(item.id);
+    }
+
+    if (item.preview.startsWith('blob:')) {
+        URL.revokeObjectURL(item.preview);
+    }
+
+    images.value.splice(index, 1);
 };
 
 const submitForm = () => {
-    // Add new images to form.images
-    form.images = newImageFiles.value;
-    form.images_to_delete = imagesToDelete.value;
-    
-    form.post(myShopProductsRoutes.update({ shop: props.shop.slug, product: props.product.id }).url, {
-        preserveScroll: true,
-    });
+    form.images = images.value
+        .filter(i => i.file)
+        .map(i => i.file as File);
+
+    form.post(
+        myShopProductsRoutes.update({
+            shop: props.shop.slug,
+            product: props.product.id
+        }).url,
+        {
+            forceFormData: true,
+            preserveScroll: true,
+        }
+    );
 };
 </script>
 
@@ -277,60 +282,41 @@ const submitForm = () => {
             </div>
 
             <div class="form-section">
-                <h3 class="section-title">Product Images</h3>
-                <input type="hidden" name="images_to_delete" :value="JSON.stringify(imagesToDelete)" />
-                
-                <div class="inputs-group">
-                    <!-- Existing Images -->
-                    <div v-if="existingImages.length > 0" class="mb-4">
-                        <Label>Current Images</Label>
-                        <div class="flex gap-2 mt-2 flex-wrap">
-                            <div v-for="(image, idx) in existingImages" :key="image.id" class="relative w-16 h-16 rounded-lg overflow-hidden border">
-                                <img :src="image.image_url" class="w-full h-full object-cover" />
-                                <button 
-                                    type="button" 
-                                    @click="removeExistingImage(idx)" 
-                                    class="absolute -top-1 -right-1 p-0.5 bg-red-500 text-white rounded-full hover:bg-red-600"
-                                >
-                                    <X class="w-3 h-3" />
-                                </button>
-                            </div>
-                        </div>
-                        <input type="hidden" name="existing_images" :value="JSON.stringify(existingImages.map(img => img.id))" />
+                <h3>Product Images</h3>
+
+                <div class="grid grid-cols-3 md:grid-cols-5 gap-3">
+
+                    <div
+                        v-for="(item, index) in images"
+                        :key="item.id ?? item.preview"
+                        class="relative aspect-square border rounded-xl overflow-hidden"
+                    >
+                        <img :src="item.preview" class="w-full h-full object-cover" />
+
+                        <button
+                            type="button"
+                            @click="removeImage(index)"
+                            class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
+                        >
+                            <X class="w-3 h-3" />
+                        </button>
+
+                        <span v-if="index === 0" class="absolute bottom-1 left-1 text-xs bg-black text-white px-1 rounded">
+                            Primary
+                        </span>
                     </div>
-                    
-                    <!-- Upload New Images -->
-                    <div class="relative w-40 h-40">
-                        <div class="w-40 h-40 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden bg-gray-50">
-                            <div class="text-center">
-                                <ImagePlus class="w-10 h-10 text-gray-400 mx-auto mb-2" />
-                                <p class="text-sm text-gray-500">Click to upload images</p>
-                            </div>
-                        </div>
-                        <label class="absolute inset-0 cursor-pointer">
-                            <input type="file" name="images[]" accept="image/*" multiple class="hidden" @change="handleImageChange" />
-                        </label>
-                    </div>
-                    
-                    <!-- New Image Previews -->
-                    <div v-if="newImagePreviews.length > 0" class="flex gap-2 mt-2 flex-wrap">
-                        <div v-for="(preview, idx) in newImagePreviews" :key="idx" class="relative w-16 h-16 rounded-lg overflow-hidden border">
-                            <img :src="preview" class="w-full h-full object-cover" />
-                            <button 
-                                type="button" 
-                                @click="removeNewImage(idx)" 
-                                class="absolute -top-1 -right-1 p-0.5 bg-red-500 text-white rounded-full hover:bg-red-600"
-                            >
-                                <X class="w-3 h-3" />
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <p class="text-xs text-gray-400 mt-2">
-                        Upload up to 5 images total. First image will be the primary product image. PNG, JPG up to 2MB each.
-                    </p>
-                    <InputError :message="form.errors.images" />
+
+                    <label
+                        v-if="!isMaxImagesReached()"
+                        class="flex flex-col items-center justify-center border-2 border-dashed rounded-xl aspect-square cursor-pointer"
+                    >
+                        <ImagePlus class="w-6 h-6 text-gray-400" />
+                        <input type="file" multiple accept="image/*" class="hidden" @change="handleImageChange" />
+                    </label>
+
                 </div>
+
+                <InputError :message="form.errors.images" />
             </div>
 
             <div class="submit-buttons">

@@ -110,58 +110,65 @@ class MyShopProductController extends Controller
     
     public function update(ProductRequest $request, Shop $shop, Product $product)
     {
-        $validated_data = $request->validated();
+        $validated = $request->validated();
 
-        $images = $validated_data['images'] ?? [];
-        unset($validated_data['images']);
-        
-        // Get images to delete
+        $images = $validated['images'] ?? [];
+        unset($validated['images']);
+
         $imagesToDelete = $request->input('images_to_delete', []);
         if (is_string($imagesToDelete)) {
-            $imagesToDelete = json_decode($imagesToDelete, true);
+            $imagesToDelete = json_decode($imagesToDelete, true) ?? [];
         }
 
+        DB::beginTransaction();
+
         try {
-            DB::beginTransaction();
 
-            $product->update($validated_data);
+            $product->update($validated);
 
-            // Delete removed images
+            // DELETE ONLY SELECTED IMAGES
             if (!empty($imagesToDelete)) {
-                $productImages = $product->images()->whereIn('id', $imagesToDelete)->get();
-                foreach ($productImages as $image) {
-                    // Delete physical file
-                    $path = "products/{$image->name}";
-                    if (Storage::disk('public')->exists($path)) {
-                        Storage::disk('public')->delete($path);
-                    }
-                    // Delete database record
+                $oldImages = $product->images()->whereIn('id', $imagesToDelete)->get();
+
+                foreach ($oldImages as $image) {
+                    Storage::disk('public')->delete("products/{$image->name}");
                     $image->delete();
                 }
             }
 
-            // Upload new images
-            if (!empty($images)) {
-                $this->uploadImages($images, $product);
+            // NEXT SORT ORDER (IMPORTANT FIX)
+            $nextSortOrder = $product->images()->max('sort_order') ?? 0;
+
+            // ADD NEW IMAGES
+            foreach ($images as $index => $file) {
+                $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+
+                $file->storeAs('products', $filename, 'public');
+
+                $product->images()->create([
+                    'name' => $filename,
+                    'sort_order' => $nextSortOrder + $index + 1,
+                ]);
             }
 
             DB::commit();
-        
+
             Inertia::flash('toast', [
                 'type' => "success",
                 'message' => "Product updated successfully"
             ]);
 
             return to_route('my-shops.products.index', $shop->slug);
-        } catch (Exception $e) {
-            DB::rollback();
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
 
             Inertia::flash('toast', [
                 'type' => "error",
-                'message' => "Failed to save product: {$e->getMessage()}"
+                'message' => "Product failed to update: {$e->getMessage()}"
             ]);
-            
-            return back();
+
+            return back()->withErrors(['error' => $e->getMessage()]);
         }
     }
     
