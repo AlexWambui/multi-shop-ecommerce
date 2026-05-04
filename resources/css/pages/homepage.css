@@ -1,4 +1,8 @@
 .HomePage {
+    section {
+        @apply mb-12;
+    }
+
     .Hero {
         @apply relative bg-white dark:bg-background border border-border rounded-2xl p-10 overflow-hidden;
 
@@ -47,6 +51,28 @@
 
             .decorative-circle {
                 @apply absolute w-72 h-72 rounded-full -right-14 -top-14 bg-gray-100 dark:bg-gray-900 opacity-60 z-0;
+            }
+        }
+    }
+
+    .FeaturedShops {
+        .shops-wrapper {
+            @apply grid lg:grid-cols-4 gap-8;
+        }
+
+        .shops-wrapper-empty-state {
+            @apply bg-white border border-gray-200 rounded-xl py-12 px-6 text-center;
+
+            .icon {
+                @apply text-[64px] mb-4;
+            }
+
+            .title {
+                @apply text-[18px] font-semibold mb-2;
+            }
+
+            .description {
+                @apply text-[14px] mb-6 text-gray-600;
             }
         }
     }

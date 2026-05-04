@@ -2,3 +2,5 @@
 @import './forms';
 @import './navbar';
 @import './tables';
+
+@import './shop-card';
