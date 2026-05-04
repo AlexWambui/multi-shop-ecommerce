@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Concerns\HasUuid;
 use App\Concerns\HasSlug;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Shop extends Model
 {
@@ -122,6 +123,11 @@ class Shop extends Model
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class, 'shop_id');
     }
 
     public function getLogoUrlAttribute(): string

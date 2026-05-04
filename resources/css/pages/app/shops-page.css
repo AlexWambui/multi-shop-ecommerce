@@ -89,6 +89,10 @@
                                 @apply w-4 h-4;
                             }
 
+                            .show {
+                                @apply text-blue-600;
+                            }
+
                             .edit {
                                 @apply text-green-600;
                             }

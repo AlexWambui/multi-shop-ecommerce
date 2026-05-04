@@ -16,7 +16,7 @@ use App\Models\User;
 use App\Http\Requests\Shops\ShopRequest;
 use App\Services\ShopLimitService;
 
-class ShopController extends Controller
+class MyShopController extends Controller
 {
     public function user(): User
     {
@@ -29,7 +29,7 @@ class ShopController extends Controller
     {
         $shops = $this->user()->shops()->with('category')->orderBy('name')->get();
 
-        return inertia('app/shops/shops/Index', [
+        return inertia('app/shops/my-shops/Index', [
             'shops' => $shops
         ]);
     }
@@ -38,7 +38,7 @@ class ShopController extends Controller
     {
         $shop_categories = ShopCategory::orderBy('name')->get();
 
-        return inertia('app/shops/shops/Create', [
+        return inertia('app/shops/my-shops/Create', [
             'shop_categories' => $shop_categories
         ]);
     }
@@ -99,6 +99,19 @@ class ShopController extends Controller
         }
     }
 
+    public function show(Shop $shop)
+    {
+        if ($shop->owner_id !== $this->user()->id) {
+            abort(403);
+        }
+
+        $shop->load('category');
+
+        return inertia('app/shops/my-shops/Show', [
+            'shop' => $shop,
+        ]);
+    }
+
     public function edit(Shop $shop)
     {
         if ($shop->owner_id !== $this->user()->id) {
@@ -109,7 +122,7 @@ class ShopController extends Controller
 
         $shop_categories = ShopCategory::select('id', 'name')->get();
 
-        return inertia('app/shops/shops/Edit', [
+        return inertia('app/shops/my-shops/Edit', [
             'shop' => $shop,
             'shop_categories' => $shop_categories
         ]);

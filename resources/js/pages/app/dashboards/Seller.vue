@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import { dashboard } from '@/routes';
-import shopsRoutes from '@/routes/shops';
+import shopsRoutes from '@/routes/my-shops';
 
 defineOptions({
     layout: {

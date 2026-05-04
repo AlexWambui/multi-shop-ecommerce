@@ -137,8 +137,6 @@ watch([search, selectedRole], () => {
 
 // ==================== Helpers ====================
 const getRowNumber = (index: number) => (props.users.meta.current_page - 1) * props.users.meta.per_page + index + 1;
-
-console.log(props.users.data);
 </script>
 
 <template>

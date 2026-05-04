@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { Plus, Pencil, Trash2 } from 'lucide-vue-next';
+import { Plus, Pencil, Trash2, Eye } from 'lucide-vue-next';
 import Button from '@/components/ui/button/Button.vue';
 import DeleteConfirmationDialog from '@/components/custom/DeleteConfirmation.vue';
 import { dashboard } from '@/routes';
-import shopsRoutes from '@/routes/shops';
+import shopsRoutes from '@/routes/my-shops';
 
 defineOptions({
     layout: {
@@ -37,8 +37,6 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
-console.log(props.shops);
 </script>
 
 <template>
@@ -80,6 +78,9 @@ console.log(props.shops);
                             <div class="date">Created {{ new Date(shop.created_at).toLocaleDateString() }}</div>
 
                             <div class="actions">
+                                <Link :href="shopsRoutes.show(shop.id).url">
+                                    <Eye class="icon show" />
+                                </Link>
                                 <Link :href="shopsRoutes.edit(shop.id).url">
                                     <Pencil class="icon edit" />
                                 </Link>

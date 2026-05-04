@@ -9,79 +9,91 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import shopsRoutes from '@/routes/shops';
+import shopsRoutes from '@/routes/my-shops';
 
 defineOptions({
     layout: {
-        title: 'Create Shop',
-        description: 'Add a new shop to the system',
+        title: 'Edit Shop',
+        description: 'Edit shop details',
     },
 });
 
 interface ShopCategory {
     id: number;
     name: string;
-};
+}
 
 interface Props {
+    shop: {
+        id: number;
+        name: string;
+        custom_slug: string | null;
+        description: string | null;
+        contact_email: string | null;
+        contact_phone: string | null;
+        shop_category_id: number | null;
+        logo_image: string | null;
+        cover_image: string | null;
+        logo_url: string;
+        cover_url: string;
+    };
     shop_categories: ShopCategory[];
-};
+}
 
 const props = defineProps<Props>();
 
-const customSlug = ref('');
-const logoPreview = ref<string | null>(null);
-const logoFile = ref<File | null>(null);
-const coverPreview = ref<string | null>(null);
-const coverFile = ref<File | null>(null);
+const logoPreview = ref<string | null>(props.shop.logo_url);
+const coverPreview = ref<string | null>(props.shop.cover_url);
 
 const handleLogoChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
     const file = target.files?.[0];
     if (file) {
-        logoFile.value = file;
         logoPreview.value = URL.createObjectURL(file);
     }
 };
 
 const removeLogo = () => {
-    logoFile.value = null;
-    if (logoPreview.value) {
-        URL.revokeObjectURL(logoPreview.value);
-        logoPreview.value = null;
-    }
+    // Clear the file input preview
+    const fileInput = document.querySelector('input[name="logo_image"]') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+    logoPreview.value = null;
 };
 
 const handleCoverChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
     const file = target.files?.[0];
     if (file) {
-        coverFile.value = file;
         coverPreview.value = URL.createObjectURL(file);
     }
 };
 
 const removeCover = () => {
-    coverFile.value = null;
-    if (coverPreview.value) {
-        URL.revokeObjectURL(coverPreview.value);
-        coverPreview.value = null;
-    }
+    const fileInput = document.querySelector('input[name="cover_image"]') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+    coverPreview.value = null;
 };
 </script>
 
 <template>
-    <Head title="Create Shop" />
+    <Head title="Edit Shop" />
 
     <div class="form">
         <div class="header">
             <Link :href="shopsRoutes.index().url">
                 &larr;
             </Link>
-            <h2 class="title">Create New Shop</h2>
+            <h2 class="title">Edit Shop</h2>
         </div>
 
-        <Form :action="shopsRoutes.store.url()" method="post" v-slot="{ errors, processing }">
+        <Form 
+            :action="shopsRoutes.update(props.shop.id).url" 
+            method="post" 
+            v-slot="{ errors, processing }"
+        >
+            <!-- Method spoofing for PUT -->
+            <input type="hidden" name="_method" value="PUT" />
+
             <div class="inputs-group-wrapper">
                 <div class="inputs-group">
                     <Label for="name" class="required">Shop Name</Label>
@@ -91,6 +103,7 @@ const removeCover = () => {
                         autofocus
                         autocomplete="name"
                         name="name"
+                        :default-value="props.shop.name"
                         placeholder="Shop name"
                     />
                     <InputError :message="errors.name" />
@@ -98,7 +111,10 @@ const removeCover = () => {
 
                 <div class="inputs-group">
                     <Label for="shop_category_id">Shop Category</Label>
-                    <Select name="shop_category_id">
+                    <Select 
+                        name="shop_category_id" 
+                        :default-value="props.shop.shop_category_id ?? undefined"
+                    >
                         <SelectTrigger class="w-full">
                             <SelectValue placeholder="Select shop category" />
                         </SelectTrigger>
@@ -126,6 +142,7 @@ const removeCover = () => {
                         type="tel"
                         autocomplete="contact_phone"
                         name="contact_phone"
+                        :default-value="props.shop.contact_phone ?? ''"
                         placeholder="Contact Phone"
                     />
                     <InputError :message="errors.contact_phone" />
@@ -138,6 +155,7 @@ const removeCover = () => {
                         type="email"
                         autocomplete="contact_email"
                         name="contact_email"
+                        :default-value="props.shop.contact_email ?? ''"
                         placeholder="email@example.com"
                     />
                     <InputError :message="errors.contact_email" />
@@ -150,6 +168,7 @@ const removeCover = () => {
                     id="description"
                     name="description"
                     rows="4"
+                    :default-value="props.shop.description ?? ''"
                     placeholder="Describe your shop..."
                 />
                 <InputError :message="errors.description" />
@@ -162,7 +181,7 @@ const removeCover = () => {
                     <Input
                         id="custom_slug"
                         name="custom_slug"
-                        v-model="customSlug"
+                        :default-value="props.shop.custom_slug ?? ''"
                         placeholder="your-custom-url"
                         class="flex-1"
                     />
@@ -171,14 +190,14 @@ const removeCover = () => {
                     Leave empty to auto-generate from shop name. Use only lowercase letters, numbers, and hyphens.
                 </p>
                 <p class="text-xs text-gray-400">
-                    Your shop will be available at: /shops/{{ customSlug || 'your-shop-name' }}
+                    Your shop will be available at: /shops/{{ props.shop.custom_slug || 'your-shop-name' }}
                 </p>
                 <InputError :message="errors.custom_slug" />
             </div>
 
             <div class="inputs-group-wrapper">
                 <div class="inputs-group">
-                    <Label for="logo_image">Logo Image</Label>
+                    <Label>Logo Image</Label>
                     <div class="relative w-40 h-40">
                         <div class="w-40 h-40 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden bg-gray-50">
                             <img v-if="logoPreview" :src="logoPreview" class="w-full h-full object-cover" />
@@ -188,7 +207,7 @@ const removeCover = () => {
                             </div>
                         </div>
                         <button
-                            v-if="logoPreview"
+                            v-if="logoPreview && logoPreview !== props.shop.logo_url"
                             type="button"
                             @click="removeLogo"
                             class="absolute -top-1 -right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
@@ -199,6 +218,9 @@ const removeCover = () => {
                             <input type="file" name="logo_image" accept="image/*" class="hidden" @change="handleLogoChange" />
                         </label>
                     </div>
+                    <p class="text-xs text-gray-400 mt-1">
+                        Current: {{ props.shop.logo_image || 'No logo uploaded' }}
+                    </p>
                     <InputError :message="errors.logo_image" />
                 </div>
 
@@ -213,7 +235,7 @@ const removeCover = () => {
                             </div>
                         </div>
                         <button
-                            v-if="coverPreview"
+                            v-if="coverPreview && coverPreview !== props.shop.cover_url"
                             type="button"
                             @click="removeCover"
                             class="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
@@ -224,6 +246,9 @@ const removeCover = () => {
                             <input type="file" name="cover_image" accept="image/*" class="hidden" @change="handleCoverChange" />
                         </label>
                     </div>
+                    <p class="text-xs text-gray-400 mt-1">
+                        Current: {{ props.shop.cover_image || 'No cover uploaded' }}
+                    </p>
                     <InputError :message="errors.cover_image" />
                 </div>
             </div>
@@ -231,16 +256,14 @@ const removeCover = () => {
             <div class="submit-buttons">
                 <Button type="submit" :disabled="processing">
                     <Spinner v-if="processing" />
-                    Create Shop
+                    Update Shop
                 </Button>
 
-                <div>
-                    <Link :href="shopsRoutes.index().url">
-                        <Button type="button" variant="outline">
-                            Cancel and return to shops
-                        </Button>
-                    </Link>
-                </div>
+                <Link :href="shopsRoutes.index().url">
+                    <Button type="button" variant="outline">
+                        Cancel
+                    </Button>
+                </Link>
             </div>
         </Form>
     </div>

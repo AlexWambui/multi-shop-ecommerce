@@ -6,7 +6,8 @@ use App\Http\Controllers\Guest\HomePageController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Users\UserController;
 use App\Http\Controllers\Shops\ShopCategoryController;
-use App\Http\Controllers\Shops\ShopController;
+use App\Http\Controllers\Shops\MyShopController;
+use App\Http\Controllers\Shops\MyShopProductController;
 use App\Http\Controllers\Products\ProductCategoryController;
 
 Route::get('/', [HomePageController::class, 'homePage'])->name('home');
@@ -16,37 +17,75 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::middleware(['auth', 'verified', 'role:super_admin'])->group(function () {
-    Route::get('users', [UserController::class, 'index'])->name('users.index');
-    Route::get('users/create', [UserController::class, 'create'])->name('users.create');
-    Route::post('users', [UserController::class, 'store'])->name('users.store');
-    Route::get('users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
-    Route::put('users/{user}', [UserController::class, 'update'])->name('users.update');
-    Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::prefix('users')
+        ->name('users.')
+        ->controller(UserController::class)
+        ->group(function()
+    {
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{user}/edit', 'edit')->name('edit');
+        Route::put('/{user}', 'update')->name('update');
+        Route::delete('/{user}', 'destroy')->name('destroy');
+    });
 });
 
 Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
-    Route::get('shop-categories', [ShopCategoryController::class, 'index'])->name('shop-categories.index');
-    Route::get('shop-categories/create', [ShopCategoryController::class, 'create'])->name('shop-categories.create');
-    Route::post('shop-categories', [ShopCategoryController::class, 'store'])->name('shop-categories.store');
-    Route::get('shop-categories/{shop_category}/edit', [ShopCategoryController::class, 'edit'])->name('shop-categories.edit');
-    Route::put('shop-categories/{shop_category}', [ShopCategoryController::class, 'update'])->name('shop-categories.update');
-    Route::delete('shop-categories/{shop_category}', [ShopCategoryController::class, 'destroy'])->name('shop-categories.destroy');
+    Route::prefix('shop-categories')
+        ->name('shop-categories.')
+        ->controller(ShopCategoryController::class)
+        ->group( function() 
+    {
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{shop_category}/edit', 'edit')->name('edit');
+        Route::put('/{shop_category}', 'update')->name('update');
+        Route::delete('/{shop_category}', 'destroy')->name('destroy');
+    });
 
-    Route::get('product-categories', [ProductCategoryController::class, 'index'])->name('product-categories.index');
-    Route::get('product-categories/create', [ProductCategoryController::class, 'create'])->name('product-categories.create');
-    Route::post('product-categories', [ProductCategoryController::class, 'store'])->name('product-categories.store');
-    Route::get('product-categories/{product_category}/edit', [ProductCategoryController::class, 'edit'])->name('product-categories.edit');
-    Route::put('product-categories/{product_category}', [ProductCategoryController::class, 'update'])->name('product-categories.update');
-    Route::delete('product-categories/{product_category}', [ProductCategoryController::class, 'destroy'])->name('product-categories.destroy');
+    Route::prefix('product-categories')
+        ->name('product-categories.')
+        ->controller(ProductCategoryController::class)
+        ->group( function() 
+    {
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{product_category}/edit', 'edit')->name('edit');
+        Route::put('/{product_category}', 'update')->name('update');
+        Route::delete('/{product_category}', 'destroy')->name('destroy');
+    });
 });
 
 Route::middleware(['auth', 'verified', 'role:seller'])->group(function () {
-    Route::get('shops', [ShopController::class, 'index'])->name('shops.index');
-    Route::get('shops/create', [ShopController::class, 'create'])->name('shops.create');
-    Route::post('shops', [ShopController::class, 'store'])->name('shops.store');
-    Route::get('shops/{shop}/edit', [ShopController::class, 'edit'])->name('shops.edit');
-    Route::put('shops/{shop}', [ShopController::class, 'update'])->name('shops.update');
-    Route::delete('shops/{shop}', [ShopController::class, 'destroy'])->name('shops.destroy');
+    Route::prefix('my-shops')
+        ->name('my-shops.')
+        ->controller(MyShopController::class)
+        ->group( function()
+    {
+        Route::get('/', 'index')->name('index');
+        Route::get('create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{shop}/show', 'show')->name('show');
+        Route::get('/{shop}/edit', 'edit')->name('edit');
+        Route::put('/{shop}', 'update')->name('update');
+        Route::delete('/{shop}', 'destroy')->name('destroy');
+
+        Route::prefix('{shop:slug}/products')
+            ->name('products.')
+            ->controller(MyShopProductController::class)
+            ->group( function() 
+        {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/{product}/edit', 'edit')->name('edit');
+            Route::put('/{product}', 'update')->name('update');
+            Route::delete('/{product}', 'destroy')->name('destroy');
+        });
+    });
 });
 
 Route::inertia('/welcome', 'Welcome', [
