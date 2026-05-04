@@ -38,6 +38,19 @@ class ProductRequest extends FormRequest
             'is_active' => ['boolean'],
             'product_category_id' => ['nullable', 'exists:product_categories,id'],
             'shop_id' => ['required', 'exists:shops,id'],
+            'images' => ['nullable', 'array', 'max:5'],
+            'images.*' => ['image', 'mimes:jpg,jpeg,png,gif,svg,webp', 'max:2048'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'sku.unique' => 'This SKU is already in use. Please use a different one.',
+            'barcode.unique' => 'This barcode is already in use.',
+            'images.max' => 'You can upload a maximum of 5 images.',
+            'images.*.max' => 'Each image must be less than 2MB.',
+            'images.*.mimes' => 'Only JPG, JPEG, PNG, GIF, SVG and WEBP images are allowed.',
         ];
     }
 }
