@@ -5,6 +5,7 @@ use Laravel\Fortify\Features;
 use App\Http\Controllers\Guest\HomePageController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Users\UserController;
+use App\Http\Controllers\Shops\ShopController;
 use App\Http\Controllers\Shops\ShopCategoryController;
 use App\Http\Controllers\Shops\MyShopController;
 use App\Http\Controllers\Shops\MyShopProductController;
@@ -43,6 +44,14 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
         Route::get('/{shop_category}/edit', 'edit')->name('edit');
         Route::put('/{shop_category}', 'update')->name('update');
         Route::delete('/{shop_category}', 'destroy')->name('destroy');
+    });
+
+    Route::prefix('shops')
+        ->name('shops.')
+        ->controller(ShopController::class)
+        ->group( function() 
+    {
+        Route::get('/', 'index')->name('index');
     });
 
     Route::prefix('product-categories')

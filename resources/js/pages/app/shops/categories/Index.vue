@@ -7,11 +7,12 @@ import Button from '@/components/ui/button/Button.vue';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import DeleteConfirmationDialog from '@/components/custom/DeleteConfirmation.vue';
 import shopCategoriesRoutes from '@/routes/shop-categories';
+import shopsRoutes from '@/routes/shops';
 
 defineOptions({
     layout: {
         breadcrumbs: [
-            { title: 'Shops', href: "shops.all()" },
+            { title: 'Shops', href: shopsRoutes.index() },
             { title: 'Shop Categories', href: shopCategoriesRoutes.index() },
         ],
     },
