@@ -107,8 +107,13 @@ class MyShopController extends Controller
 
         $shop->load('category');
 
+        $total_products = $shop->products()->count();
+
         return inertia('app/shops/my-shops/Show', [
             'shop' => $shop,
+            'stats' => [
+                'total_products' => $total_products
+            ],
         ]);
     }
 

@@ -1,0 +1,29 @@
+.MyShopShowPage {
+    h1 {
+        @apply py-4 font-bold text-xl font-serif;
+    }
+
+    .Stats {
+        @apply mt-4;
+
+        .stats-wrapper {
+            @apply grid lg:grid-cols-4 gap-8;
+
+            .stat {
+                @apply border border-border rounded-lg p-4 grid gap-2;
+
+                .label {
+                    @apply text-xs text-muted-foreground font-medium uppercase;
+                }
+
+                .number {
+                    @apply font-semibold text-xl;
+                }
+
+                .extras {
+                    @apply text-xs text-muted-foreground;
+                }
+            }
+        }
+    }
+}
