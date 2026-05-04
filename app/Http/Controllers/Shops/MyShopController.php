@@ -54,7 +54,7 @@ class MyShopController extends Controller
                 'message' => "{$this->shopLimitService->getMessage($this->user())}"
             ]);
 
-            return to_route('shops.index');
+            return to_route('my-shops.index');
         }
 
         try {
@@ -86,7 +86,7 @@ class MyShopController extends Controller
                 'message' => "Shop created successfully"
             ]);
 
-            return to_route('shops.index');
+            return to_route('my-shops.index');
         } catch (Exception $e) {
             DB::rollback();
 
@@ -183,7 +183,7 @@ class MyShopController extends Controller
                 'message' => "Shop updated successfully"
             ]);
 
-            return to_route('shops.index');
+            return to_route('my-shops.index');
         } catch (Exception $e) {
             DB::rollback();
 
