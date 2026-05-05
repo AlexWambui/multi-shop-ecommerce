@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { inject } from 'vue';
 import type { Shop } from '@/types/shop';
 import Button from '@/components/ui/button/Button.vue';
 
-const featured_shops = inject<Shop[]>('featured_shops', []);
+defineProps<{
+    featured_shops: Shop[];
+}>();
 </script>
 
 <template>

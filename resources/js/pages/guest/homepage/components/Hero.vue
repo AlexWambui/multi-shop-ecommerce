@@ -1,5 +1,12 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+
+const props = defineProps<{
+    stats: {
+        total_active_shops: number;
+        total_active_products: number;
+    }
+}>();
 </script>
 
 <template>
@@ -11,22 +18,23 @@ import { Link } from '@inertiajs/vue3';
                 <p class="sub-title">Discover curated shops, exclusive deals, and the people behind every product.</p>
                 <div class="hero-actions">
                     <Link class="btn">Browse Offers</Link>
-                    <Link class="btn btn-outline">Get Started</Link>
+                    <Link href="/dashboard" class="btn btn-outline">Get Started</Link>
                 </div>
             </div>
 
             <div class="stats">
                 <div class="stat">
-                    <div class="number">3+</div>
+                    <div class="number">{{ stats.total_active_shops }}+</div>
                     <div class="label">Active shops</div>
                 </div>
 
                 <div class="stat">
-                    <div class="number">3+</div>
+                    <div class="number">{{ stats.total_active_products }}+</div>
                     <div class="label">Products listed</div>
                 </div>
 
                 <div class="stat">
+                    <!-- TODO: add the correct dialy shoppers stat -->
                     <div class="number">3+</div>
                     <div class="label">Daily shoppers</div>
                 </div>
