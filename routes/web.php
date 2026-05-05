@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\Guest\HomePageController;
+use App\Http\Controllers\Guest\ShopDetailsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Users\UserController;
 use App\Http\Controllers\Shops\ShopController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Shops\MyShopProductController;
 use App\Http\Controllers\Products\ProductCategoryController;
 
 Route::get('/', [HomePageController::class, 'homePage'])->name('home');
+Route::get('shop-details/{shop:slug}', [ShopDetailsController::class, 'shopDetails'])->name('shop-details-page');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');

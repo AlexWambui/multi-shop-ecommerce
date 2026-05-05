@@ -26,6 +26,8 @@ class Shop extends Model
         'logo_url',
         'cover_url',
         'category_name',
+        'owner_name',
+        'owner_joined_at',
     ];
 
     protected static function booted()
@@ -151,5 +153,15 @@ class Shop extends Model
     public function getCategoryNameAttribute(): string
     {
         return $this->category?->name ?? "Uncategorized";
+    }
+
+    public function getOwnerNameAttribute(): string
+    {
+        return $this->owner?->name ?? "Unknown";
+    }
+
+    public function getOwnerJoinedAtAttribute(): string
+    {
+        return $this->owner?->created_at ?? "Unknown";
     }
 }

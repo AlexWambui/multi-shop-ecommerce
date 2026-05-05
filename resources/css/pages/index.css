@@ -65,4 +65,6 @@
 }
 
 @import './homepage';
+@import './shop-details-page';
+
 @import './app/index';
