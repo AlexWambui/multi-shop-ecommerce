@@ -8,7 +8,7 @@ use App\Models\Shop;
 use App\Http\Resources\Products\ProductCardResource;
 use App\Http\Resources\Shops\ShopDetailsResource;
 
-class GuestShopsController extends Controller
+class GuestShopController extends Controller
 {
     public function shopDetails(string $slug)
     {

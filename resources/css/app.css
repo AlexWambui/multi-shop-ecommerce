@@ -1,5 +1,13 @@
 @import './tailwind';
 
+button {
+    @apply cursor-pointer;
+
+    &:disabled {
+        @apply cursor-not-allowed;
+    }
+}
+
 @import './components/index';
 
 @import './pages/index';

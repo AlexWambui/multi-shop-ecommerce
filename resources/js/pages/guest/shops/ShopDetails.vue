@@ -57,8 +57,8 @@ onMounted(() => {
     <GuestLayout>
         <div class="main_container ShopDetailsPage">
             <section class="back-button">
-                <Link href="/">
-                    <Button variant="outline">&larr; Back to Discover</Button>
+                <Link href="/all-shops">
+                    <Button variant="outline">&larr; Discover More Shops</Button>
                 </Link>
             </section>
 
