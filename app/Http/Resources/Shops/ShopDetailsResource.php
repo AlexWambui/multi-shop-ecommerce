@@ -24,6 +24,7 @@ class ShopDetailsResource extends JsonResource
             'cover_url' => $this->cover_url,
             'category_name' => $this->category_name,
             'owner_name' => $this->owner_name,
+            'owner_joined_at' => $this->owner->created_at->format('d-m-Y'),
             'is_active' => (bool) $this->is_active
         ];
     }
