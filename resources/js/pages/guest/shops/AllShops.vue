@@ -118,22 +118,16 @@ const clearSearch = () => {
             </div>
 
             <!-- Pagination -->
-            <div v-if="shops.links && shops.last_page > 1" class="mt-8 flex justify-center">
-                <div class="flex gap-2">
-                    <Link
-                        v-for="link in shops.links"
-                        :key="link.label"
-                        :href="link.url || '#'"
-                        :class="[
-                            'px-3 py-2 rounded-md text-sm',
-                            link.active
-                                ? 'bg-gray-900 text-white'
-                                : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300',
-                            !link.url && 'opacity-50 cursor-not-allowed'
-                        ]"
-                        v-html="link.label"
-                    />
-                </div>
+            <div v-if="shops.links?.length > 3" class="table-pagination">
+                <Link
+                    v-for="link in shops.links"
+                    :key="link.label"
+                    :href="link.url || '#'"
+                    v-html="link.label"
+                    preserve-scroll
+                    class="pagination-link"
+                    :class="{ 'bg-blue-600 text-white': link.active }"
+                />
             </div>
         </div>
     </GuestLayout>
