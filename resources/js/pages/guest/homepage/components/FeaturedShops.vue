@@ -12,7 +12,7 @@ defineProps<{
     <section class="FeaturedShops">
         <div class="section-header">
             <h2 class="section-title">Featured Shops</h2>
-            <Link href="/shops" class="section-link">View all →</Link>
+            <Link href="/all-shops" class="section-link">View all →</Link>
         </div>
         
         <!-- Only show if shops exist -->

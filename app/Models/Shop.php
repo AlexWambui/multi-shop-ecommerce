@@ -6,9 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Builder;
 use App\Concerns\HasUuid;
 use App\Concerns\HasSlug;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Shop extends Model
 {
@@ -163,5 +164,40 @@ class Shop extends Model
     public function getOwnerJoinedAtAttribute(): string
     {
         return $this->owner?->created_at ?? "Unknown";
+    }
+
+    public function scopeSearch(Builder $query, ?string $searchTerm): Builder
+    {
+        if (!$searchTerm) {
+            return $query;
+        }
+
+        $fields = ['name', 'contact_email', 'contact_phone'];
+
+        $terms = preg_split('/\s+/', trim(strtolower($searchTerm)));
+
+        // Expand terms: sneakers → sneaker
+        $expandedTerms = [];
+
+        foreach ($terms as $term) {
+            $expandedTerms[] = $term;
+
+            // Simple plural handling
+            if (str_ends_with($term, 's')) {
+                $expandedTerms[] = rtrim($term, 's');
+            } else {
+                $expandedTerms[] = $term . 's';
+            }
+        }
+
+        return $query->where(function ($q) use ($expandedTerms, $fields) {
+            foreach ($expandedTerms as $term) {
+                $q->orWhere(function ($sub) use ($term, $fields) {
+                    foreach ($fields as $field) {
+                        $sub->orWhereRaw("LOWER($field) LIKE ?", ["%{$term}%"]);
+                    }
+                });
+            }
+        });
     }
 }

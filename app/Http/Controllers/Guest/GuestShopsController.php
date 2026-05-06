@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Guest;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\Shop;
 use App\Http\Resources\Products\ProductCardResource;
 use App\Http\Resources\Shops\ShopDetailsResource;
 
-class ShopDetailsController extends Controller
+class GuestShopsController extends Controller
 {
     public function shopDetails(string $slug)
     {
@@ -33,6 +34,22 @@ class ShopDetailsController extends Controller
             'shop' => new ShopDetailsResource($shop),
             'stats' => $stats,
             'products' => aqilify_paginate($products, ProductCardResource::class)
+        ]);
+    }
+
+    public function listAllShops(Request $request)
+    {
+        $query = Shop::where('is_active', true);
+
+        if ($request->filled('search')) {
+            $query->search($request->search);
+        }
+
+        $shops = $query->orderBy('name')->paginate(20);
+
+        return inertia('guest/shops/AllShops', [
+            'shops' => aqilify_paginate($shops, ShopDetailsResource::class),
+            'filters' => $request->only(['search'])
         ]);
     }
 }
