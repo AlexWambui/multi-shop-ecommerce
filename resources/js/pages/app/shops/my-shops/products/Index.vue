@@ -6,6 +6,8 @@ import Input from '@/components/ui/input/Input.vue';
 import Button from '@/components/ui/button/Button.vue';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import DeleteConfirmationDialog from '@/components/custom/DeleteConfirmation.vue';
+import Pagination from '@/components/custom/Pagination.vue';
+import type { Product } from '@/types/product';
 import myShopsRoutes from '@/routes/my-shops';
 import myShopProductsRoutes from '@/routes/my-shops/products';
 
@@ -15,28 +17,22 @@ interface Shop {
     slug: string;
 }
 
-interface Product {
-    id: number;
-    name: string;
-    slug: string;
-    sku: string;
-    price: number;
-    category_name: string;
-}
-
 interface Props {
-    products: Product[];
     shop: Shop;
+    products: {
+        data: Product[];
+        links: any[];
+        meta: {
+            current_page: number;
+            last_page: number;
+            per_page: number;
+            total: number;
+            links: any[];
+        };
+    };
     filters: {
         search?: string;
         status?: string;
-    };
-    pagination: {
-        current_page: number;
-        last_page: number;
-        per_page: number;
-        total: number;
-        links: any[];
     };
 }
 
@@ -67,7 +63,7 @@ watch(search, () => {
 });
 
 const getDisplayRange = computed(() => {
-    const { current_page, per_page, total } = props.pagination;
+    const { current_page, per_page, total } = props.products.meta;
     const start = (current_page - 1) * per_page + 1;
     const end = Math.min(current_page * per_page, total);
     return { start, end, total };
@@ -116,8 +112,8 @@ const hasActiveFilters = computed(() =>
                 </TableHeader>
 
                 <TableBody>
-                    <TableRow v-for="(product, index) in props.products" :key="product.id">
-                        <TableCell class="id">{{ (props.pagination.current_page - 1) * props.pagination.per_page + index + 1 }}</TableCell>
+                    <TableRow v-for="(product, index) in products.data" :key="product.id">
+                        <TableCell class="id">{{ (products.meta.current_page - 1) * products.meta.per_page + index + 1 }}</TableCell>
                         <TableCell>{{ product.name }}</TableCell>
                         <TableCell>{{ product.sku }}</TableCell>
                         <TableCell>Discount</TableCell>
@@ -146,7 +142,7 @@ const hasActiveFilters = computed(() =>
                         </TableCell>
                     </TableRow>
 
-                    <TableRow v-if="props.products.length === 0">
+                    <TableRow v-if="products.data.length === 0">
                         <TableCell colspan="5" class="blank-table-row">
                             No products found.
                         </TableCell>
@@ -155,18 +151,7 @@ const hasActiveFilters = computed(() =>
             </Table>
         </div>
 
-        <!-- Pagination -->
-        <div v-if="props.pagination.links?.length > 3" class="table-pagination">
-            <Link 
-                v-for="link in props.pagination.links" 
-                :key="link.label"
-                :href="link.url || '#'"
-                v-html="link.label"
-                preserve-scroll
-                class="pagination-link"
-                :class="{ 'bg-blue-600 text-white': link.active }"
-            />
-        </div>
+        <Pagination :meta="products.meta" />
 
         <div class="table-results-summary">
             <p>

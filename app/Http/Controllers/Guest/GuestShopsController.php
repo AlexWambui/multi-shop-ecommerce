@@ -20,7 +20,7 @@ class GuestShopsController extends Controller
         $products = $shop->products()
             ->where('is_active', true)
             ->latest()
-            ->paginate(10);
+            ->paginate(20);
 
         $stats = [
             'total_products' => $shop->products()->latest()->where('is_active', true)->count(),

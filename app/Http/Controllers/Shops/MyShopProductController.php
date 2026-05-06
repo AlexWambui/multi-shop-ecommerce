@@ -13,6 +13,7 @@ use App\Models\Shop;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Http\Requests\Products\ProductRequest;
+use App\Http\Resources\Products\ProductsPageResource;
 
 class MyShopProductController extends Controller
 {
@@ -32,22 +33,15 @@ class MyShopProductController extends Controller
             $query->where('is_active', $request->status === 'active');
         }
 
-        $products = $query->orderBy('name')->paginate(15);
+        $products = $query->orderBy('name')->paginate(20);
 
         return inertia('app/shops/my-shops/products/Index', [
             'shop' => $shop,
-            'products' => $products->items(),
+            'products' => ProductsPageResource::collection($products),
             'filters' => [
                 'search' => $request->search,
                 'status' => $request->status,
             ],
-            'pagination' => [
-                'current_page' => $products->currentPage(),
-                'last_page' => $products->lastPage(),
-                'per_page' => $products->perPage(),
-                'total' => $products->total(),
-                'links' => $products->linkCollection()
-            ]
         ]);
     }
 

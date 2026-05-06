@@ -6,6 +6,7 @@ import Button from '@/components/ui/button/Button.vue';
 import Input from '@/components/ui/input/Input.vue';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import DeleteConfirmationDialog from '@/components/custom/DeleteConfirmation.vue';
+import Pagination from '@/components/custom/Pagination.vue';
 import usersRoutes from '@/routes/users';
 
 defineOptions({
@@ -245,21 +246,7 @@ const getRowNumber = (index: number) => (props.users.meta.current_page - 1) * pr
             </Table>
         </div>
 
-        <div v-if="props.users.meta?.links?.length > 3" class="table-pagination">
-            <Link
-                v-for="(link, index) in props.users.meta.links"
-                :key="index"
-                :href="link.url ?? ''"
-                class="pagination-link"
-                :class="{
-                    'cursor-not-allowed bg-gray-100 text-gray-500 dark:bg-gray-800': !link.url,
-                    'bg-blue-600 text-white': link.active,
-                    'hover:bg-gray-50 dark:hover:bg-gray-800': link.url && !link.active,
-                }"
-                preserve-scroll
-                v-html="link.label"
-            />
-        </div>
+        <Pagination :meta="users.meta" />
 
         <div class="table-results-summary">
             <p>

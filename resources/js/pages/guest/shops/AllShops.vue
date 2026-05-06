@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import GuestLayout from '@/layouts/GuestLayout.vue';
-import { Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import GuestLayout from '@/layouts/GuestLayout.vue';
+import Pagination from '@/components/custom/Pagination.vue';
 import type { Shop } from '@/types/shop';
 
 // Define props
@@ -10,10 +10,13 @@ const props = defineProps<{
     shops: {
         data: Shop[];
         links: any[];
-        current_page: number;
-        last_page: number;
-        per_page: number;
-        total: number;
+        meta: {
+            current_page: number;
+            last_page: number;
+            per_page: number;
+            total: number;
+            links: any[];
+        }
     };
     filters?: {
         search: string;
@@ -118,17 +121,7 @@ const clearSearch = () => {
             </div>
 
             <!-- Pagination -->
-            <div v-if="shops.links?.length > 3" class="table-pagination">
-                <Link
-                    v-for="link in shops.links"
-                    :key="link.label"
-                    :href="link.url || '#'"
-                    v-html="link.label"
-                    preserve-scroll
-                    class="pagination-link"
-                    :class="{ 'bg-blue-600 text-white': link.active }"
-                />
-            </div>
+            <Pagination :meta="shops.meta" />
         </div>
     </GuestLayout>
 </template>

@@ -5,6 +5,7 @@ import { Star } from 'lucide-vue-next';
 import Button from '@/components/ui/button/Button.vue';
 import GuestLayout from '@/layouts/GuestLayout.vue';
 import ProductCard from '@/pages/guest/components/ProductCard.vue';
+import Pagination from '@/components/custom/Pagination.vue';
 import type { Shop } from '@/types/shop';
 import type { Product } from '@/types/product';
 import { useCartStore } from '@/store/cart';
@@ -137,17 +138,8 @@ onMounted(() => {
                             :show-add-to-cart="true"
                         />
                     </div>
-                    <div v-if="products.meta?.links?.length > 3" class="table-pagination">
-                        <Link 
-                            v-for="link in products.meta.links" 
-                            :key="link.label"
-                            :href="link.url || '#'"
-                            v-html="link.label"
-                            preserve-scroll
-                            class="pagination-link"
-                            :class="{ 'bg-blue-600 text-white': link.active }"
-                        />
-                    </div>
+                    
+                    <Pagination :meta="products.meta" />
                 </div>
 
                 <!-- On Offer tab — only discounted products -->

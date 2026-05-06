@@ -3,5 +3,6 @@
 @import './navbar';
 @import './tables';
 
+@import './pagination';
 @import './product-card';
 @import './shop-card';

@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Shops;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Shop;
+use App\Http\Resources\Shops\ShopDetailsResource;
 
 class ShopController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Shop::select('id', 'name', 'slug', 'contact_email', 'contact_phone', 'shop_category_id', 'is_active', 'is_verified')->with('category:id,name');
+        $query = Shop::query();
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -24,21 +25,14 @@ class ShopController extends Controller
             $query->where('is_active', $request->status === 'active');
         }
 
-        $shops = $query->paginate(15);
+        $shops = $query->orderBy('name')->paginate(20);
 
         return inertia('app/shops/shops/Index', [
-            'shops' => $shops->items(),
+            'shops' => ShopDetailsResource::collection($shops),
             'filters' => [
                 'search' => $request->search,
                 'status' => $request->status,
             ],
-            'pagination' => [
-                'current_page' => $shops->currentPage(),
-                'last_page' => $shops->lastPage(),
-                'per_page' => $shops->perPage(),
-                'total' => $shops->total(),
-                'links' => $shops->linkCollection()
-            ]
         ]);
     }
 }

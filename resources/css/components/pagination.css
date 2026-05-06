@@ -1,0 +1,21 @@
+.pagination-container {
+    @apply mt-8 flex justify-center gap-1;
+
+    .pagination-wrapper {
+        @apply flex items-center gap-2;
+
+        .pagination-link {
+            /* @apply px-3 py-2 text-sm font-medium rounded-md transition-colors;
+            @apply bg-white text-gray-700 border border-gray-300 hover:bg-gray-50; */
+            @apply rounded-md border px-3 py-1 text-sm transition-all hover:border-foreground;
+        }
+
+        .pagination-link-active {
+            @apply bg-blue-600 text-white border-blue-600 hover:bg-blue-700;
+        }
+
+        .pagination-link-disabled {
+            @apply opacity-50 cursor-not-allowed hover:border hover:border-red-600;
+        }
+    }
+}

@@ -1,13 +1,21 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
-import { Link, router, usePage } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
 import Input from '@/components/ui/input/Input.vue';
-import Button from '@/components/ui/button/Button.vue';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import DeleteConfirmationDialog from '@/components/custom/DeleteConfirmation.vue';
+import Pagination from '@/components/custom/Pagination.vue';
 import shopsRoutes from '@/routes/shops';
 import shopCategoriesRoutes from '@/routes/shop-categories';
+
+defineOptions({
+    layout: {
+        breadcrumbs: [
+            { title: 'Shop Categories', href: shopCategoriesRoutes.index() },
+            { title: 'Shops', href: shopsRoutes.index() },
+        ],
+    },
+});
 
 interface Shop {
     id: number;
@@ -19,30 +27,24 @@ interface Shop {
 }
 
 interface Props {
-    shops: Shop[];
+    shops: {
+        data: Shop[];
+        links: any[];
+        meta: {
+            current_page: number;
+            last_page: number;
+            per_page: number;
+            total: number;
+            links: any[];
+        };
+    };
     filters: {
         search?: string;
         status?: string;
     };
-    pagination: {
-        current_page: number;
-        last_page: number;
-        per_page: number;
-        total: number;
-        links: any[];
-    };
 }
 
 const props = defineProps<Props>();
-
-defineOptions({
-    layout: {
-        breadcrumbs: [
-            { title: 'Shop Categories', href: shopCategoriesRoutes.index() },
-            { title: 'Shops', href: shopsRoutes.index() },
-        ],
-    },
-});
 
 const search = ref(props.filters?.search || '');
 const status_filter = ref(props.filters?.status || '');
@@ -61,7 +63,7 @@ watch(search, () => {
 });
 
 const getDisplayRange = computed(() => {
-    const { current_page, per_page, total } = props.pagination;
+    const { current_page, per_page, total } = props.shops.meta;
     const start = (current_page - 1) * per_page + 1;
     const end = Math.min(current_page * per_page, total);
     return { start, end, total };
@@ -109,8 +111,8 @@ const hasActiveFilters = computed(() =>
                 </TableHeader>
 
                 <TableBody>
-                    <TableRow v-for="(shop, index) in props.shops" :key="shop.id">
-                        <TableCell class="id">{{ (props.pagination.current_page - 1) * props.pagination.per_page + index + 1 }}</TableCell>
+                    <TableRow v-for="(shop, index) in shops.data" :key="shop.id">
+                        <TableCell class="id">{{ (shops.meta.current_page - 1) * shops.meta.per_page + index + 1 }}</TableCell>
                         <TableCell>{{ shop.name }}</TableCell>
                         <TableCell>{{ shop.slug }}</TableCell>
                         <TableCell>{{ shop.contact_phone }}</TableCell>
@@ -123,7 +125,7 @@ const hasActiveFilters = computed(() =>
                         </TableCell>
                     </TableRow>
 
-                    <TableRow v-if="props.shops.length === 0">
+                    <TableRow v-if="shops.data.length === 0">
                         <TableCell colspan="5" class="blank-table-row">
                             No shops found.
                         </TableCell>
@@ -132,18 +134,7 @@ const hasActiveFilters = computed(() =>
             </Table>
         </div>
 
-        <!-- Pagination -->
-        <div v-if="props.pagination.links?.length > 3" class="table-pagination">
-            <Link 
-                v-for="link in props.pagination.links" 
-                :key="link.label"
-                :href="link.url || '#'"
-                v-html="link.label"
-                preserve-scroll
-                class="pagination-link"
-                :class="{ 'bg-blue-600 text-white': link.active }"
-            />
-        </div>
+        <Pagination :meta="shops.meta" />
 
         <div class="table-results-summary">
             <p>
