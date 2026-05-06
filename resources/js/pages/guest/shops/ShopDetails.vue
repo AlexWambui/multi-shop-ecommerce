@@ -30,6 +30,7 @@ const props = defineProps<{
             last_page: number;
             per_page: number;
             total: number;
+            links: any[];
         }
     };
 }>();
@@ -136,9 +137,9 @@ onMounted(() => {
                             :show-add-to-cart="true"
                         />
                     </div>
-                    <div v-if="products.links?.length > 3" class="table-pagination">
+                    <div v-if="products.meta?.links?.length > 3" class="table-pagination">
                         <Link 
-                            v-for="link in products.links" 
+                            v-for="link in products.meta.links" 
                             :key="link.label"
                             :href="link.url || '#'"
                             v-html="link.label"

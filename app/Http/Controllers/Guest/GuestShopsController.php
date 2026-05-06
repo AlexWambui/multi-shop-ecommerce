@@ -33,7 +33,7 @@ class GuestShopsController extends Controller
         return inertia('guest/shops/ShopDetails', [
             'shop' => new ShopDetailsResource($shop),
             'stats' => $stats,
-            'products' => aqilify_paginate($products, ProductCardResource::class)
+            'products' => ProductCardResource::collection($products)
         ]);
     }
 
@@ -48,7 +48,7 @@ class GuestShopsController extends Controller
         $shops = $query->orderBy('name')->paginate(20);
 
         return inertia('guest/shops/AllShops', [
-            'shops' => aqilify_paginate($shops, ShopDetailsResource::class),
+            'shops' => ShopDetailsResource::collection($shops),
             'filters' => $request->only(['search'])
         ]);
     }
