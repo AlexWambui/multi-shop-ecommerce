@@ -23,6 +23,7 @@ class Product extends Model
 
     protected $appends = [
         'category_name',
+        'thumbnail_url'
     ];
 
     protected static function booted()
@@ -101,13 +102,8 @@ class Product extends Model
         return $this->category?->name ?? 'Uncategorized';
     }
 
-    public function getPrimaryImageAttribute(): ?ProductImage
+    public function getThumbnailUrlAttribute(): string
     {
-        return $this->images->first();
-    }
-
-    public function getPrimaryImageUrlAttribute(): string
-    {
-        return $this->primaryImage?->full_url ?? asset('assets/images/default.png');
+        return $this->images->first()?->image_url ?? asset('assets/images/default.png');
     }
 }

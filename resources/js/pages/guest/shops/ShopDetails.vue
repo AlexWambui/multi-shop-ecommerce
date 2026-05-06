@@ -18,15 +18,19 @@ interface ShopStats {
 }
 
 const props = defineProps<{
-    shop: Shop;
+    shop: {
+        data: Shop;
+    };
     stats: ShopStats;
-    products: Product[];
-    products_pagination: {
-        current_page: number;
-        last_page: number;
-        per_page: number;
-        total: number;
+    products: {
+        data: Product[];
         links: any[];
+        meta: {
+            current_page: number;
+            last_page: number;
+            per_page: number;
+            total: number;
+        }
     };
 }>();
 
@@ -39,12 +43,6 @@ const tabs = [
     { id: 'reviews', label: 'Reviews' },
 ];
 
-// Only products that actually have a discount — drives the On Offer tab
-// and the tab label count badge
-const discountedProducts = computed(() =>
-    props.products.filter(p => p.discounted_price !== null)
-);
-
 const cartStore = useCartStore();
 onMounted(() => {
     cartStore.fetchCart();
@@ -52,7 +50,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <Head :title="shop.name" />
+    <Head :title="shop.data.name" />
 
     <GuestLayout>
         <div class="main_container ShopDetailsPage">
@@ -66,16 +64,16 @@ onMounted(() => {
                 <div class="hero-wrapper">
                     <div class="icon-text">
                         <div class="icon">
-                            <img :src="shop.logo_url" :alt="shop.name" />
+                            <img :src="shop.data.logo_url" :alt="shop.data.name" />
                         </div>
                         <div class="text">
                             <div class="text-wrapper">
-                                <h2 class="name">{{ shop.name }}</h2>
+                                <h2 class="name">{{ shop.data.name }}</h2>
                                 <div class="badges">
-                                    <span>{{ shop.is_active ? 'Open' : 'Closed' }}</span>
-                                    <span>{{ shop.category_name }}</span>
+                                    <span>{{ shop.data.is_active ? 'Open' : 'Closed' }}</span>
+                                    <span>{{ shop.data.category_name }}</span>
                                 </div>
-                                <p class="description">{{ shop.description }}</p>
+                                <p class="description">{{ shop.data.description }}</p>
                             </div>
                         </div>
                     </div>
@@ -117,30 +115,30 @@ onMounted(() => {
                         >
                             {{ tab.label }}
                             <!-- Show count badge on On Offer tab if there are deals -->
-                            <span
+                            <!-- <span
                                 v-if="tab.id === 'on_offer' && discountedProducts.length > 0"
                                 class="ml-1.5 px-1.5 py-0.5 text-xs bg-red-100 text-red-600 rounded-full"
                             >
                                 {{ discountedProducts.length }}
-                            </span>
+                            </span> -->
                         </button>
                     </div>
                 </div>
 
                 <!-- All Products tab -->
                 <div v-if="activeTab === 'products'" class="products-tab">
-                    <div v-if="products.length > 0" class="products-wrapper">
+                    <div v-if="products.data.length > 0" class="products-wrapper">
                         <ProductCard
-                            v-for="product in products"
+                            v-for="product in products.data"
                             :key="product.id"
                             :product="product"
                             :show-stock-indicator="true"
                             :show-add-to-cart="true"
                         />
                     </div>
-                    <div v-if="products.length > 0 && props.products_pagination.links?.length > 3" class="table-pagination">
+                    <div v-if="products.links?.length > 3" class="table-pagination">
                         <Link 
-                            v-for="link in props.products_pagination.links" 
+                            v-for="link in products.links" 
                             :key="link.label"
                             :href="link.url || '#'"
                             v-html="link.label"
@@ -149,13 +147,10 @@ onMounted(() => {
                             :class="{ 'bg-blue-600 text-white': link.active }"
                         />
                     </div>
-                    <div v-else class="py-12 text-center text-gray-400 text-sm">
-                        No products available yet.
-                    </div>
                 </div>
 
                 <!-- On Offer tab — only discounted products -->
-                <div v-if="activeTab === 'on_offer'" class="products-tab">
+                <!-- <div v-if="activeTab === 'on_offer'" class="products-tab">
                     <div v-if="discountedProducts.length > 0" class="products-wrapper">
                         <ProductCard
                             v-for="product in discountedProducts"
@@ -168,27 +163,27 @@ onMounted(() => {
                     <div v-else class="py-12 text-center text-gray-400 text-sm">
                         No active offers in this shop right now.
                     </div>
-                </div>
+                </div> -->
 
                 <!-- About tab -->
                 <div v-if="activeTab === 'about'" class="about-tab">
                     <div class="about-tab-wrapper">
-                        <h2 class="name">{{ shop.name }}</h2>
-                        <p class="description">{{ shop.description || 'No description provided.' }}</p>
+                        <h2 class="name">{{ shop.data.name }}</h2>
+                        <p class="description">{{ shop.data.description || 'No description provided.' }}</p>
                         <div class="info">
                             <h3 class="title">Shop Information</h3>
                             <dl class="details">
                                 <div>
                                     <dt>Shop Owner</dt>
-                                    <dd>{{ shop.owner_name }}</dd>
+                                    <dd>{{ shop.data.owner_name }}</dd>
                                 </div>
                                 <div>
                                     <dt>Member Since</dt>
-                                    <dd>{{ shop.owner_joined_at }}</dd>
+                                    <dd>{{ shop.data.owner_joined_at }}</dd>
                                 </div>
                                 <div>
                                     <dt>Category</dt>
-                                    <dd>{{ shop.category_name }}</dd>
+                                    <dd>{{ shop.data.category_name }}</dd>
                                 </div>
                                 <div>
                                     <dt>Total Products</dt>

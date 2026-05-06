@@ -46,7 +46,7 @@ const buttonDisplayText = computed(() => {
         <Link :href="`/product-details/${product.slug}`" class="product-image">
             <div class="image">
                 <img 
-                    :src="product.image_url" 
+                    :src="product.thumbnail_url" 
                     :alt="product.name"
                     loading="lazy"
                 />
