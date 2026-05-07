@@ -133,6 +133,11 @@ class Shop extends Model
         return $this->hasMany(Product::class, 'shop_id');
     }
 
+    public function discounts(): HasMany
+    {
+        return $this->hasMany(Discount::class);
+    }
+
     public function getLogoUrlAttribute(): string
     {
         if (!$this->logo_image) {

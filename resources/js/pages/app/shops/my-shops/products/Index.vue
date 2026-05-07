@@ -9,6 +9,7 @@ import DeleteConfirmationDialog from '@/components/custom/DeleteConfirmation.vue
 import Pagination from '@/components/custom/Pagination.vue';
 import type { Product } from '@/types/product';
 import myShopsRoutes from '@/routes/my-shops';
+import myShopDiscountsRoutes from '@/routes/my-shops/discounts';
 import myShopProductsRoutes from '@/routes/my-shops/products';
 
 interface Shop {
@@ -40,6 +41,7 @@ const props = defineProps<Props>();
 
 const breadcrumbs = computed(() => [
     { title: 'Shops', href: myShopsRoutes.show(props.shop.id).url },
+    { title: 'Discounts', href: myShopDiscountsRoutes.index(props.shop.slug) },
     { title: 'Products', description: 'My shop products' }
 ]);
 

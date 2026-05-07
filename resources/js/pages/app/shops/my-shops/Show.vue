@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import shopsRoutes from '@/routes/my-shops';
 import shopProducts from '@/routes/my-shops/products';
+import shopDiscounts from '@/routes/my-shops/discounts';
 
 interface Shop {
     id: number;
@@ -24,6 +25,7 @@ const props = defineProps<Props>();
 const breadcrumbs = computed(() => [
     { title: 'Shops', href: shopsRoutes.index().url },
     { title: 'Products', href: shopProducts.index(props.shop.slug) },
+    { title: 'Discounts', href: shopDiscounts.index(props.shop.slug) },
     { title: 'Summary', description: 'Shop details' }
 ]);
 
