@@ -278,20 +278,20 @@ const buttonDisplayText = computed(() => {
                         
                         <div class="specifications">
                             <h3>Specifications</h3>
-                            <table class="specs-table">
-                                <tr>
-                                    <td>SKU</td>
-                                    <td>{{ product.sku || 'N/A' }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Category</td>
-                                    <td>{{ product.category_name }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Availability</td>
-                                    <td>{{ product.stock_qty > 0 ? 'In Stock' : 'Out of Stock' }}</td>
-                                </tr>
-                            </table>
+                            <div class="specs-wrapper">
+                                <div>
+                                    <span>SKU</span>
+                                    <span>{{ product.sku || 'N/A' }}</span>
+                                </div>
+                                <div>
+                                    <span>Category</span>
+                                    <span>{{ product.category_name }}</span>
+                                </div>
+                                <div>
+                                    <span>Availability</span>
+                                    <span>{{ product.stock_qty > 0 ? 'In Stock' : 'Out of Stock' }}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
