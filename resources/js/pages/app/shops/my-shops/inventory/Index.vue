@@ -74,79 +74,72 @@ const hasActiveFilters = computed(() =>
     <div class="app-container">
         <div class="header">
             <div class="info">
-                <h1 class="title">Inventory Management</h1>
-                <p class="description">{{ shop.name }} - Manage stock levels for all products</p>
+                <h1 class="title">Inventory Management ({{ shop.name }})</h1>
+                <p class="description">Manage stock levels for all products</p>
             </div>
 
-            <div>
-                <!-- <Link href="route('my-shops.inventory.bulk', shop.slug)">
-                    <Button variant="outline">Bulk Upload CSV</Button>
-                </Link> -->
+            <div class="search">
+                <Input
+                    v-model="search"
+                    type="text"
+                    placeholder="Search by name or SKU..."
+                    class="search-input"
+                />
+            </div>
+
+            <div class="filters-bar">
+                <select v-model="stockStatusFilter" class="status-filter">
+                    <option value="">All Status</option>
+                    <option value="in_stock">In Stock</option>
+                    <option value="low_stock">Low Stock</option>
+                    <option value="out_of_stock">Out of Stock</option>
+                    <option value="unlimited">Unlimited (No Tracking)</option>
+                </select>
             </div>
         </div>
 
-        <!-- Stats Cards -->
         <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon bg-blue-100">
+            <div class="card">
+                <div class="icon bg-blue-100">
                     <Package class="w-5 h-5 text-blue-600" />
                 </div>
-                <div class="stat-info">
-                    <div class="stat-value">{{ stats.total_products }}</div>
-                    <div class="stat-label">Total Products</div>
+                <div class="info">
+                    <div class="value">{{ stats.total_products }}</div>
+                    <div class="label">Total Products</div>
                 </div>
             </div>
 
-            <div class="stat-card">
-                <div class="stat-icon bg-orange-100">
+            <div class="card">
+                <div class="icon bg-orange-100">
                     <AlertTriangle class="w-5 h-5 text-orange-600" />
                 </div>
-                <div class="stat-info">
-                    <div class="stat-value text-orange-600">{{ stats.low_stock_count }}</div>
-                    <div class="stat-label">Low Stock Items</div>
+                <div class="info">
+                    <div class="value text-orange-600">{{ stats.low_stock_count }}</div>
+                    <div class="label">Low Stock Items</div>
                 </div>
             </div>
 
-            <div class="stat-card">
-                <div class="stat-icon bg-red-100">
+            <div class="card">
+                <div class="icon bg-red-100">
                     <XCircle class="w-5 h-5 text-red-600" />
                 </div>
-                <div class="stat-info">
-                    <div class="stat-value text-red-600">{{ stats.out_of_stock_count }}</div>
-                    <div class="stat-label">Out of Stock</div>
+                <div class="info">
+                    <div class="value text-red-600">{{ stats.out_of_stock_count }}</div>
+                    <div class="label">Out of Stock</div>
                 </div>
             </div>
 
-            <div class="stat-card">
-                <div class="stat-icon bg-green-100">
+            <div class="card">
+                <div class="icon bg-green-100">
                     <DollarSign class="w-5 h-5 text-green-600" />
                 </div>
                 <div class="stat-info">
-                    <div class="stat-value">{{ formatCurrency(stats.total_value) }}</div>
-                    <div class="stat-label">Inventory Value</div>
+                    <div class="value">{{ formatCurrency(stats.total_value) }}</div>
+                    <div class="label">Inventory Value</div>
                 </div>
             </div>
         </div>
-
-        <!-- Filters -->
-        <div class="filters-bar">
-            <Input
-                v-model="search"
-                type="text"
-                placeholder="Search by name or SKU..."
-                class="search-input"
-            />
-            
-            <select v-model="stockStatusFilter" class="status-filter">
-                <option value="">All Status</option>
-                <option value="in_stock">In Stock</option>
-                <option value="low_stock">Low Stock</option>
-                <option value="out_of_stock">Out of Stock</option>
-                <option value="unlimited">Unlimited (No Tracking)</option>
-            </select>
-        </div>
-
-        <!-- Products Table -->
+        
         <div class="table-wrapper">
             <Table>
                 <TableHeader>

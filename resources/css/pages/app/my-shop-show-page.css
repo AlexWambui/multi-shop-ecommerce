@@ -4,8 +4,6 @@
     }
 
     .Stats {
-        @apply mt-4;
-
         .stats-wrapper {
             @apply grid lg:grid-cols-4 gap-8;
 

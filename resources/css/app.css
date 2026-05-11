@@ -1,58 +1,5 @@
 @import './tailwind';
 
-
-.stats-grid {
-    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6;
-}
-
-.stat-card {
-    @apply flex items-center gap-4 p-4 border border-border rounded-lg shadow-sm border;
-}
-
-.stat-icon {
-    @apply p-3 rounded-full;
-}
-
-.stat-value {
-    @apply text-2xl font-bold;
-}
-
-.stat-label {
-    @apply text-sm text-muted-foreground;
-}
-
-.filters-bar {
-    @apply flex gap-3 mb-6;
-}
-
-.status-filter {
-    @apply px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900;
-}
-
-.actions {
-    @apply text-right;
-}
-
-.action-buttons {
-    @apply flex gap-2 justify-end;
-}
-
-.btn-sm {
-    @apply px-3 py-1 text-sm rounded-md transition;
-}
-
-.btn-primary {
-    @apply bg-blue-600 text-white hover:bg-blue-700;
-}
-
-.btn-danger {
-    @apply bg-red-600 text-white hover:bg-red-700;
-}
-
-.btn-outline {
-    @apply border border-gray-300 text-gray-700 hover:bg-gray-50;
-}
-
 button {
     @apply cursor-pointer;
 

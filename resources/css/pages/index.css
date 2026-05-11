@@ -31,7 +31,11 @@
 
             .info {
                 .title {
-                    @apply text-xl;
+                    @apply text-lg font-medium;
+                }
+
+                .description {
+                    @apply text-muted-foreground text-sm;
                 }
             }
 
@@ -60,6 +64,30 @@
             .active-filters-indicator {
                 @apply mt-2 text-xs text-blue-600 dark:text-blue-400;
             }
+        }
+
+        .stats-grid {
+            @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6;
+
+            .card {
+                @apply flex items-center gap-4 p-4 border border-border rounded-lg shadow-sm;
+
+                .icon {
+                    @apply p-3 rounded-full;
+                }
+                
+                .value {
+                    @apply text-2xl font-bold;
+                }
+                
+                .label {
+                    @apply text-sm text-muted-foreground;
+                }
+            }
+        }
+
+        .status-filter {
+            @apply px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900;
         }
     }
 }
