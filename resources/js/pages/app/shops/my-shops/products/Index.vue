@@ -41,8 +41,9 @@ const props = defineProps<Props>();
 
 const breadcrumbs = computed(() => [
     { title: 'Shops', href: myShopsRoutes.show(props.shop.id).url },
+    { title: 'Products', href: myShopProductsRoutes.index(props.shop.slug) },
     { title: 'Discounts', href: myShopDiscountsRoutes.index(props.shop.slug) },
-    { title: 'Products', description: 'My shop products' }
+    { title: '', description: 'Shop details' }
 ]);
 
 const page = usePage();

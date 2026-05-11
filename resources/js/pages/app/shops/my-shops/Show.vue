@@ -26,7 +26,7 @@ const breadcrumbs = computed(() => [
     { title: 'Shops', href: shopsRoutes.index().url },
     { title: 'Products', href: shopProducts.index(props.shop.slug) },
     { title: 'Discounts', href: shopDiscounts.index(props.shop.slug) },
-    { title: 'Summary', description: 'Shop details' }
+    { title: '', description: 'Shop details' }
 ]);
 
 const page = usePage();
