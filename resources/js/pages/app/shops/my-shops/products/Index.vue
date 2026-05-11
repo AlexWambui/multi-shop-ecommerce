@@ -11,6 +11,7 @@ import type { Product } from '@/types/product';
 import myShopsRoutes from '@/routes/my-shops';
 import myShopDiscountsRoutes from '@/routes/my-shops/discounts';
 import myShopProductsRoutes from '@/routes/my-shops/products';
+import myShopInventoryRoutes from '@/routes/my-shops/inventory';
 
 interface Shop {
     id: number;
@@ -43,6 +44,7 @@ const breadcrumbs = computed(() => [
     { title: 'Shops', href: myShopsRoutes.show(props.shop.id).url },
     { title: 'Products', href: myShopProductsRoutes.index(props.shop.slug) },
     { title: 'Discounts', href: myShopDiscountsRoutes.index(props.shop.slug) },
+    { title: 'Inventory', href: myShopInventoryRoutes.index(props.shop.slug) },
     { title: '', description: 'Shop details' }
 ]);
 

@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
+use App\Models\InventoryMovement;
+use App\Enums\InventoryMovementTypes;
 use App\Concerns\HasUuid;
 use App\Concerns\HasSlug;
 
@@ -93,9 +96,19 @@ class Product extends Model
         return $this->belongsTo(ProductCategory::class, 'product_category_id');
     }
 
+    public function getCategoryNameAttribute(): string
+    {
+        return $this->category?->name ?? 'Uncategorized';
+    }
+
     public function images(): HasMany
     {
         return $this->hasMany(ProductImage::class, 'product_id')->orderBy('sort_order');
+    }
+
+    public function getThumbnailUrlAttribute(): string
+    {
+        return $this->images->first()?->image_url ?? asset('assets/images/default.png');
     }
 
     public function discounts(): BelongsToMany
@@ -164,13 +177,97 @@ class Product extends Model
         return round((($this->price - $this->cost_price) / $this->price) * 100, 2);
     }
 
-    public function getCategoryNameAttribute(): string
+    public function inventoryMovements(): HasMany
     {
-        return $this->category?->name ?? 'Uncategorized';
+        return $this->hasMany(InventoryMovement::class);
     }
 
-    public function getThumbnailUrlAttribute(): string
+    public function hasSufficientStock(int $quantity): bool
     {
-        return $this->images->first()?->image_url ?? asset('assets/images/default.png');
+        if (!$this->track_inventory) {
+            return true;
+        }
+        
+        return $this->current_stock >= $quantity;
+    }
+
+    public function getStockStatusAttribute(): string
+    {
+        if (!$this->track_inventory) {
+            return 'Unlimited';
+        }
+        
+        if ($this->current_stock <= 0) {
+            return 'Out of Stock';
+        }
+        
+        if ($this->current_stock <= $this->low_stock_threshold) {
+            return "Low Stock ({$this->current_stock} left)";
+        }
+        
+        return "In Stock ({$this->current_stock} available)";
+    }
+
+    public function getStockBadgeClassAttribute(): string
+    {
+        if (!$this->track_inventory) {
+            return 'bg-gray-100 text-gray-800';
+        }
+        
+        if ($this->current_stock <= 0) {
+            return 'bg-red-100 text-red-800';
+        }
+        
+        if ($this->current_stock <= $this->low_stock_threshold) {
+            return 'bg-orange-100 text-orange-800';
+        }
+        
+        return 'bg-green-100 text-green-800';
+    }
+
+    public function updateStock(int $newQuantity, InventoryMovementTypes $type, ?int $userId = null, ?string $notes = null, ?array $metadata = null): InventoryMovement
+    {
+        $oldQuantity = $this->current_stock;
+        $quantityChange = $newQuantity - $oldQuantity;
+        
+        // Create movement record
+        $movement = InventoryMovement::create([
+            'product_id' => $this->id,
+            'shop_id' => $this->shop_id,
+            'user_id' => $userId,
+            'type' => $type,
+            'quantity' => $quantityChange,
+            'quantity_before' => $oldQuantity,
+            'quantity_after' => $newQuantity,
+            'notes' => $notes,
+            'metadata' => $metadata
+        ]);
+        
+        // Update product stock
+        $this->current_stock = $newQuantity;
+        $this->save();
+        
+        return $movement;
+    }
+
+    public function addStock(int $quantity, InventoryMovementTypes $type, ?int $userId = null, ?string $notes = null): InventoryMovement
+    {
+        $newQuantity = $this->current_stock + $quantity;
+        return $this->updateStock($newQuantity, $type, $userId, $notes);
+    }
+
+    public function removeStock(int $quantity, InventoryMovementTypes $type, ?int $userId = null, ?string $notes = null)
+    {
+        if (!$this->hasSufficientStock($quantity)) {
+            Inertia::flash('toast', [
+                'type' => "error",
+                'message' => "Cannot remove {$quantity} units. Only {$this->current_stock} available."
+            ]);
+
+            return redirect()->back();
+        }
+        
+        $newQuantity = $this->current_stock - $quantity;
+        return $this->updateStock($newQuantity, $type, $userId, $notes);
     }
 }

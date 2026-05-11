@@ -20,8 +20,12 @@ class ProductsPageResource extends JsonResource
             'slug' => $this->slug,
             'sku' => $this->sku,
             'price' => $this->price,
+            'cost_price' => $this->cost_price,
             'thumbnail_url' => $this->thumbnail_url,
-            'category_name' => $this->category_name
+            'category_name' => $this->category_name,
+            'current_stock' => $this->current_stock,
+            'track_inventory' => (bool) $this->track_inventory,
+            'low_stock_threshold' => $this->low_stock_threshold,
         ];
     }
 }

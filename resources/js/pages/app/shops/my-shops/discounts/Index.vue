@@ -10,7 +10,8 @@ import DeleteConfirmationDialog from '@/components/custom/DeleteConfirmation.vue
 import Pagination from '@/components/custom/Pagination.vue';
 import myShopsRoutes from '@/routes/my-shops';
 import myShopProductsRoutes from '@/routes/my-shops/products';
-import shopDiscountsRoutes from '@/routes/my-shops/discounts';
+import myShopDiscountsRoutes from '@/routes/my-shops/discounts';
+import myShopInventoryRoutes from '@/routes/my-shops/inventory';
 
 interface Discount {
     id: number;
@@ -52,7 +53,8 @@ const props = defineProps<Props>();
 const breadcrumbs = computed(() => [
     { title: 'Shops', href: myShopsRoutes.show(props.shop.id).url },
     { title: 'Products', href: myShopProductsRoutes.index(props.shop.slug) },
-    { title: 'Discounts', href: shopDiscountsRoutes.index(props.shop.slug) },
+    { title: 'Discounts', href: myShopDiscountsRoutes.index(props.shop.slug) },
+    { title: 'Inventory', href: myShopInventoryRoutes.index(props.shop.slug) },
     { title: '', description: 'Shop details' }
 ]);
 
@@ -62,7 +64,7 @@ page.props.breadcrumbs = breadcrumbs.value;
 const search = ref(props.filters?.search || '');
 
 const debouncedSearch = useDebounceFn(() => {
-    router.get(shopDiscountsRoutes.index(props.shop.slug).url, {
+    router.get(myShopDiscountsRoutes.index(props.shop.slug).url, {
         search: search.value,
     }, {
         preserveState: true,
@@ -103,7 +105,7 @@ const hasActiveFilters = computed(() =>
                 />
             </div>
 
-            <Link :href="shopDiscountsRoutes.create(shop.slug).url">
+            <Link :href="myShopDiscountsRoutes.create(shop.slug).url">
                 <Button>New Discount</Button>
             </Link>
         </div>
@@ -148,11 +150,11 @@ const hasActiveFilters = computed(() =>
                         </TableCell>
                         <TableCell class="actions">
                             <div class="actions-wrapper">
-                                <Link :href="shopDiscountsRoutes.edit({shop: shop.slug, discount: discount.id}).url" class="action edit">
+                                <Link :href="myShopDiscountsRoutes.edit({shop: shop.slug, discount: discount.id}).url" class="action edit">
                                     <Pencil class="w-4 h-4" />
                                 </Link>
                                 <DeleteConfirmationDialog 
-                                    :url="shopDiscountsRoutes.destroy({shop: shop.slug, discount: discount.id}).url" 
+                                    :url="myShopDiscountsRoutes.destroy({shop: shop.slug, discount: discount.id}).url" 
                                     title="Delete Discount?" 
                                     description="This discount will be deleted permanently!" 
                                     confirm-text="Delete Discount">

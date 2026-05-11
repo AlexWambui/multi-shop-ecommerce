@@ -12,6 +12,7 @@ use App\Http\Controllers\Shops\ShopCategoryController;
 use App\Http\Controllers\Shops\MyShopController;
 use App\Http\Controllers\Shops\MyShopProductController;
 use App\Http\Controllers\Shops\MyShopDiscountController;
+use App\Http\Controllers\Shops\MyShopInventoryController;
 use App\Http\Controllers\Products\ProductCategoryController;
 
 Route::get('/', [HomePageController::class, 'homePage'])->name('home');
@@ -112,6 +113,19 @@ Route::middleware(['auth', 'verified', 'role:seller'])->group(function () {
             Route::get('/{discount}/edit', 'edit')->name('edit');
             Route::put('/{discount}', 'update')->name('update');
             Route::delete('/{discount}', 'destroy')->name('destroy');
+        });
+
+        Route::prefix('{shop:slug}/inventory')
+            ->name('inventory.')
+            ->controller(MyShopInventoryController::class)
+            ->group( function()
+        {
+            Route::get('/', 'index')->name('index');
+            Route::get('{product}/create', 'create')->name('create');
+            Route::post('{product}/', 'store')->name('store');
+            Route::get('/{product}/edit', 'edit')->name('edit');
+            Route::put('/{product}', 'update')->name('update');
+            Route::get('/{product}/history', 'history')->name('history');
         });
     });
 });
