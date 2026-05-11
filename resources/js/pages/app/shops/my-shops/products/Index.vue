@@ -7,11 +7,9 @@ import Button from '@/components/ui/button/Button.vue';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import DeleteConfirmationDialog from '@/components/custom/DeleteConfirmation.vue';
 import Pagination from '@/components/custom/Pagination.vue';
+import ShopNav from '../components/ShopNav.vue';
 import type { Product } from '@/types/product';
-import myShopsRoutes from '@/routes/my-shops';
-import myShopDiscountsRoutes from '@/routes/my-shops/discounts';
 import myShopProductsRoutes from '@/routes/my-shops/products';
-import myShopInventoryRoutes from '@/routes/my-shops/inventory';
 
 interface Shop {
     id: number;
@@ -39,17 +37,6 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
-const breadcrumbs = computed(() => [
-    { title: 'Shops', href: myShopsRoutes.show(props.shop.id).url },
-    { title: 'Products', href: myShopProductsRoutes.index(props.shop.slug) },
-    { title: 'Discounts', href: myShopDiscountsRoutes.index(props.shop.slug) },
-    { title: 'Inventory', href: myShopInventoryRoutes.index(props.shop.slug) },
-    { title: '', description: 'Shop details' }
-]);
-
-const page = usePage();
-page.props.breadcrumbs = breadcrumbs.value;
 
 const search = ref(props.filters?.search || '');
 const status_filter = ref(props.filters?.status || '');
@@ -80,6 +67,8 @@ const hasActiveFilters = computed(() =>
 </script>
 
 <template>
+    <ShopNav :shop-id="shop.id" :shop-slug="shop.slug" current-page="products" />
+    
     <div class="app-container">
         <div class="header">
             <div class="info">

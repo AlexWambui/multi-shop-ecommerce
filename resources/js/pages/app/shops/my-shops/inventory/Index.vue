@@ -69,9 +69,9 @@ const hasActiveFilters = computed(() =>
 <template>
     <Head title="Inventory Management" />
 
-    <div class="app-container">
-        <ShopNav :shop-id="shop.id" :shop-slug="shop.slug" current-page="inventory" />
+    <ShopNav :shop-id="shop.id" :shop-slug="shop.slug" current-page="inventory" />
 
+    <div class="app-container">
         <div class="header">
             <div class="info">
                 <h1 class="title">Inventory Management</h1>

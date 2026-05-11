@@ -30,7 +30,7 @@ const breadcrumbItems = computed(() => [
 </script>
 
 <template>
-    <div class="shop-nav py-4" aria-label="Breadcrumb">
+    <div class="shop-nav py-4 px-4 lg:px-16 w-full border-b border-sidebar-border/80" aria-label="Breadcrumb">
         <ol class="flex items-center gap-2 text-sm">
             <li v-for="(item, idx) in breadcrumbItems" :key="item.key" class="flex items-center gap-2">
                 <Link

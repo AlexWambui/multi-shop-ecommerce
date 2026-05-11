@@ -8,10 +8,8 @@ import Button from '@/components/ui/button/Button.vue';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import DeleteConfirmationDialog from '@/components/custom/DeleteConfirmation.vue';
 import Pagination from '@/components/custom/Pagination.vue';
-import myShopsRoutes from '@/routes/my-shops';
-import myShopProductsRoutes from '@/routes/my-shops/products';
+import ShopNav from '../components/ShopNav.vue';
 import myShopDiscountsRoutes from '@/routes/my-shops/discounts';
-import myShopInventoryRoutes from '@/routes/my-shops/inventory';
 
 interface Discount {
     id: number;
@@ -50,17 +48,6 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const breadcrumbs = computed(() => [
-    { title: 'Shops', href: myShopsRoutes.show(props.shop.id).url },
-    { title: 'Products', href: myShopProductsRoutes.index(props.shop.slug) },
-    { title: 'Discounts', href: myShopDiscountsRoutes.index(props.shop.slug) },
-    { title: 'Inventory', href: myShopInventoryRoutes.index(props.shop.slug) },
-    { title: '', description: 'Shop details' }
-]);
-
-const page = usePage();
-page.props.breadcrumbs = breadcrumbs.value;
-
 const search = ref(props.filters?.search || '');
 
 const debouncedSearch = useDebounceFn(() => {
@@ -91,6 +78,8 @@ const hasActiveFilters = computed(() =>
 <template>
     <Head title="Discounts" />
 
+    <ShopNav :shop-id="shop.id" :shop-slug="shop.slug" current-page="discounts" />
+    
     <div class="app-container">
         <div class="header">
             <div class="info">
