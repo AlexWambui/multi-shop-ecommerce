@@ -34,7 +34,8 @@
             .actions {
                 @apply text-center;
 
-                .actions-wrapper {
+                .actions-wrapper,
+                .action-buttons {
                     @apply flex items-center justify-center gap-2;
 
                     .action {
@@ -47,6 +48,22 @@
 
                     .delete {
                         @apply text-red-600 dark:text-red-400;
+                    }
+
+                    .btn-sm {
+                        @apply px-3 py-1 text-sm rounded-md transition;
+                    }
+
+                    .btn-primary {
+                        @apply bg-blue-600 text-white hover:bg-blue-700;
+                    }
+
+                    .btn-danger {
+                        @apply bg-red-600 text-white hover:bg-red-700;
+                    }
+
+                    .btn-outline {
+                        @apply border border-border text-foreground hover:bg-foreground hover:text-background;
                     }
                 }
             }
@@ -65,3 +82,4 @@
         @apply text-blue-600 dark:text-blue-400;
     }
 }
+         
