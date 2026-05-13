@@ -62,7 +62,7 @@
 }
 
 .product-card_deal {
-    @apply bg-white border border-gray-200 rounded-xl p-4 flex items-center gap-3.5 cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 dark:bg-background dark:border-gray-700;
+    @apply bg-white border border-border rounded-xl p-4 flex items-center gap-3.5 cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 dark:bg-background;
 
     .deal-icon {
         @apply h-14 w-14 rounded-xl overflow-hidden;
@@ -80,7 +80,7 @@
         }
 
         .deal-shop {
-            @apply text-xs text-gray-400;
+            @apply text-xs text-muted-foreground;
         }
     }
 
@@ -91,7 +91,7 @@
         }
 
         .deal-was {
-            @apply text-xs text-gray-400 line-through;
+            @apply text-xs text-muted-foreground;
         }
     }
 }

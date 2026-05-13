@@ -76,4 +76,10 @@
             }
         }
     }
+
+    .HotDeals {
+        .hotdeals-wrapper {
+            @apply grid lg:grid-cols-3 gap-8;
+        }
+    }
 }

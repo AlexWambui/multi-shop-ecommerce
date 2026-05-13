@@ -73,6 +73,40 @@ const getDisplayRange = computed(() => {
 const hasActiveFilters = computed(() => 
     !!(search.value)
 );
+
+const formatLocalTime = (utcDate: string) => {
+    if (!utcDate) return '';
+    
+    const date = new Date(utcDate);
+    
+    // Format: 13th May 2026 (01:06 PM)
+    const day = date.getDate();
+    const month = date.toLocaleString('en', { month: 'long', timeZone: 'Africa/Nairobi' });
+    const year = date.getFullYear();
+    
+    let hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    
+    // Convert to 12-hour format
+    hours = hours % 12;
+    hours = hours ? hours : 12; // 12 instead of 0
+    
+    const timeStr = `${hours.toString().padStart(2, '0')}:${minutes} ${ampm}`;
+    
+    // Add ordinal suffix to day (st, nd, rd, th)
+    const ordinal = (n: number) => {
+        if (n > 3 && n < 21) return 'th';
+        switch (n % 10) {
+            case 1: return 'st';
+            case 2: return 'nd';
+            case 3: return 'rd';
+            default: return 'th';
+        }
+    };
+    
+    return `${day}${ordinal(day)} ${month} ${year} (${timeStr})`;
+};
 </script>
 
 <template>
@@ -131,7 +165,7 @@ const hasActiveFilters = computed(() =>
                             </span>
                         </TableCell>
                         <TableCell class="text-sm">
-                            {{ discount.starts_at }} - {{ discount.expires_at }}
+                            {{ formatLocalTime(discount.starts_at) }} - {{ formatLocalTime(discount.expires_at) }}
                         </TableCell>
                         <TableCell class="actions">
                             <div class="actions-wrapper">

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use Carbon\Carbon;
 use Exception;
 use App\Models\Shop;
 use App\Models\Discount;
@@ -90,6 +91,17 @@ class MyShopDiscountController extends Controller
         try {
             $validated_data = $request->validated();
 
+            // Convert dates from Africa/Nairobi to UTC before saving
+            if (!empty($validated_data['starts_at'])) {
+                $validated_data['starts_at'] = Carbon::parse($validated_data['starts_at'], 'Africa/Nairobi')
+                    ->setTimezone('UTC');
+            }
+            
+            if (!empty($validated_data['expires_at'])) {
+                $validated_data['expires_at'] = Carbon::parse($validated_data['expires_at'], 'Africa/Nairobi')
+                    ->setTimezone('UTC');
+            }
+
             // Extract relationship data
             $targetData = [
                 'category_ids' => $validated_data['category_ids'] ?? [],
@@ -132,6 +144,16 @@ class MyShopDiscountController extends Controller
             }
 
             $validated_data = $request->validated();
+
+            if (!empty($validated_data['starts_at'])) {
+                $validated_data['starts_at'] = Carbon::parse($validated_data['starts_at'], 'Africa/Nairobi')
+                    ->setTimezone('UTC');
+            }
+
+            if (!empty($validated_data['expires_at'])) {
+                $validated_data['expires_at'] = Carbon::parse($validated_data['expires_at'], 'Africa/Nairobi')
+                    ->setTimezone('UTC');
+            }
 
             // Extract relationship data
             $targetData = [

@@ -28,7 +28,7 @@ watch(user, (newUser, oldUser) => {
     <header class="guest-navbar">
         <nav>
             <div class="branding">
-                <Link><span>Multi</span><span>Store</span></Link>
+                <Link href="/"><span>Multi</span><span>Store</span></Link>
             </div>
 
             <div class="links">

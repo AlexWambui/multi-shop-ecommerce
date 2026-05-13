@@ -23,8 +23,8 @@ class DiscountResource extends JsonResource
             'scope_label' => $this->scope_label,
             'is_active' => $this->is_active,
             'is_expired' => $this->is_expired,
-            'starts_at' => $this->starts_at->format('d/m/Y h:i A'),
-            'expires_at' => $this->expires_at->format('d/m/Y h:i A'),
+            'starts_at' => $this->starts_at,
+            'expires_at' => $this->expires_at,
             'is_scheduled' => $this->starts_at->isFuture(), // True if starts in future
             'starts_in_days' => $this->starts_at->isFuture() ? $this->starts_at->diffInDays(now()) : null,
             'status' => $this->is_active_now ? 'active' : ($this->starts_at->isFuture() ? 'scheduled' : ($this->is_expired ? 'expired' : 'inactive')),

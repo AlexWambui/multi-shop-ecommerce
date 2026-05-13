@@ -91,6 +91,11 @@ class Product extends Model
         return $this->belongsTo(Shop::class, 'shop_id');
     }
 
+    public function getShopNameAttribute(): string
+    {
+        return $this->shop->name;
+    }
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(ProductCategory::class, 'product_category_id');
@@ -171,6 +176,22 @@ class Product extends Model
 
         $discountAmount = $bestDiscount->calculateDiscount($this->price, $this->id, 1);
         return max(0, $this->price - $discountAmount);
+    }
+
+    public function getDiscountPctAttribute(): ?int
+    {
+        $best_discount = $this->best_discount;
+
+        if (!$best_discount) {
+            return null;
+        }
+
+        if ($best_discount->type === 'percentage') {
+            return (int) $best_discount->value;
+        }
+
+        $saved = $this->price - $this->discounted_price;
+        return (int) round(($saved / $this->price) * 100);
     }
 
     public function getDiscountDisplayAttribute(): ?array

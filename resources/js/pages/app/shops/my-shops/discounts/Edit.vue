@@ -66,10 +66,25 @@ const form = useForm({
 });
 
 // Helper function to format date for datetime-local input
-function formatDateTimeLocal(dateTimeString: string): string {
-    if (!dateTimeString) return '';
-    // Convert "2024-01-01 14:30:00" to "2024-01-01T14:30"
-    return dateTimeString.replace(' ', 'T').slice(0, 16);
+function formatDateTimeLocal(dateTimeValue: any): string {
+    if (!dateTimeValue) return '';
+    
+    // If it's already a Date object or can be parsed
+    const date = new Date(dateTimeValue);
+    
+    // Check if valid
+    if (isNaN(date.getTime())) {
+        return '';
+    }
+    
+    // Get local time components (browser automatically converts UTC to local)
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
 // Watch scope changes and clear the appropriate fields

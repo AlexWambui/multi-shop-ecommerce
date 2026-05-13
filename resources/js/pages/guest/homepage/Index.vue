@@ -2,7 +2,9 @@
 import GuestLayout from '@/layouts/GuestLayout.vue';
 import HeroSection from './components/Hero.vue';
 import FeaturedShops from './components/FeaturedShops.vue';
+import HotDeals from './components/Deals/HotDeals.vue';
 import type { Shop } from '@/types/shop';
+import type { Product } from '@/types/product';
 
 interface HeroStats {
     total_active_shops: number;
@@ -10,8 +12,11 @@ interface HeroStats {
 };
 
 const props = defineProps<{
-    featured_shops: Shop[];
     stats: HeroStats;
+    featured_shops: Shop[];
+    hot_deals: {
+        data: Product[]
+    };
 }>();
 </script>
 
@@ -20,6 +25,7 @@ const props = defineProps<{
         <div class="HomePage">
             <HeroSection :stats="stats" />
             <FeaturedShops :featured_shops="featured_shops" />
+            <HotDeals :hot_deals="hot_deals" />
         </div>
     </GuestLayout>
 </template>
