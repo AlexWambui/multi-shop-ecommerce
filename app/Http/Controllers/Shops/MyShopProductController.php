@@ -19,7 +19,7 @@ class MyShopProductController extends Controller
 {
     public function index(Request $request, Shop $shop)
     {
-        $query = $shop->products()->select('id', 'name', 'slug', 'sku', 'price', 'is_active', 'product_category_id')->with('category:id,name');
+        $query = $shop->products();
 
         if ($request->filled('search')) {
             $search = $request->search;

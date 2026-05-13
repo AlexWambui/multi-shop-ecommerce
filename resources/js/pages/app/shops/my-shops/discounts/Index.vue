@@ -123,11 +123,7 @@ const hasActiveFilters = computed(() =>
                             {{ discount.name }}
                         </TableCell>
                         <TableCell>{{ discount.type_label }}</TableCell>
-                        <TableCell>
-                            <span class="font-semibold text-green-600">
-                                {{ discount.formatted_value }}
-                            </span>
-                        </TableCell>
+                        <TableCell>{{ discount.formatted_value }}</TableCell>
                         <TableCell>
                             {{ discount.scope_label }}
                             <span v-if="discount.targets_count > 0" class="text-xs text-gray-500 ml-1">

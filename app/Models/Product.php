@@ -155,6 +155,11 @@ class Product extends Model
         return $bestDiscount;
     }
 
+    public function getHasDiscountAttribute(): bool
+    {
+        return $this->best_discount !== null;
+    }
+
     // Get discounted price (if any active discount applies)
     public function getDiscountedPriceAttribute(): float
     {
@@ -166,6 +171,21 @@ class Product extends Model
 
         $discountAmount = $bestDiscount->calculateDiscount($this->price, $this->id, 1);
         return max(0, $this->price - $discountAmount);
+    }
+
+    public function getDiscountDisplayAttribute(): ?array
+    {
+        $discount = $this->best_discount;
+
+        if (!$discount) {
+            return null;
+        }
+
+        return [
+            'type' => $discount->type_label,
+            'value' => $discount->formatted_value,
+            'saved_amount' => $this->price - $this->discounted_price
+        ];
     }
 
     public function getProfitMarginAttribute(): float

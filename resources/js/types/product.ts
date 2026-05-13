@@ -7,6 +7,12 @@ export interface Product {
     price: number;
     thumbnail_url: string;
     category_name: string | null;
+    has_discount: boolean;
+    discount_display: {
+        saved_amount: number,
+        value: number,
+        type: string
+    };
     discounted_price: number | null;
     discount_pct: number | null;
     current_stock: number;

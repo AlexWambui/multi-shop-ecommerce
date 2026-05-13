@@ -95,10 +95,7 @@ const hasActiveFilters = computed(() =>
                         <TableHead class="id">#</TableHead>
                         <TableHead>Product</TableHead>
                         <TableHead>SKU</TableHead>
-                        <!-- TODO: Show discount -->
-                        <TableHead>Discount</TableHead>
-                        <TableHead>Price</TableHead>
-                        <!-- TODO: Show Stock Count -->
+                        <TableHead>Price (Ksh)</TableHead>
                         <TableHead>Stock</TableHead>
                         <TableHead>Category</TableHead>
                         <TableHead class="actions">Actions</TableHead>
@@ -110,9 +107,21 @@ const hasActiveFilters = computed(() =>
                         <TableCell class="id">{{ (products.meta.current_page - 1) * products.meta.per_page + index + 1 }}</TableCell>
                         <TableCell>{{ product.name }}</TableCell>
                         <TableCell>{{ product.sku }}</TableCell>
-                        <TableCell>Discount</TableCell>
-                        <TableCell>{{ product.price }}</TableCell>
-                        <TableCell>Stock</TableCell>
+                        <TableCell>
+                            <div v-if="product.has_discount" class="flex items-center gap-2">
+                                <span>{{ product.discounted_price }}</span>
+                                <span class="text-muted-foreground line-through">{{ product.price }}</span>
+                                <span class="text-xs text-green-500 italic">Save {{ product.discount_display.saved_amount }}</span>
+                            </div>
+                            <span v-else>
+                                {{ product.price }}
+                            </span>
+                        </TableCell>
+                        <TableCell>
+                            <span :class="{ 'font-bold text-red-600': product.current_stock === 0 }">
+                                {{ product.track_inventory ? product.current_stock : '∞' }}
+                            </span>
+                        </TableCell>
                         <TableCell>{{ product.category_name }}</TableCell>
                         <TableCell class="actions">
                             <div class="actions-wrapper">
