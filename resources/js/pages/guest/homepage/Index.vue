@@ -2,7 +2,7 @@
 import GuestLayout from '@/layouts/GuestLayout.vue';
 import HeroSection from './components/Hero.vue';
 import FeaturedShops from './components/FeaturedShops.vue';
-import HotDeals from './components/Deals/HotDeals.vue';
+import HotDeals from './components/HotDeals.vue';
 import type { Shop } from '@/types/shop';
 import type { Product } from '@/types/product';
 

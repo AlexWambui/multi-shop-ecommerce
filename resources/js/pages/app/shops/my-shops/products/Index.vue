@@ -10,6 +10,9 @@ import Pagination from '@/components/custom/Pagination.vue';
 import ShopNav from '../components/ShopNav.vue';
 import type { Product } from '@/types/product';
 import myShopProductsRoutes from '@/routes/my-shops/products';
+import { usePriceFormatter } from '@/composables/usePriceFormatter';
+
+const { formatPrice } = usePriceFormatter();
 
 interface Shop {
     id: number;
@@ -109,12 +112,12 @@ const hasActiveFilters = computed(() =>
                         <TableCell>{{ product.sku }}</TableCell>
                         <TableCell>
                             <div v-if="product.has_discount" class="flex items-center gap-2">
-                                <span>{{ product.discounted_price }}</span>
-                                <span class="text-muted-foreground line-through">{{ product.price }}</span>
-                                <span class="text-xs text-green-500 italic">Save {{ product.discount_display.saved_amount }}</span>
+                                <span>{{ formatPrice(product.discounted_price) }}</span>
+                                <span class="text-muted-foreground line-through">{{ formatPrice(product.price) }}</span>
+                                <span class="text-xs text-green-500 italic">Save {{ formatPrice(product.discount_display.saved_amount) }}</span>
                             </div>
                             <span v-else>
-                                {{ product.price }}
+                                {{ formatPrice(product.price) }}
                             </span>
                         </TableCell>
                         <TableCell>

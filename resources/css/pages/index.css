@@ -93,6 +93,7 @@
 }
 
 @import './homepage';
+@import './dealspage';
 @import './product-details-page';
 @import './shop-details-page';
 

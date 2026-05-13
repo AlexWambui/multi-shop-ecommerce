@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\Guest\HomePageController;
+use App\Http\Controllers\Guest\DealsPageController;
 use App\Http\Controllers\Guest\GuestShopController;
 use App\Http\Controllers\Guest\GuestProductController;
 use App\Http\Controllers\DashboardController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Shops\MyShopInventoryController;
 use App\Http\Controllers\Products\ProductCategoryController;
 
 Route::get('/', [HomePageController::class, 'homePage'])->name('home');
+Route::get('/deals-page', [DealsPageController::class, 'index'])->name('deals-page');
 Route::get('all-shops', [GuestShopController::class, 'listAllShops'])->name('guest-shops.all');
 Route::get('shop-details/{shop:slug}', [GuestShopController::class, 'shopDetails'])->name('guest-shops.details');
 Route::get('product-details/{product:slug}', [GuestProductController::class, 'productDetails'])->name('guest-products.details');

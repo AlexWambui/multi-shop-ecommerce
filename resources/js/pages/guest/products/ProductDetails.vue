@@ -8,6 +8,9 @@ import GuestLayout from '@/layouts/GuestLayout.vue';
 import ProductPrice from '@/components/custom/Products/Price.vue';
 import AddToCartButton from '@/pages/guest/components/AddToCartButton.vue';
 import { useCartStore } from '@/store/cart';
+import { usePriceFormatter } from '@/composables/usePriceFormatter';
+
+const { formatPrice } = usePriceFormatter();
 
 interface ProductImage {
     id: number;
@@ -83,14 +86,6 @@ const increaseQuantity = () => {
     if (quantity.value < (props.product.stock_qty || 10)) {
         quantity.value++;
     }
-};
-
-const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-KE', {
-        style: 'currency',
-        currency: 'KES',
-        minimumFractionDigits: 0,
-    }).format(price);
 };
 
 const averageRating = computed(() => {
@@ -176,8 +171,8 @@ const buttonDisplayText = computed(() => {
                         <div class="product-price">
                             <ProductPrice
                                 :price="product.price"
-                                :discounted-price="product.discounted_price"
-                                :discount-pct="product.discount_pct"
+                                :discounted_price="product.discounted_price"
+                                :discount_pct="product.discount_pct"
                                 size="lg"
                             />
                         </div>

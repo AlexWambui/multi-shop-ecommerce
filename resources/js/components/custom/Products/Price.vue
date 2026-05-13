@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { usePriceFormatter } from '@/composables/usePriceFormatter';
+
+const { formatPrice } = usePriceFormatter();
 
 interface Props {
     price: number | null | undefined;
-    discountedPrice: number | null;
-    discountPct: number | null;
+    discounted_price: number | null;
+    discount_pct: number | null;
     size?: 'sm' | 'md' | 'lg';
 }
 
@@ -12,8 +15,6 @@ const props = withDefaults(defineProps<Props>(), {
     size: 'md',
     price: 0
 })
-
-const formatPrice = (price: number) => `${price.toLocaleString()}`;
 
 // Computed property to handle undefined price
 const hasValidPrice = computed(() => {
@@ -26,15 +27,15 @@ const safePrice = computed(() => {
 });
 
 const safeDiscountedPrice = computed(() => {
-    return props.discountedPrice !== null && !isNaN(props.discountedPrice) 
-        ? props.discountedPrice 
+    return props.discounted_price !== null && !isNaN(props.discounted_price) 
+        ? props.discounted_price 
         : null;
 });
 </script>
 
 <template>
     <div class="flex items-center gap-2 flex-wrap">
-        <template v-if="safeDiscountedPrice !== null && discountPct !== null && hasValidPrice">
+        <template v-if="safeDiscountedPrice !== null && discount_pct !== null && hasValidPrice">
             <span :class="{
                 'text-sm font-semibold': size === 'sm',
                 'text-base font-semibold': size === 'md',
@@ -54,7 +55,7 @@ const safeDiscountedPrice = computed(() => {
                 'text-xs px-2 py-0.5': size === 'md',
                 'text-sm px-2.5 py-1': size === 'lg',
             }" class="bg-green-100 text-green-600 font-medium rounded-full">
-                {{ discountPct }}% Off
+                {{ discount_pct }}% Off
             </span>
         </template>
         <template v-else-if="hasValidPrice">

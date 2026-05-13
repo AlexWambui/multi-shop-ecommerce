@@ -75,8 +75,8 @@ const buttonDisplayText = computed(() => {
             
             <ProductPrice
                 :price="product.price"
-                :discounted-price="product.discounted_price"
-                :discount-pct="product.discount_pct"
+                :discounted_price="product.discounted_price"
+                :discount_pct="product.discount_pct"
                 size="sm"
             />
         </div>
