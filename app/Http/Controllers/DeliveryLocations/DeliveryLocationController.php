@@ -1,0 +1,127 @@
+<?php
+
+namespace App\Http\Controllers\DeliveryLocations;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
+use Exception;
+use App\Models\DeliveryLocation;
+use App\Http\Resources\DeliveryLocations\DeliveryLocationResource;
+use App\Http\Requests\DeliveryLocations\DeliveryLocationRequest;
+
+class DeliveryLocationController extends Controller
+{
+    public function index(Request $request)
+    {
+        $query = DeliveryLocation::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        $locations = $query->orderBy('name')
+            ->withCount(['areas'])
+            ->paginate(20);
+
+        return inertia('app/delivery-locations/locations/Index', [
+            'locations' => DeliveryLocationResource::collection($locations),
+            'filters' => $request->only(['search'])
+        ]);
+    }
+
+    public function create()
+    {
+        return inertia('app/delivery-locations/locations/Create');
+    }
+
+    public function store(DeliveryLocationRequest $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            DeliveryLocation::create([
+                'name' => $request->name,
+            ]);
+
+            DB::commit();
+
+            Inertia::flash('toast', [
+                'type' => "success",
+                'message' => "Location created successfully"
+            ]);
+
+            return to_route('delivery-locations.index');
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            Inertia::flash('toast', [
+                'type' => "error",
+                'message' => "Failed to create location: {$e->getMessage()}"
+            ]);
+
+            return back()->withInput();
+        }
+    }
+
+    public function edit(DeliveryLocation $delivery_location)
+    {
+        return inertia('app/delivery-locations/locations/Edit', [
+            'delivery_location' => $delivery_location
+        ]);
+    }
+
+    public function update(DeliveryLocationRequest $request, DeliveryLocation $delivery_location)
+    {
+        try {
+            DB::beginTransaction();
+
+            $delivery_location->update([
+                'name' => $request->name,
+            ]);
+
+            DB::commit();
+
+            Inertia::flash('toast', [
+                'type' => "success",
+                'message' => "Location updated successfully"
+            ]);
+
+            return to_route('delivery-locations.index');
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            Inertia::flash('toast', [
+                'type' => "error",
+                'message' => "Failed to update location: {$e->getMessage()}"
+            ]);
+
+            return back()->withInput();
+        }
+    }
+
+    public function destroy(DeliveryLocation $delivery_location)
+    {
+        try {
+            $delivery_location->delete();
+
+            Inertia::flash('toast', [
+                'type' => "success",
+                'message' => "Location deleted successfully"
+            ]);
+
+            return to_route('delivery-locations.index');
+        } catch (Exception $e) {
+            Inertia::flash('toast', [
+                'type' => "error",
+                'message' => "Failed to delete location: {$e->getMessage()}"
+            ]);
+
+            return back()->withInput();
+        }
+    }
+}

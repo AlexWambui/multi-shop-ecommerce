@@ -1,0 +1,129 @@
+<script setup lang="ts">
+import { ref, watch, computed } from 'vue';
+import { useDebounceFn } from '@vueuse/core';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { Pencil, Trash2 } from 'lucide-vue-next';
+import Input from '@/components/ui/input/Input.vue';
+import Button from '@/components/ui/button/Button.vue';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import Pagination from '@/components/custom/Pagination.vue';
+import TableResultsSummary from '@/components/custom/Tables/ResultsSummary.vue';
+import DeleteConfirmationDialog from '@/components/custom/DeleteConfirmation.vue';
+import DeliveryAreaRoutes from '@/routes/delivery-areas';
+
+interface DeliveryArea {
+    id: number;
+    name: string;
+};
+
+interface Props {
+    areas: {
+        data: DeliveryArea[];
+        links: any[];
+        meta: {
+            current_page: number;
+            last_page: number;
+            per_page: number;
+            total: number;
+            links: any[];
+        }
+    }
+
+    search?: string;
+};
+
+const props = defineProps<Props>();
+
+const search = ref(props.search || '');
+const debouncedSearch = useDebounceFn(() => {
+    router.get(DeliveryAreaRoutes.index().url, {
+        search: search.value,
+    }, {
+        preserveState: true,
+        replace: true,
+    });
+}, 300);
+watch([search], () => {
+    debouncedSearch();
+});
+
+const hasActiveFilters = computed(() =>
+    !!(search.value)
+);
+</script>
+
+<template>
+    <Head title="Delivery Areas" />
+
+    <div class="app-container">
+        <div class="header">
+            <div class="info">
+                <h1 class="title">Delivery Areas</h1>
+            </div>
+
+            <div class="search">
+                <Input
+                    v-model="search"
+                    type="text"
+                    placeholder="Search by name or slug"
+                />
+            </div>
+
+            <Link :href="DeliveryAreaRoutes.create().url">
+                <Button>New Area</Button>
+            </Link>
+        </div>
+
+        <div class="table-wrapper">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead class="id">#</TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead class="actions">Actions</TableHead>
+                    </TableRow>
+                </TableHeader>
+
+                <TableBody>
+                    <TableRow v-for="(area, index) in areas.data" :key="area.id">
+                        <TableCell class="id">{{ (areas.meta.current_page - 1) * areas.meta.per_page + index + 1 }}</TableCell>
+                        <TableCell>{{ area.name }}</TableCell>
+                        <TableCell class="actions">
+                            <div class="actions-wrapper">
+                                <Link :href="DeliveryAreaRoutes.edit(area.id).url" class="action edit">
+                                    <Pencil class="icon edit" />
+                                </Link>
+
+                                <span class="divider">|</span>
+
+                                <DeleteConfirmationDialog :url="DeliveryAreaRoutes.destroy(area.id).url" title="Delete Area?" description="This area will be deleted permanently!" confirm-text="Delete Area">
+                                    <template #trigger>
+                                        <button class="action delete">
+                                            <Trash2 class="icon delete" />
+                                        </button>
+                                    </template>
+                                </DeleteConfirmationDialog>
+                            </div>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow v-if="areas.data.length === 0">
+                        <TableCell colspan="5" class="blank-table-row">
+                            No areas found!
+                        </TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
+        </div>
+
+        <Pagination :meta="areas.meta" />
+
+        <TableResultsSummary
+            :meta="areas.meta"
+            item-name="area"
+            item-name-plural="areas"
+            :show-filter-indicators="true"
+            :has-active-filters="hasActiveFilters"
+        />
+    </div>
+</template>

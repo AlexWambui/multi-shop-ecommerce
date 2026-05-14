@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Http\Resources\DeliveryLocations;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class DeliveryLocationResource extends JsonResource
+{
+    /**
+     * Transform the resource into an array.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'uuid' => $this->uuid,
+            'name' => $this->name,
+            'areas_count' => $this->areas_count,
+        ];
+    }
+}

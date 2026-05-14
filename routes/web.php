@@ -17,6 +17,8 @@ use App\Http\Controllers\Shops\MyShopProductController;
 use App\Http\Controllers\Shops\MyShopDiscountController;
 use App\Http\Controllers\Shops\MyShopInventoryController;
 use App\Http\Controllers\Products\ProductCategoryController;
+use App\Http\Controllers\DeliveryLocations\DeliveryLocationController;
+use App\Http\Controllers\DeliveryLocations\DeliveryAreaController;
 
 Route::get('/', [HomePageController::class, 'homePage'])->name('home');
 Route::get('/deals-page', [DealsPageController::class, 'index'])->name('deals-page');
@@ -86,6 +88,32 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
         Route::get('/{product_category}/edit', 'edit')->name('edit');
         Route::put('/{product_category}', 'update')->name('update');
         Route::delete('/{product_category}', 'destroy')->name('destroy');
+    });
+
+    Route::prefix('delivery-locations')
+        ->name('delivery-locations.')
+        ->controller(DeliveryLocationController::class)
+        ->group( function()
+    {
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{delivery_location:uuid}/edit', 'edit')->name('edit');
+        Route::put('/{delivery_location:uuid}', 'update')->name('update');
+        Route::delete('/{delivery_location:uuid}', 'destroy')->name('destroy');
+    });
+
+    Route::prefix('delivery-areas')
+        ->name('delivery-areas.')
+        ->controller(DeliveryAreaController::class)
+        ->group( function()
+    {
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{delivery_area:uuid}/edit', 'edit')->name('edit');
+        Route::put('/{delivery_area:uuid}', 'update')->name('update');
+        Route::delete('/{delivery_area:uuid}', 'destroy')->name('destroy');
     });
 });
 

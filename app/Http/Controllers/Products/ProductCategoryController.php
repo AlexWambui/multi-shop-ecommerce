@@ -89,7 +89,7 @@ class ProductCategoryController extends Controller
             return to_route('product-categories.index');
         } catch (Exception $e) {
             DB::rollBack();
-            
+
             Inertia::flash('toast', [
                 'type' => "error",
                 'message' => "Failed to update category: {$e->getMessage()}"
@@ -113,7 +113,7 @@ class ProductCategoryController extends Controller
         } catch (Exception $e) {
             Inertia::flash('toast', [
                 'type' => "error",
-                'message' => "Failed to update category: {$e->getMessage()}"
+                'message' => "Failed to delete category: {$e->getMessage()}"
             ]);
 
             return back()->withInput();
