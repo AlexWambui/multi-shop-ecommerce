@@ -31,6 +31,10 @@ export const useCartStore = defineStore('cart', () => {
         return items.value.reduce((sum, item) => sum + (item.quantity || 0), 0);
     });
 
+    const updateCartData = (cartData: { items: CartItem[]; total: number; item_count: number }) => {
+        items.value = cartData.items || [];
+    };
+
     const fetchCart = async () => {
         isLoading.value = true;
         try {
@@ -166,9 +170,15 @@ export const useCartStore = defineStore('cart', () => {
                 throw new Error('Failed to clear cart');
             }
 
-            items.value = [];
+            const data = await response.json();
+
+            if (response.ok && data.cart) {
+                updateCartData(data.cart);
+            } else {
+                items.value = [];
+            }
         } catch (err) {
-            console.error('Failed to clear cart:', err);
+            items.value = [];
         } finally {
             isLoading.value = false;
         }

@@ -201,6 +201,10 @@ class CartController extends Controller
 
         $this->cart_service->clearCart($cart);
 
+        if ($request->wantsJson()) {
+            return $this->summary($request);
+        }
+
         return redirect()->back()->with('success', 'Cart cleared');
     }
 

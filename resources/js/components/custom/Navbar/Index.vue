@@ -15,6 +15,11 @@ onMounted(() => {
     cartStore.fetchCart();
 });
 
+// Watch for Inertia page updates to refresh cart
+watch(() => page.props, () => {
+    cartStore.fetchCart();
+}, { deep: true });
+
 // Watch for user login to refresh cart
 watch(user, (newUser, oldUser) => {
     if (newUser && !oldUser) {
