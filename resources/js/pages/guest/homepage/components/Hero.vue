@@ -17,7 +17,7 @@ const props = defineProps<{
                 <h1 class="title">Shop local.<br><span class="hero-dim">Support bold</span><br>businesses.</h1>
                 <p class="sub-title">Discover curated shops, exclusive deals, and the people behind every product.</p>
                 <div class="hero-actions">
-                    <Link class="btn">Browse Offers</Link>
+                    <Link href="/deals-page" class="btn">Browse Offers</Link>
                     <Link href="/dashboard" class="btn btn-outline">Get Started</Link>
                 </div>
             </div>
