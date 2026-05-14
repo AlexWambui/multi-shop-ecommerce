@@ -5,6 +5,7 @@ import { router } from '@inertiajs/vue3';
 import Input from '@/components/ui/input/Input.vue';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Pagination from '@/components/custom/Pagination.vue';
+import TableResultsSummary from '@/components/custom/Tables/ResultsSummary.vue';
 import shopsRoutes from '@/routes/shops';
 import shopCategoriesRoutes from '@/routes/shop-categories';
 
@@ -62,14 +63,7 @@ watch(search, () => {
     debouncedSearch();
 });
 
-const getDisplayRange = computed(() => {
-    const { current_page, per_page, total } = props.shops.meta;
-    const start = (current_page - 1) * per_page + 1;
-    const end = Math.min(current_page * per_page, total);
-    return { start, end, total };
-});
-
-const hasActiveFilters = computed(() => 
+const hasActiveFilters = computed(() =>
     !!(search.value || status_filter.value)
 );
 </script>
@@ -126,7 +120,7 @@ const hasActiveFilters = computed(() =>
                     </TableRow>
 
                     <TableRow v-if="shops.data.length === 0">
-                        <TableCell colspan="5" class="blank-table-row">
+                        <TableCell colspan="7" class="blank-table-row">
                             No shops found.
                         </TableCell>
                     </TableRow>
@@ -136,14 +130,12 @@ const hasActiveFilters = computed(() =>
 
         <Pagination :meta="shops.meta" />
 
-        <div class="table-results-summary">
-            <p>
-                Showing {{ getDisplayRange.start }} to {{ getDisplayRange.end }}
-                of {{ getDisplayRange.total }} shops
-            </p>
-            <p v-if="hasActiveFilters" class="filtered-results">
-                Filtered results
-            </p>
-        </div>
+        <TableResultsSummary
+            :meta="shops.meta"
+            item-name="shop"
+            item-name-plural="shops"
+            :show-filter-indicator="true"
+            :has-active-filters="hasActiveFilters"
+        />
     </div>
 </template>
