@@ -122,7 +122,7 @@
                 }
 
                 .quantity-controls {
-                    @apply flex items-center gap-3 border border-gray-300 rounded-lg;
+                    @apply overflow-hidden flex items-center gap-3 border border-gray-300 rounded-md;
 
                     button {
                         @apply p-2 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed;
@@ -144,12 +144,12 @@
                         @apply font-medium flex items-center justify-center bg-foreground! text-background hover:bg-foreground/20 transition-colors py-3;
 
                         &:disabled {
-                            @apply bg-muted-foreground;
+                            @apply bg-muted-foreground border border-border;
                         }
 
                         span {
                             @apply flex items-center justify-center gap-2;
-                        }                        
+                        }
                     }
                 }
 
@@ -204,18 +204,18 @@
                 }
 
                 .specifications {
-                    .specs-table {
-                        @apply w-full;
+                    .specs-wrapper {
+                        div {
+                            @apply flex gap-4;
 
-                        tr {
-                            td {
+                            span {
                                 @apply py-2 text-sm;
 
-                                &:first-child {
+                                &:first-of-type {
                                     @apply w-32 font-medium text-muted-foreground;
                                 }
 
-                                &:last-child {
+                                &:last-of-type {
                                     @apply text-muted-foreground;
                                 }
                             }

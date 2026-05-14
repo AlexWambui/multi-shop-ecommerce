@@ -6,6 +6,7 @@ use App\Http\Controllers\Guest\HomePageController;
 use App\Http\Controllers\Guest\DealsPageController;
 use App\Http\Controllers\Guest\GuestShopController;
 use App\Http\Controllers\Guest\GuestProductController;
+use App\Http\Controllers\Guest\CartController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Users\UserController;
 use App\Http\Controllers\Shops\ShopController;
@@ -21,6 +22,13 @@ Route::get('/deals-page', [DealsPageController::class, 'index'])->name('deals-pa
 Route::get('all-shops', [GuestShopController::class, 'listAllShops'])->name('guest-shops.all');
 Route::get('shop-details/{shop:slug}', [GuestShopController::class, 'shopDetails'])->name('guest-shops.details');
 Route::get('product-details/{product:slug}', [GuestProductController::class, 'productDetails'])->name('guest-products.details');
+
+Route::get('cart', [CartController::class, 'index'])->name('cart.index');
+Route::get('cart/summary', [CartController::class, 'summary'])->name('cart.summary');
+Route::post('cart/add', [CartController::class, 'add'])->name('cart.add');
+Route::put('cart/item/{cartItem}', [CartController::class, 'update'])->name('cart.update');
+Route::delete('cart/item/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
+Route::delete('cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -45,7 +53,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::prefix('shop-categories')
         ->name('shop-categories.')
         ->controller(ShopCategoryController::class)
-        ->group( function() 
+        ->group( function()
     {
         Route::get('/', 'index')->name('index');
         Route::get('/create', 'create')->name('create');
@@ -58,7 +66,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::prefix('shops')
         ->name('shops.')
         ->controller(ShopController::class)
-        ->group( function() 
+        ->group( function()
     {
         Route::get('/', 'index')->name('index');
     });
@@ -66,7 +74,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::prefix('product-categories')
         ->name('product-categories.')
         ->controller(ProductCategoryController::class)
-        ->group( function() 
+        ->group( function()
     {
         Route::get('/', 'index')->name('index');
         Route::get('/create', 'create')->name('create');
@@ -94,7 +102,7 @@ Route::middleware(['auth', 'verified', 'role:seller'])->group(function () {
         Route::prefix('{shop:slug}/products')
             ->name('products.')
             ->controller(MyShopProductController::class)
-            ->group( function() 
+            ->group( function()
         {
             Route::get('/', 'index')->name('index');
             Route::get('create', 'create')->name('create');

@@ -7,8 +7,6 @@ interface CartItem {
     product_name: string;
     product_slug: string;
     product_image: string | null;
-    variant_id: number | null;
-    variant_name: string | null;
     shop_id: number;
     shop_name: string;
     quantity: number;
@@ -42,11 +40,11 @@ export const useCartStore = defineStore('cart', () => {
                     'Accept': 'application/json'
                 }
             });
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
-            
+
             const data = await response.json();
             items.value = data.items || [];
         } catch (err) {
@@ -57,10 +55,10 @@ export const useCartStore = defineStore('cart', () => {
         }
     };
 
-    const addToCart = async (productId: number, quantity: number = 1, variantId: number | null = null) => {
+    const addToCart = async (productId: number, quantity: number = 1) => {
         isLoading.value = true;
         error.value = null;
-        
+
         try {
             const response = await fetch('/cart/add', {
                 method: 'POST',
@@ -71,8 +69,7 @@ export const useCartStore = defineStore('cart', () => {
                 },
                 body: JSON.stringify({
                     product_id: productId,
-                    quantity,
-                    variant_id: variantId
+                    quantity
                 })
             });
 
@@ -82,11 +79,11 @@ export const useCartStore = defineStore('cart', () => {
             }
 
             const result = await response.json();
-            
+
             if (result.cart) {
                 items.value = result.cart.items;
             }
-            
+
             return { success: true, message: result.message };
         } catch (err: any) {
             error.value = err.message;

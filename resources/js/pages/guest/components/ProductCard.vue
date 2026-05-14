@@ -56,17 +56,17 @@ const buttonDisplayText = computed(() => {
         <!-- Product Info -->
         <div class="info">
             <div class="extras">
-                <p class="category">{{ product.category_name || 'Uncategorized' }}</p>
+                <p class="category">{{ product.category_name }}</p>
 
                 <!-- Stock Indicator (optional) -->
                 <div v-if="showStockIndicator" class="stock-indicator">
-                    <div v-if="product.stock_qty <= 5 && product.stock_qty > 0" class="stock-low">
-                        Only {{ product.stock_qty }} left
+                    <div v-if="product.current_stock <= 5 && product.current_stock > 0" class="stock-low">
+                        Only {{ product.current_stock }} left
                     </div>
-                    <div v-else-if="product.stock_qty === 0" class="stock-out">
+                    <div v-else-if="product.current_stock === 0" class="stock-out">
                         Out of stock
                     </div>
-                    <div v-else class="stock-count">{{ product.stock_qty }} In Stock</div>
+                    <div v-else class="stock-count">{{ product.current_stock }} In Stock</div>
                 </div>
             </div>
             <Link :href="`/product-details/${product.slug}`" class="name-link">
@@ -86,7 +86,7 @@ const buttonDisplayText = computed(() => {
             v-if="showAddToCart"
             :product-id="product.id"
             :product-name="product.name"
-            :stock="product.stock_qty"
+            :stock="product.current_stock"
             :button-text="buttonDisplayText"
             @success="cartStore.fetchCart()"
         />

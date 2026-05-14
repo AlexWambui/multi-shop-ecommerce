@@ -20,6 +20,7 @@ class ProductDetailsPageResource extends JsonResource
             'slug' => $this->slug,
             'sku' => $this->sku,
             'price' => $this->price,
+            'current_stock' => $this->current_stock,
             'has_discount' => $this->has_discount,
             'discount_display' => $this->discount_display,
             'discounted_price' => $this->discounted_price,

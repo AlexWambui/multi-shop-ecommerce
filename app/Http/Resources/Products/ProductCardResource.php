@@ -21,6 +21,7 @@ class ProductCardResource extends JsonResource
             'thumbnail_url' => $this->thumbnail_url,
             'category_name' => $this->category_name,
             'shop_name' => $this->shop_name,
+            'current_stock' => $this->current_stock,
             'price' => $this->price,
             'has_discount' => $this->has_discount,
             'discount_display' => $this->discount_display,
