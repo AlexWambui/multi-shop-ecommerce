@@ -37,7 +37,7 @@ class CartController extends Controller
                 'product_id' => $item->product_id,
                 'product_name' => $item->product->name,
                 'product_slug' => $item->product->slug,
-                'product_image' => $item->product->primary_image_url,
+                'product_image' => $item->product->thumbnail_url,
                 'shop_id' => $item->shop_id,
                 'shop_name' => $item->shop->name,
                 'quantity' => $item->quantity,
@@ -59,7 +59,7 @@ class CartController extends Controller
             ]);
         }
 
-        return inertia('guest/sales/cart/Index', [
+        return inertia('guest/sales/Cart', [
             'cart' => [
                 'items' => $items,
                 'total' => $total,
@@ -101,7 +101,7 @@ class CartController extends Controller
                     'product_id' => $item->product_id,
                     'product_name' => $item->product->name,
                     'product_slug' => $item->product->slug,
-                    'product_image' => $item->product->images->first()->name ?? null,
+                    'product_image' => $item->product->thumbnail_url,
                     'shop_id' => $item->shop_id,
                     'shop_name' => $item->shop->name,
                     'quantity' => $item->quantity,
@@ -224,7 +224,7 @@ class CartController extends Controller
                 'product_id' => $item->product_id,
                 'product_name' => $item->product->name,
                 'product_slug' => $item->product->slug,
-                'product_image' => $item->product->images->first()->name ?? null,
+                'product_image' => $item->product->thumbnail_url,
                 'shop_id' => $item->shop_id,
                 'shop_name' => $item->shop->name,
                 'quantity' => $item->quantity,
