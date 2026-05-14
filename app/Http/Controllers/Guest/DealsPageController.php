@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Guest;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\Collection;
 use App\Models\ProductCategory;
 use App\Models\Product;
 use App\Models\Discount;
@@ -17,45 +18,48 @@ class DealsPageController extends Controller
         $active_discounts = Discount::active()->with('shop')->get();
 
         if ($active_discounts->isEmpty()) {
-            return inertia('guest/dealspage/Deals', [
-                'deals' => [],
-                'total' => 0,
-                'product_categories' => $product_categories,
-                'flash_sales' => [],
-                'clearance_sales' => []
-            ]);
+            return $this->returnEmptyDeals($product_categories);
         }
 
-        $all_discounted_products = collect();
+        $all_product_ids = $active_discounts
+            ->flatMap(fn($discount) => $discount->eligible_product_ids)
+            ->unique()
+            ->values()
+            ->toArray();
+        
+        $products = Product::whereIn('id', $all_product_ids)
+            ->where('is_active', true)
+            ->with('shop')
+            ->get()
+            ->keyBy('id');
 
-        foreach ($active_discounts as $discount) {
-            $product_ids = $discount->eligible_product_ids;
+        $products_with_discounts = $products->map(function ($product) use ($active_discounts) {
+            foreach ($active_discounts as $discount) {
+                if (in_array($product->id, $discount->eligible_product_ids)) {
+                    $product->discount_pct = $discount->discount_pct;
+                    break;
+                }
+            }
+            return $product;
+        });        
 
-            $products = Product::whereIn('id', $product_ids)
-                ->where('is_active', true)
-                ->with('shop')
-                ->get()
-                ->map(function ($product) use ($discount) {
-                    return $product;
-                });
+        $flash_sales = $products_with_discounts->filter(fn ($product) => $product->discount_pct && $product->discount_pct < 30)->take(8);
 
-            $all_discounted_products = $all_discounted_products->merge($products);
-        }
-
-        $all_discounted_products = $all_discounted_products->unique('id');
-
-        $flash_sales = $all_discounted_products->filter(function ($product) {
-            return $product->discount_pct && $product->discount_pct < 30;
-        })->take(8);
-
-        $clearance_sales = $all_discounted_products->filter(function ($product) {
-            return $product->discount_pct && $product->discount_pct >= 30;
-        })->take(8);
+        $clearance_sales = $products_with_discounts->filter(fn ($product) => $product->discount_pct && $product->discount_pct >= 30)->take(8);
 
         return inertia('guest/dealspage/Index', [
             'product_categories' => $product_categories,
             'flash_sales' => ProductCardResource::collection($flash_sales),
             'clearance_sales' => ProductCardResource::collection($clearance_sales)
+        ]);
+    }
+
+    public function returnEmptyDeals(Collection|array $product_categories)
+    {
+        return inertia('guest/dealspage/Index', [
+            'product_categories' => $product_categories,
+            'flash_sales' => ['data' => []],
+            'clearance_sales' => ['data' => []]
         ]);
     }
 }
