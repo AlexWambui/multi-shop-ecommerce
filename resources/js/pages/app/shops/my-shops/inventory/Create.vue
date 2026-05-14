@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import { Head, useForm, router, Link } from '@inertiajs/vue3';
 import Button from '@/components/ui/button/Button.vue';
 import Input from '@/components/ui/input/Input.vue';
+import InputError from '@/components/InputError.vue';
 import Textarea from '@/components/ui/textarea/Textarea.vue';
 import Select from '@/components/ui/select/Select.vue';
 import myShopInventoryRoutes from '@/routes/my-shops/inventory';
@@ -12,7 +13,7 @@ const props = defineProps<{
     product: { id: number; name: string; sku: string; current_stock: number };
     movement_types: {
         add: Record<number, string>;
-        remove: Record<number, string>;
+        remove: Record<number, string>; 
         all: Record<number, { label: string; operation: string }>;
     };
 }>();
