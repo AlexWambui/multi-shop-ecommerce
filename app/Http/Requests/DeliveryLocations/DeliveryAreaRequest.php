@@ -33,7 +33,7 @@ class DeliveryAreaRequest extends FormRequest
                     ->ignore($this->route('delivery_area'))
             ],
             'shipping_cost' => ['required', 'numeric', 'min:0', 'decimal:0,2'],
-            'estimated_days' => ['nullable', 'integer', 'min:1'],
+            'estimated_days' => ['required', 'integer', 'min:1'],
             'is_active' => ['boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'delivery_location_id' => ['required', 'exists:delivery_locations,id'],

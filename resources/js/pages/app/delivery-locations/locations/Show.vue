@@ -10,14 +10,38 @@ import Pagination from '@/components/custom/Pagination.vue';
 import TableResultsSummary from '@/components/custom/Tables/ResultsSummary.vue';
 import DeleteConfirmationDialog from '@/components/custom/DeleteConfirmation.vue';
 import DeliveryAreaRoutes from '@/routes/delivery-areas';
+import DeliveryLocationRoutes from '@/routes/delivery-locations';
+import { usePriceFormatter } from '@/composables/usePriceFormatter';
+
+const { formatPrice } = usePriceFormatter();
+
+defineOptions({
+    layout: {
+        breadcrumbs: [
+            { title: 'Delivery Locations', href: DeliveryLocationRoutes.index() },
+            { title: 'Delivery Areas', description: 'Delivery Areas' }
+        ]
+    }
+});
+
+interface DeliveryLocation {
+    id: number;
+    uuid: string;
+    name: string;
+}
 
 interface DeliveryArea {
     id: number;
+    uuid: string;
     name: string;
+    shipping_cost: number;
+    estimated_days: number;
 };
 
 interface Props {
-    areas: {
+    delivery_location: DeliveryLocation;
+
+    delivery_areas: {
         data: DeliveryArea[];
         links: any[];
         meta: {
@@ -36,7 +60,7 @@ const props = defineProps<Props>();
 
 const search = ref(props.search || '');
 const debouncedSearch = useDebounceFn(() => {
-    router.get(DeliveryAreaRoutes.index().url, {
+    router.get(DeliveryLocationRoutes.show(props.delivery_location.uuid).url, {
         search: search.value,
     }, {
         preserveState: true,
@@ -58,7 +82,7 @@ const hasActiveFilters = computed(() =>
     <div class="app-container">
         <div class="header">
             <div class="info">
-                <h1 class="title">Delivery Areas</h1>
+                <h1 class="title">Delivery Areas - {{ delivery_location.name }}</h1>
             </div>
 
             <div class="search">
@@ -69,7 +93,7 @@ const hasActiveFilters = computed(() =>
                 />
             </div>
 
-            <Link :href="DeliveryAreaRoutes.create().url">
+            <Link :href="DeliveryAreaRoutes.create(delivery_location.uuid).url">
                 <Button>New Area</Button>
             </Link>
         </div>
@@ -80,23 +104,27 @@ const hasActiveFilters = computed(() =>
                     <TableRow>
                         <TableHead class="id">#</TableHead>
                         <TableHead>Name</TableHead>
+                        <TableHead>Shipping Cost</TableHead>
+                        <TableHead>Estimated Days</TableHead>
                         <TableHead class="actions">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
 
                 <TableBody>
-                    <TableRow v-for="(area, index) in areas.data" :key="area.id">
-                        <TableCell class="id">{{ (areas.meta.current_page - 1) * areas.meta.per_page + index + 1 }}</TableCell>
+                    <TableRow v-for="(area, index) in delivery_areas.data" :key="area.id">
+                        <TableCell class="id">{{ (delivery_areas.meta.current_page - 1) * delivery_areas.meta.per_page + index + 1 }}</TableCell>
                         <TableCell>{{ area.name }}</TableCell>
+                        <TableCell>{{ formatPrice(area.shipping_cost) }}</TableCell>
+                        <TableCell>{{ area.estimated_days }}</TableCell>
                         <TableCell class="actions">
                             <div class="actions-wrapper">
-                                <Link :href="DeliveryAreaRoutes.edit(area.id).url" class="action edit">
+                                <Link :href="DeliveryAreaRoutes.edit({delivery_location: delivery_location.uuid, delivery_area: area.uuid}).url" class="action edit">
                                     <Pencil class="icon edit" />
                                 </Link>
 
                                 <span class="divider">|</span>
 
-                                <DeleteConfirmationDialog :url="DeliveryAreaRoutes.destroy(area.id).url" title="Delete Area?" description="This area will be deleted permanently!" confirm-text="Delete Area">
+                                <DeleteConfirmationDialog :url="DeliveryAreaRoutes.destroy(area.uuid).url" title="Delete Area?" description="This area will be deleted permanently!" confirm-text="Delete Area">
                                     <template #trigger>
                                         <button class="action delete">
                                             <Trash2 class="icon delete" />
@@ -107,7 +135,7 @@ const hasActiveFilters = computed(() =>
                         </TableCell>
                     </TableRow>
 
-                    <TableRow v-if="areas.data.length === 0">
+                    <TableRow v-if="delivery_areas.data.length === 0">
                         <TableCell colspan="5" class="blank-table-row">
                             No areas found!
                         </TableCell>
@@ -116,12 +144,12 @@ const hasActiveFilters = computed(() =>
             </Table>
         </div>
 
-        <Pagination :meta="areas.meta" />
+        <Pagination :meta="delivery_areas.meta" />
 
         <TableResultsSummary
-            :meta="areas.meta"
-            item-name="area"
-            item-name-plural="areas"
+            :meta="delivery_areas.meta"
+            item-name="delivery area"
+            item-name-plural="delivery areas"
             :show-filter-indicators="true"
             :has-active-filters="hasActiveFilters"
         />

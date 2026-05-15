@@ -2,7 +2,7 @@
 import { ref, watch, computed } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Pencil, Trash2 } from 'lucide-vue-next';
+import { Eye, Pencil, Trash2 } from 'lucide-vue-next';
 import Input from '@/components/ui/input/Input.vue';
 import Button from '@/components/ui/button/Button.vue';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -94,6 +94,12 @@ const hasActiveFilters = computed(() =>
                         <TableCell>{{ location.areas_count ?? '-' }}</TableCell>
                         <TableCell class="actions">
                             <div class="actions-wrapper">
+                                <Link :href="DeliveryLocationsRoutes.show(location.uuid).url">
+                                    <Eye class="icon show" />
+                                </Link>
+
+                                <span class="divider">|</span>
+
                                 <Link :href="DeliveryLocationsRoutes.edit(location.uuid).url" class="action edit">
                                     <Pencil class="icon edit" />
                                 </Link>

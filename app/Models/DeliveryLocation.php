@@ -19,6 +19,6 @@ class DeliveryLocation extends Model
 
     public function areas(): HasMany
     {
-        return $this->hasMany(DeliveryArea::class);
+        return $this->hasMany(DeliveryArea::class, 'delivery_location_id');
     }
 }

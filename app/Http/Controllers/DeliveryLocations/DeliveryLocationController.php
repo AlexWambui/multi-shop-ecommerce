@@ -9,6 +9,7 @@ use Inertia\Inertia;
 use Exception;
 use App\Models\DeliveryLocation;
 use App\Http\Resources\DeliveryLocations\DeliveryLocationResource;
+use App\Http\Resources\DeliveryLocations\DeliveryAreaResource;
 use App\Http\Requests\DeliveryLocations\DeliveryLocationRequest;
 
 class DeliveryLocationController extends Controller
@@ -66,6 +67,16 @@ class DeliveryLocationController extends Controller
 
             return back()->withInput();
         }
+    }
+
+    public function show(DeliveryLocation $delivery_location)
+    {
+        $delivery_areas = $delivery_location->areas()->orderBy('name')->paginate(30);
+
+        return inertia('app/delivery-locations/locations/Show', [
+            'delivery_location' => $delivery_location,
+            'delivery_areas' => DeliveryAreaResource::collection($delivery_areas)
+        ]);
     }
 
     public function edit(DeliveryLocation $delivery_location)

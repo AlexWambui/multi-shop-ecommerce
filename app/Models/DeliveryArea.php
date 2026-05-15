@@ -20,6 +20,6 @@ class DeliveryArea extends Model
 
     public function location(): BelongsTo
     {
-        return $this->belongsTo(DeliveryLocation::class);
+        return $this->belongsTo(DeliveryLocation::class, 'delivery_location_id');
     }
 }
