@@ -15,7 +15,7 @@ interface DeliveryLocation {
     id: number;
     uuid: string;
     name: string;
-    areas_count: number;
+    delivery_areas_count: number;
 };
 
 interface Props {
@@ -91,7 +91,7 @@ const hasActiveFilters = computed(() =>
                     <TableRow v-for="(location, index) in locations.data" :key="location.id">
                         <TableCell class="id">{{ (locations.meta.current_page - 1) * locations.meta.per_page + index + 1 }}</TableCell>
                         <TableCell>{{ location.name }}</TableCell>
-                        <TableCell>{{ location.areas_count ?? '-' }}</TableCell>
+                        <TableCell>{{ location.delivery_areas_count ?? '-' }}</TableCell>
                         <TableCell class="actions">
                             <div class="actions-wrapper">
                                 <Link :href="DeliveryLocationsRoutes.show(location.uuid).url">

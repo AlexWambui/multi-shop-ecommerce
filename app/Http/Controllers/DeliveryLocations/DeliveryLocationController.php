@@ -26,7 +26,7 @@ class DeliveryLocationController extends Controller
         }
 
         $locations = $query->orderBy('name')
-            ->withCount(['areas'])
+            ->withCount(['deliveryAreas'])
             ->paginate(20);
 
         return inertia('app/delivery-locations/locations/Index', [
@@ -69,9 +69,18 @@ class DeliveryLocationController extends Controller
         }
     }
 
-    public function show(DeliveryLocation $delivery_location)
+    public function show(Request $request, DeliveryLocation $delivery_location)
     {
-        $delivery_areas = $delivery_location->areas()->orderBy('name')->paginate(30);
+        $query = $delivery_location->deliveryAreas();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        $delivery_areas = $query->orderBy('name')->paginate(30);
 
         return inertia('app/delivery-locations/locations/Show', [
             'delivery_location' => $delivery_location,

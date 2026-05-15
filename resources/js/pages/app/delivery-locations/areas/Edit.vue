@@ -12,6 +12,10 @@ interface DeliveryArea {
     id: number;
     name: string;
     uuid: string;
+    estimated_days: number;
+    shipping_cost: number;
+    is_active: boolean;
+    delivery_location_id: number;
 };
 
 interface DeliveryLocation {
@@ -27,6 +31,10 @@ const props = defineProps<{
 
 const form = useForm({
     name: props.delivery_area.name,
+    estimated_days: props.delivery_area.estimated_days,
+    shipping_cost: props.delivery_area.shipping_cost,
+    is_active: props.delivery_area.is_active,
+    delivery_location_id: props.delivery_location.id
 })
 
 const submitForm = () => {
@@ -53,6 +61,36 @@ const submitForm = () => {
                     <Label for="name" class="required">Name</Label>
                     <Input type="text" id="name" v-model="form.name" autocomplete="name" placeholder="Name" autofocus />
                     <InputError :message="form.errors.name" />
+                </div>
+            </div>
+
+            <div class="inputs-group-wrapper">
+                <div class="inputs-group">
+                    <Label for="estimated_days" class="required">Estimated Days</Label>
+                    <Input type="number" id="estimated_days" v-model="form.estimated_days" autocomplete="estimated_days" placeholder="2" />
+                    <InputError :message="form.errors.estimated_days" />
+                </div>
+            </div>
+
+            <div class="inputs-group-wrapper">
+                <div class="inputs-group">
+                    <Label for="shipping_cost" class="required">Shipping Cost</Label>
+                    <Input type="number" id="shipping_cost" v-model="form.shipping_cost" autocomplete="shipping_cost" placeholder="1000" />
+                    <InputError :message="form.errors.shipping_cost" />
+                </div>
+            </div>
+
+            <div class="inputs-group">
+                <div class="flex items-center gap-2">
+                    <input type="hidden" name="is_active" value="0" />
+                    <input
+                        type="checkbox"
+                        id="is_active"
+                        v-model="form.is_active"
+                        value="1"
+                        class="w-4 h-4 rounded"
+                    />
+                    <Label for="is_active">Active</Label>
                 </div>
             </div>
 

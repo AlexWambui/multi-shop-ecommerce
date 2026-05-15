@@ -17,7 +17,7 @@ class DeliveryLocation extends Model
         'is_active' => 'boolean'
     ];
 
-    public function areas(): HasMany
+    public function deliveryAreas(): HasMany
     {
         return $this->hasMany(DeliveryArea::class, 'delivery_location_id');
     }

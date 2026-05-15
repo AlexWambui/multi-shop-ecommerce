@@ -36,6 +36,7 @@ interface DeliveryArea {
     name: string;
     shipping_cost: number;
     estimated_days: number;
+    is_active: boolean;
 };
 
 interface Props {
@@ -113,7 +114,7 @@ const hasActiveFilters = computed(() =>
                 <TableBody>
                     <TableRow v-for="(area, index) in delivery_areas.data" :key="area.id">
                         <TableCell class="id">{{ (delivery_areas.meta.current_page - 1) * delivery_areas.meta.per_page + index + 1 }}</TableCell>
-                        <TableCell>{{ area.name }}</TableCell>
+                        <TableCell :class="{'text-red-600' : !area.is_active}">{{ area.name }}</TableCell>
                         <TableCell>{{ formatPrice(area.shipping_cost) }}</TableCell>
                         <TableCell>{{ area.estimated_days }}</TableCell>
                         <TableCell class="actions">

@@ -18,7 +18,7 @@ class DeliveryLocationResource extends JsonResource
             'id' => $this->id,
             'uuid' => $this->uuid,
             'name' => $this->name,
-            'areas_count' => $this->areas_count,
+            'delivery_areas_count' => $this->delivery_areas_count,
         ];
     }
 }

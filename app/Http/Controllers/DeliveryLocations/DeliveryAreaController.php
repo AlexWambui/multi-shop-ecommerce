@@ -47,18 +47,15 @@ class DeliveryAreaController extends Controller
         }
     }
 
-    public function edit(string $delivery_location, string $delivery_area)
+    public function edit(DeliveryLocation $delivery_location, DeliveryArea $delivery_area)
     {
-        $delivery_location = DeliveryLocation::where('uuid', $delivery_location)->firstOrFail();
-        $delivery_area = DeliveryArea::where('uuid', $delivery_area)->firstOrFail();
-
         return inertia('app/delivery-locations/areas/Edit', [
             'delivery_area' => $delivery_area,
             'delivery_location' => $delivery_location
         ]);
     }
 
-    public function update(DeliveryLocation $delivery_location, DeliveryArea $delivery_area, DeliveryAreaRequest $request)
+    public function update(DeliveryAreaRequest $request, DeliveryLocation $delivery_location, DeliveryArea $delivery_area)
     {
         try {
             DB::beginTransaction();
@@ -78,7 +75,7 @@ class DeliveryAreaController extends Controller
 
             Inertia::flash('toast', [
                 'type' => 'error',
-                'message' => "Failed to create area: {$e->getMessage()}"
+                'message' => "Failed to update area: {$e->getMessage()}"
             ]);
 
             return back()->withInput();
