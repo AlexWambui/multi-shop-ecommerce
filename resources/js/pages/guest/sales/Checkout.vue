@@ -31,7 +31,7 @@ const user = computed(() => page.props.auth.user);
 const form = useForm({
     name: user.value?.name || '',
     email: user.value?.email || '',
-    phone_number: user.value?.phone_number || '',
+    phone: user.value?.phone || '',
     delivery_method: 'shop',
     payment_method: 'mpesa',
     extra_details: '',
@@ -179,9 +179,9 @@ const submitForm = () => {
                                 </div>
 
                                 <div class="inputs-group">
-                                    <label for="phone_number">Phone Number</label>
-                                    <input type="text" v-model="form.phone_number" id="phone_number">
-                                    <p v-if="form.errors.phone_number" class="text-red-500 text-xs mt-1">{{ form.errors.phone_number }}</p>
+                                    <label for="phone">Phone Number</label>
+                                    <input type="text" v-model="form.phone" id="phone">
+                                    <p v-if="form.errors.phone" class="text-red-500 text-xs mt-1">{{ form.errors.phone }}</p>
                                 </div>
                             </div>
 

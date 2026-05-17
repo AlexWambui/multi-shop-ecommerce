@@ -13,7 +13,7 @@ const props = defineProps<{
 }>();
 
 const form = useForm({
-    phone_number: props.contact_phone || '',
+    phone: props.contact_phone || '',
 });
 
 const submitPayment = () => {
@@ -49,18 +49,18 @@ const submitPayment = () => {
 
                         <form @submit.prevent="submitPayment" class="payment-form">
                             <div class="inputs-group">
-                                <label for="phone_number">Phone Number for Payment</label>
+                                <label for="phone">Phone Number for Payment</label>
                                 <input
                                     type="tel"
-                                    id="phone_number"
-                                    v-model="form.phone_number"
+                                    id="phone"
+                                    v-model="form.phone"
                                     placeholder="2547XXXXXXXX"
                                     class="payment-input"
                                 />
                                 <p class="help-text">
                                     Enter the MPesa registered phone number to receive the STK push
                                 </p>
-                                <InputError :message="form.errors.phone_number" />
+                                <InputError :message="form.errors.phone" />
                             </div>
 
                             <button

@@ -18,6 +18,7 @@ trait ProfileValidationRules
         return [
             'name' => $this->nameRules(),
             'email' => $this->emailRules($userId),
+            'phone' => $this->phoneNumberRules($userId),
         ];
     }
 
@@ -46,6 +47,31 @@ trait ProfileValidationRules
             $userId === null
                 ? Rule::unique(User::class)
                 : Rule::unique(User::class)->ignore($userId),
+        ];
+    }
+
+    /**
+     * Get the validation rules used to validate phone numbers.
+     *
+     * @return array<int, ValidationRule|array<mixed>|string>
+     */
+    protected function phoneNumberRules(?int $userId = null): array
+    {
+        return [
+            'nullable',
+            'string',
+            'regex:/^254(7|1)[0-9]{8}$/',
+            $userId === null
+                ? Rule::unique(User::class, 'phone')
+                : Rule::unique(User::class, 'phone')->ignore($userId),
+        ];
+    }
+
+    protected function phoneNumberMessages(): array
+    {
+        return [
+            'phone.regex' => 'The phone number must be a valid Kenyan number (Safaricom: 2547XXXXXXXX, Airtel/Telkom: 2541XXXXXXXX).',
+            'phone.unique' => 'This phone number is already registered.',
         ];
     }
 }

@@ -19,4 +19,9 @@ class ProfileUpdateRequest extends FormRequest
     {
         return $this->profileRules($this->user()->id);
     }
+
+    public function messages(): array
+    {
+        return $this->phoneNumberMessages();
+    }
 }

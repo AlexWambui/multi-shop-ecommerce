@@ -25,7 +25,7 @@ class CheckoutRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'phone_number' => 'required|string|max:20',
+            'phone' => 'required|string|max:20',
             'delivery_method' => 'required|in:shop,delivery',
             'payment_method' => 'required|in:mpesa,stripe',
             'extra_details' => 'nullable|string|max:1000',

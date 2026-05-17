@@ -39,33 +39,33 @@ const isUploading = ref(false);
 const handleImageUpload = async (event: Event) => {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
-    
+
     if (!file) return;
-    
+
     // Validate file type
     if (!file.type.startsWith('image/')) {
         alert('Please upload an image file');
         return;
     }
-    
+
     // Validate file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
         alert('Image size must be less than 2MB');
         return;
     }
-    
+
     // Create preview
     const reader = new FileReader();
     reader.onload = (e) => {
         imagePreview.value = e.target?.result as string;
     };
     reader.readAsDataURL(file);
-    
+
     // Upload the file
     isUploading.value = true;
     const formData = new FormData();
     formData.append('image', file);
-    
+
     try {
         const response = await fetch('/settings/profile/image', {
             method: 'POST',
@@ -74,15 +74,15 @@ const handleImageUpload = async (event: Event) => {
             },
             body: formData
         });
-        
+
         if (!response.ok) {
             throw new Error('Upload failed');
         }
-        
+
         const data = await response.json();
         // Update the user data in the page props
         page.props.auth.user.image = data.image;
-        
+
         // Show success message (you can add a toast notification here)
         console.log('Image updated successfully');
     } catch (error) {
@@ -99,9 +99,9 @@ const handleImageUpload = async (event: Event) => {
 
 const removeImage = async () => {
     if (!confirm('Remove your profile picture?')) return;
-    
+
     isUploading.value = true;
-    
+
     try {
         const response = await fetch('/settings/profile/image', {
             method: 'DELETE',
@@ -110,15 +110,15 @@ const removeImage = async () => {
                 'Content-Type': 'application/json'
             }
         });
-        
+
         if (!response.ok) {
             throw new Error('Remove failed');
         }
-        
+
         const data = await response.json();
         page.props.auth.user.image = null;
         imagePreview.value = null;
-        
+
         console.log('Image removed successfully');
     } catch (error) {
         console.error('Remove error:', error);
@@ -142,14 +142,14 @@ const removeImage = async () => {
                 title="Profile picture"
                 description="Update your profile image"
             />
-            
+
             <div class="mt-4 flex items-center gap-6">
                 <!-- Image Preview -->
                 <div class="relative">
                     <div class="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
-                        <img 
-                            v-if="imagePreview" 
-                            :src="imagePreview" 
+                        <img
+                            v-if="imagePreview"
+                            :src="imagePreview"
                             :alt="user.name"
                             class="w-full h-full object-cover"
                         />
@@ -157,24 +157,24 @@ const removeImage = async () => {
                             {{ user.name?.charAt(0) || 'U' }}
                         </div>
                     </div>
-                    
+
                     <!-- Upload Button -->
-                    <label 
+                    <label
                         class="absolute bottom-0 right-0 p-1.5 bg-white rounded-full shadow-lg cursor-pointer hover:bg-gray-50 transition-colors"
                         :class="{ 'opacity-50 cursor-not-allowed': isUploading }"
                     >
                         <Camera class="w-4 h-4 text-gray-600" />
-                        <input 
-                            type="file" 
+                        <input
+                            type="file"
                             accept="image/*"
                             class="hidden"
                             @change="handleImageUpload"
                             :disabled="isUploading"
                         />
                     </label>
-                    
+
                     <!-- Remove Button -->
-                    <button 
+                    <button
                         v-if="imagePreview"
                         @click="removeImage"
                         class="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full hover:bg-red-600 transition-colors"
@@ -183,7 +183,7 @@ const removeImage = async () => {
                         <X class="w-3 h-3 text-white" />
                     </button>
                 </div>
-                
+
                 <div class="flex-1">
                     <p class="text-sm text-gray-600">
                         Recommended: Square image, at least 200x200 pixels. Max size 2MB.
@@ -235,6 +235,21 @@ const removeImage = async () => {
                 <InputError class="mt-2" :message="errors.email" />
             </div>
 
+            <div class="grid gap-2">
+                <Label for="phone">Phone Number</Label>
+                <Input
+                    id="phone"
+                    type="number"
+                    class="mt-1 block w-full"
+                    name="phone"
+                    :default-value="user.phone"
+                    required
+                    autocomplete="phone"
+                    placeholder="254712345678 or 254112345678"
+                />
+                <InputError class="mt-2" :message="errors.phone" />
+            </div>
+
             <div v-if="mustVerifyEmail && !user.email_verified_at">
                 <p class="-mt-4 text-sm text-muted-foreground">
                     Your email address is unverified.
@@ -263,5 +278,5 @@ const removeImage = async () => {
         </Form>
     </div>
 
-    <DeleteUser />
+    <!-- <DeleteUser /> -->
 </template>
