@@ -75,11 +75,11 @@
                 .icon {
                     @apply p-3 rounded-full;
                 }
-                
+
                 .value {
                     @apply text-2xl font-bold;
                 }
-                
+
                 .label {
                     @apply text-sm text-muted-foreground;
                 }
@@ -96,5 +96,6 @@
 @import './dealspage';
 @import './product-details-page';
 @import './shop-details-page';
+@import './checkout-page';
 
 @import './app/index';

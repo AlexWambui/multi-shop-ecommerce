@@ -2,7 +2,10 @@
 import { Head, useForm, router } from '@inertiajs/vue3';
 import GuestLayout from '@/layouts/GuestLayout.vue';
 import { computed, ref, watch } from 'vue';
-import checkout from '@/routes/checkout'; // Assuming you have a route file for checkout
+import checkout from '@/routes/checkout';
+import { usePriceFormatter } from '@/composables/usePriceFormatter';
+
+const { formatPrice } = usePriceFormatter();
 
 interface Location {
     id: number;
@@ -148,7 +151,7 @@ const submitForm = () => {
             <div class="checkout-page-wrapper">
                 <div class="billing-info">
                     <h2>Billing Information</h2>
-                    <div class="form">
+                    <div class="checkout-form">
                         <form @submit.prevent="submitForm">
                             <div class="form-section">
                                 <p class="section-title">Contact Information</p>
@@ -174,26 +177,27 @@ const submitForm = () => {
                             <div class="form-section">
                                 <p class="section-title">Delivery Method</p>
                                 <div class="radio-buttons">
-                                    <label class="radio-button-label">
+                                    <label class="radio-button">
                                         <input
                                             type="radio"
                                             name="delivery_method"
                                             value="shop"
                                             v-model="form.delivery_method"
-                                            class="hidden-radio"
+                                            class="radio-input"
+                                            checked
                                         />
-                                        <span class="radio-button-style">Shop</span>
+                                        <span class="label">Shop</span>
                                     </label>
 
-                                    <label class="radio-button-label">
+                                    <label class="radio-button">
                                         <input
                                             type="radio"
                                             name="delivery_method"
                                             value="delivery"
                                             v-model="form.delivery_method"
-                                            class="hidden-radio"
+                                            class="radio-input"
                                         />
-                                        <span class="radio-button-style">Delivery</span>
+                                        <span class="label">Delivery</span>
                                     </label>
                                 </div>
                                 <p v-if="form.errors.delivery_method" class="text-red-500 text-xs mt-1">{{ form.errors.delivery_method }}</p>
@@ -250,26 +254,27 @@ const submitForm = () => {
                             <div class="form-section">
                                 <p class="section-title">Payment Method</p>
                                 <div class="radio-buttons">
-                                    <label class="radio-button-label">
+                                    <label class="radio-button">
                                         <input
                                             type="radio"
                                             name="payment_method"
                                             value="mpesa"
                                             v-model="form.payment_method"
-                                            class="hidden-radio"
+                                            class="radio-input"
+                                            checked
                                         />
-                                        <span class="radio-button-style">MPesa</span>
+                                        <span class="label">MPesa</span>
                                     </label>
 
-                                    <label class="radio-button-label">
+                                    <label class="radio-button">
                                         <input
                                             type="radio"
                                             name="payment_method"
                                             value="stripe"
                                             v-model="form.payment_method"
-                                            class="hidden-radio"
+                                            class="radio-input"
                                         />
-                                        <span class="radio-button-style">Stripe</span>
+                                        <span class="label">Stripe</span>
                                     </label>
                                 </div>
                                 <p v-if="form.errors.payment_method" class="text-red-500 text-xs mt-1">{{ form.errors.payment_method }}</p>
@@ -301,30 +306,28 @@ const submitForm = () => {
                     <h2>Order Details</h2>
                     <div class="order-details-wrapper">
                         <div class="order">
-                            <p class="label">Subtotal</p>
-                            <p class="number">: Ksh. {{ subtotal.toFixed(2) }}</p>
+                            <p class="label">Subtotal :</p>
+                            <p class="number">{{ formatPrice(subtotal) }}</p>
                         </div>
 
                         <div class="order" v-if="isDeliverySelected && selectedAreaShipping > 0">
-                            <p class="label">Shipping Cost ({{ getAreaName(form.delivery_area_id) }})</p>
-                            <p class="number text-green-600">: + Ksh. {{ selectedAreaShipping.toFixed(2) }}</p>
+                            <p class="label">Shipping Cost :</p>
+                            <p class="number text-green-600">{{ formatPrice(selectedAreaShipping) }}</p>
                         </div>
 
                         <div class="order total">
-                            <p class="label font-bold">Total Amount</p>
-                            <p class="number font-bold" :class="{ 'text-green-600': isDeliverySelected }">
-                                : Ksh. {{ totalAmount.toFixed(2) }}
-                            </p>
+                            <p class="label font-bold">Total Amount (Ksh.) :</p>
+                            <p class="number font-bold" :class="{ 'text-green-600': isDeliverySelected }">{{ formatPrice(totalAmount) }}</p>
                         </div>
                     </div>
 
                     <!-- Delivery address preview with note -->
-                    <div v-if="isDeliverySelected && (form.delivery_location_id || form.delivery_area_id)" class="delivery-preview mt-4 p-3 bg-gray-50 rounded-md">
-                        <p class="text-sm font-medium mb-1">Delivery Address:</p>
-                        <p class="text-sm text-gray-600">
+                    <div v-if="isDeliverySelected && (form.delivery_location_id || form.delivery_area_id)" class="delivery-preview">
+                        <p class="title">Delivery Address:</p>
+                        <p class="address">
                             {{ getAreaName(form.delivery_area_id) }}{{ getAreaName(form.delivery_area_id) && getLocationName(form.delivery_location_id) ? ', ' : '' }}{{ getLocationName(form.delivery_location_id) }}
                         </p>
-                        <p class="text-sm text-gray-500 mt-2 pt-1 border-t border-gray-200">
+                        <p class="description">
                             <span class="font-medium">Note:</span> Delivery typically takes 2-3 business days after confirmation.
                         </p>
                     </div>

@@ -1,0 +1,188 @@
+.CheckoutPage {
+    .Hero {
+        @apply py-4 mb-4;
+
+        h1 {
+            @apply text-center font-semibold text-2xl;
+        }
+    }
+
+    .checkout-page-wrapper {
+        @apply grid lg:grid-cols-12 gap-8;
+
+        h2 {
+            @apply font-medium text-lg mb-2 p-1;
+        }
+
+        .billing-info {
+            @apply lg:col-span-8;
+
+            .checkout-form {
+                @apply border border-border rounded-lg py-4 px-6;
+
+                .form-section {
+                    @apply mb-6;
+
+                    .section-title {
+                        @apply font-medium mb-2 text-muted-foreground;
+                    }
+                }
+
+                .inputs-group-wrapper,
+                .inputs-group-wrapper-3 {
+                    @apply md:grid md:gap-6 md:items-start;
+                }
+
+                .inputs-group-wrapper {
+                    @apply md:grid-cols-2;
+                }
+
+                .inputs-group-wrapper-3 {
+                    @apply md:grid-cols-3;
+                }
+
+                .inputs-group {
+                    @apply mb-4;
+
+                    label {
+                        @apply my-2;
+                    }
+
+                    label.required {
+                        @apply after:content-['*'] after:ml-[0.2px] after:text-red-500 after:font-bold;
+                    }
+
+                    input,
+                    textarea,
+                    select {
+                        @apply w-full border border-border rounded-sm py-1 px-2;
+
+                        &:disabled {
+                            @apply bg-gray-100 cursor-not-allowed opacity-60;
+                        }
+
+                        &:focus {
+                            @apply outline-none ring-2 ring-foreground opacity-80;
+                        }
+                    }
+                }
+
+                .radio-buttons {
+                    @apply flex flex-wrap gap-4 mt-2;
+
+                    .radio-button {
+                        @apply relative inline-block cursor-pointer;
+
+                        .label {
+                            @apply inline-block px-4 py-2 rounded-md border border-border text-muted-foreground font-medium transition-all duration-200 ease-in-out hover:border-foreground;
+                        }
+
+                        .radio-input {
+                            @apply absolute opacity-0 w-0 h-0;
+
+                            /* selected state */
+                            &:checked + .label {
+                                @apply bg-foreground text-background border-none;
+                                animation: radioSelect 0.2s ease-in-out;
+                            }
+
+                            /* focust state for accessibility */
+                            &:focus + .label {
+                                @apply font-bold;
+                            }
+                        }
+
+
+                    }
+                }
+
+                button {
+                    @apply bg-foreground text-background rounded-sm py-2 px-4 tracking-wider font-medium;
+                }
+
+                .shipping-info {
+                    animation: fadeIn 0.3s ease-in-out;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 0.375rem;
+                }
+
+                .delivery-info-note {
+                    p {
+                        font-size: 0.875rem;
+                        line-height: 1.25rem;
+                        color: #4b5563;
+                        margin-top: 0.5rem;
+
+                        .font-medium {
+                            font-weight: 500;
+                        }
+                    }
+                }
+            }
+        }
+
+        .order-details {
+            @apply lg:col-span-4;
+
+            .order-details-wrapper {
+                @apply border border-border rounded-lg p-4;
+
+                .order {
+                    @apply flex justify-between items-center mb-2;
+
+                    &:total {
+                        @apply border-t-2 border-border mt-2 pt-2;
+                    }
+                }
+            }
+
+            .delivery-preview {
+                @apply mt-4 p-3 bg-foreground text-background rounded-md;
+
+                .title {
+                    @apply text-sm font-medium mb-1;
+                }
+
+                .address {
+                    @apply text-base;
+                }
+
+                .description {
+                    @apply text-sm mt-2 pt-1 border-t border-border;
+                }
+            }
+        }
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes radioSelect {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(0.95);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
