@@ -43,28 +43,6 @@
 
                 .inputs-group {
                     @apply mb-4;
-
-                    label {
-                        @apply my-2;
-                    }
-
-                    label.required {
-                        @apply after:content-['*'] after:ml-[0.2px] after:text-red-500 after:font-bold;
-                    }
-
-                    input,
-                    textarea,
-                    select {
-                        @apply w-full border border-border rounded-sm py-1 px-2;
-
-                        &:disabled {
-                            @apply bg-gray-100 cursor-not-allowed opacity-60;
-                        }
-
-                        &:focus {
-                            @apply outline-none ring-2 ring-foreground opacity-80;
-                        }
-                    }
                 }
 
                 .radio-buttons {

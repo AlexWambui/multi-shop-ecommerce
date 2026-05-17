@@ -97,5 +97,6 @@
 @import './product-details-page';
 @import './shop-details-page';
 @import './checkout-page';
+@import './mpesa-payment-page';
 
 @import './app/index';

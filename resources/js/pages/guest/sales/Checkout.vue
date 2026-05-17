@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { Head, useForm, router } from '@inertiajs/vue3';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
 import GuestLayout from '@/layouts/GuestLayout.vue';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, onMounted } from 'vue';
 import checkout from '@/routes/checkout';
+import { useCartStore } from '@/store/cart';
 import { usePriceFormatter } from '@/composables/usePriceFormatter';
 
 const { formatPrice } = usePriceFormatter();
+const cartStore = useCartStore();
+const page = usePage();
 
 interface Location {
     id: number;
@@ -19,65 +22,56 @@ interface Area {
     shipping_cost: number;
 };
 
+const props = defineProps<{
+    delivery_locations: Location[];
+}>();
+
+const user = computed(() => page.props.auth.user);
+
 const form = useForm({
-    name: '',
-    email: '',
-    phone_number: '',
-    delivery_method: '',
-    payment_method: '',
+    name: user.value?.name || '',
+    email: user.value?.email || '',
+    phone_number: user.value?.phone_number || '',
+    delivery_method: 'shop',
+    payment_method: 'mpesa',
     extra_details: '',
     delivery_location_id: null as number | null,
     delivery_area_id: null as number | null,
 });
 
-// Mock data - Replace with actual API calls
-const locations = ref<Location[]>([
-    { id: 1, name: 'Nairobi' },
-    { id: 2, name: 'Mombasa' },
-    { id: 3, name: 'Kisumu' },
-    { id: 4, name: 'Nakuru' },
-]);
 
-// Areas with their shipping costs
-const allAreas = ref<Area[]>([
-    // Nairobi areas
-    { id: 1, name: 'Westlands', location_id: 1, shipping_cost: 180 },
-    { id: 2, name: 'CBD', location_id: 1, shipping_cost: 150 },
-    { id: 3, name: 'Kilimani', location_id: 1, shipping_cost: 160 },
-    { id: 4, name: 'Langata', location_id: 1, shipping_cost: 200 },
-    { id: 5, name: 'Eastlands', location_id: 1, shipping_cost: 120 },
-    // Mombasa areas
-    { id: 6, name: 'Nyali', location_id: 2, shipping_cost: 250 },
-    { id: 7, name: 'Mombasa CBD', location_id: 2, shipping_cost: 200 },
-    { id: 8, name: 'Bamburi', location_id: 2, shipping_cost: 280 },
-    // Kisumu areas
-    { id: 9, name: 'Milimani', location_id: 3, shipping_cost: 220 },
-    { id: 10, name: 'Kisumu CBD', location_id: 3, shipping_cost: 200 },
-    // Nakuru areas
-    { id: 11, name: 'Nakuru CBD', location_id: 4, shipping_cost: 180 },
-    { id: 12, name: 'Milimani', location_id: 4, shipping_cost: 190 },
-]);
-
+const allAreas = ref<Area[]>([]);
 const availableAreas = ref<Area[]>([]);
 const selectedAreaShipping = ref(0);
-const subtotal = 1650; // Base product price
 
 // Computed property to check if delivery method is selected
 const isDeliverySelected = computed(() => form.delivery_method === 'delivery');
 
-// Watch for location changes to filter areas
-watch(() => form.delivery_location_id, (newLocationId) => {
-    // TODO: Replace with actual API call
-    // axios.get(`/api/locations/${newLocationId}/areas`).then(response => {
-    //     availableAreas.value = response.data;
-    // });
-    if (newLocationId) {
-        // Filter areas based on selected location
-        availableAreas.value = allAreas.value.filter(area => area.location_id === newLocationId);
+// Get cart subtotal from store
+const subtotal = computed(() => Number(cartStore.total) || 0);
+const itemCount = computed(() => cartStore.itemCount);
 
-        // Reset area selection when location changes
-        form.delivery_area_id = null;
-        selectedAreaShipping.value = 0;
+// Load cart data on mount
+onMounted(() => {
+    cartStore.fetchCart();
+});
+
+// Watch for location changes to fetch areas from API
+watch(() => form.delivery_location_id, async (newLocationId) => {
+    if (newLocationId) {
+        try {
+            const response = await fetch(`/api/locations/${newLocationId}/areas`);
+            const data = await response.json();
+            availableAreas.value = data.data || [];
+
+            form.delivery_area_id = null;
+            selectedAreaShipping.value = 0;
+        } catch (error) {
+            console.error('Failed to fetch areas: ', error);
+            availableAreas.value = [];
+            form.delivery_area_id = null;
+            selectedAreaShipping.value = 0;
+        }
     } else {
         availableAreas.value = [];
         form.delivery_area_id = null;
@@ -98,7 +92,7 @@ watch(() => form.delivery_area_id, (newAreaId) => {
 // Get location name by ID (handles null)
 const getLocationName = (id: number | null) => {
     if (!id) return '';
-    const location = locations.value.find(l => l.id === id);
+    const location = props.delivery_locations.find(l => l.id === id);
     return location ? location.name : '';
 };
 
@@ -111,18 +105,35 @@ const getAreaName = (id: number | null) => {
 
 // Total amount calculation
 const totalAmount = computed(() => {
-    return isDeliverySelected.value ? subtotal + selectedAreaShipping.value : subtotal;
+    const sub = Number(subtotal.value) || 0;
+    const shipping = Number(selectedAreaShipping.value) || 0;
+
+    if (isDeliverySelected.value) {
+        return sub + shipping;
+    }
+    return sub;
 });
+
+// Save total to session for payment page
+const saveTotalToSession = () => {
+    sessionStorage.setItem('order_total', totalAmount.value.toString());
+};
 
 // Submit form with proper error handling
 const submitForm = () => {
+    // Save total before redirect
+    saveTotalToSession();
+
     // Transform data if needed before submission
     form.transform((data) => ({
         ...data,
         // Convert null values to empty string for backend if needed
         delivery_location_id: data.delivery_location_id ?? '',
         delivery_area_id: data.delivery_area_id ?? '',
-    })).post(checkout.store().url, {
+        subtotal: Number(subtotal.value) || 0,
+        shipping_cost: Number(selectedAreaShipping.value) || 0,
+        total: Number(totalAmount.value) || 0
+    })).post('/checkout', {
         preserveScroll: true,
         onSuccess: () => {
             // Redirect to order confirmation or success page
@@ -218,7 +229,7 @@ const submitForm = () => {
                                         >
                                             <option :value="null">-- Select Location --</option>
                                             <option
-                                                v-for="location in locations"
+                                                v-for="location in delivery_locations"
                                                 :key="location.id"
                                                 :value="location.id"
                                             >

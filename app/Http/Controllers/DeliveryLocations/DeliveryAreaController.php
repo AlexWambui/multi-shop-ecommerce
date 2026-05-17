@@ -10,6 +10,7 @@ use Exception;
 use App\Models\DeliveryArea;
 use App\Models\DeliveryLocation;
 use App\Http\Requests\DeliveryLocations\DeliveryAreaRequest;
+use App\Http\Resources\DeliveryLocations\DeliveryAreaResource;
 
 class DeliveryAreaController extends Controller
 {
@@ -25,7 +26,7 @@ class DeliveryAreaController extends Controller
         try {
             DB::beginTransaction();
 
-            $delivery_location->areas()->create($request->validated());
+            $delivery_location->deliveryAreas()->create($request->validated());
 
             DB::commit();
 
@@ -101,5 +102,15 @@ class DeliveryAreaController extends Controller
 
             return back()->withInput();
         }
+    }
+
+    public function getAreasByLocation(DeliveryLocation $location)
+    {
+        $areas = $location->deliveryAreas()
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        return DeliveryAreaResource::collection($areas);
     }
 }

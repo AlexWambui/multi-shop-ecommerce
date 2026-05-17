@@ -1,0 +1,81 @@
+.MpesaPaymentPage {
+    @apply min-h-dvh py-10 px-5 border border-border rounded-xl;
+
+    .Hero {
+        @apply text-center mb-1;
+
+        h1 {
+            @apply text-[28px] font-bold;
+        }
+    }
+
+    .payment-page-wrapper {
+        @apply max-w-150 mx-auto;
+
+        .payment-card {
+            @apply p-7.5;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+
+            .header {
+                @apply text-center mb-7.5;
+
+                h2 {
+                    @apply text-[20px];
+                }
+            }
+
+            form {
+                .help-text {
+                    @apply text-[12px] text-muted-foreground mt-1;
+                }
+
+                .pay-button {
+                    @apply w-full p-3.5 bg-[#4CAF50] text-white border-none rounded-sm text-base font-bold;
+                    transition: background 0.3s;
+
+                    &:hover {
+                        @apply bg-[#45a049];
+                    }
+
+                    &:disabled {
+                        @apply opacity-6;
+                    }
+                }
+
+                .cancel-payment {
+                    @apply mt-2 text-sm text-center text-muted-foreground hover:text-foreground;
+                }
+            }
+
+            .instructions {
+                @apply my-6.25 p-3.5 border border-border rounded-lg;
+
+                p {
+                    @apply font-bold mb-2.5;
+                }
+
+                ol {
+                    @apply pl-5;
+
+                    li {
+                        @apply mb-1.25 text-muted-foreground text-[14px];
+                    }
+                }
+            }
+
+            .details {
+                .order-summary {
+                    @apply p-3.75 rounded-lg mb-5 border border-border;
+
+                    .summary-item {
+                        @apply flex justify-between py-2;
+
+                        .note {
+                            @apply text-[12px] text-muted-foreground;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
