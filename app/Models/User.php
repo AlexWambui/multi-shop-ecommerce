@@ -10,7 +10,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
-use Illuminate\Database\Eloquent\Builder;use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 use App\Concerns\HasUuid;
 use App\Enums\UserRoles;
 use App\Enums\UserStatuses;
@@ -57,7 +59,7 @@ class User extends Authenticatable
         }
         return false;
     }
-    
+
     public function hasAnyRole(array $role_names): bool
     {
         foreach ($role_names as $role_name) {
@@ -99,19 +101,24 @@ class User extends Authenticatable
         if (is_numeric($role)) {
             return $query->where('role', (int) $role);
         }
-        
+
         // Handle string labels (for direct label filtering)
         $roleEnum = UserRoles::tryFromLabel($role);
         if ($roleEnum) {
             return $query->where('role', $roleEnum->value);
         }
-        
+
         return $query;
     }
 
     public function shops(): HasMany
     {
         return $this->hasMany(Shop::class, 'owner_id');
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class, 'customer_id');
     }
 
     public function isActive(): bool
@@ -136,10 +143,10 @@ class User extends Authenticatable
 
     public function getImageUrlAttribute(): ?string
     {
-        if ($this->image) {
+        if ($this->image && Storage::disk('public')->exists('users/' . $this->image)) {
             return asset('storage/users/' . $this->image);
         }
-        return null;
+        return asset('assets/images/default-image.png');
     }
 
     public function scopeSearch(Builder $query, string $term): Builder
