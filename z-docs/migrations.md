@@ -138,4 +138,104 @@ Schema::create('discount_products', function (Blueprint $table) {
     $table->index(['discount_id', 'product_id']);
     $table->index(['discount_id', 'exclude_from_category_discounts']);
 });
+
+Schema::create('delivery_locations', function (Blueprint $table) {
+    id();
+    uuid()->unique();
+    string('name')->unique();
+    string('slug')->unique();
+    boolean('is_active')->default(true);
+    integer('sort_order')->default(0);
+    timestamps();
+});
+
+Schema::create('delivery_areas', function (Blueprint $table) {
+    id();
+    uuid()->unique();
+    string('name')->unique();
+    string('slug')->unique();
+    decimal('shipping_cost', 10, 2);
+    integer('estimated_days')->default(2);
+    boolean('is_active')->default(true);
+    integer('sort_order')->default(0);
+    foreignId('delivery_location_id')->constrained('delivery_locations')->cascadeOnDelete();
+    timestamps();
+
+    unique(['name', 'delivery_location_id']);
+    index(['delivery_location_id', 'is_active']);
+});
+
+Schema::create('orders', function (Blueprint $table) {
+    id();
+    uuid()->unique();
+    string('order_number')->unique();
+    decimal('subtotal', 12, 2);
+    decimal('discount_amount', 12, 2)->default(0);
+    decimal('shipping_cost', 12, 2)->default(0);
+    decimal('tax_amount', 12, 2)->default(0);
+    decimal('total_amount', 12, 2);
+    unsignedTinyInteger('order_status')->default(0); // ENUM: 0 = pending, 1 = processing, 3 = shipped, 4 = processed.
+
+    unsignedTinyInteger('payment_method')->nullable(); // ENUM: 0 = mpesa, 1 = stripe
+    unsignedTinyInteger('payment_status')->default(0); // ENUM: 0 = pending, 1 = paid, 2 cancelled
+    timestamp('paid_at')->nullable();
+    timestamp('cancelled_at')->nullable();
+
+    text('notes')->nullable();
+
+    // Snapshots of customer info, delivery, pricing at order time (for when user gets anonymized)
+    // customer: name, email, phone
+    json('customer_details_snapshot')->nullable();
+    // delivery location, delivery area, delivery address, phone
+    json('delivery_details_snapshot')->nullable();
+    // subtotal, shipping, discount, tax, total
+    json('pricing_snapshot')->nullable();
+    // method, phone, transaction_id
+    json('payment_snapshot')->nullable();
+
+    foreignId('shop_id')->constrained('shops')->cascadeOnDelete();
+    foreignId('coupon_id')->nullable()->constrained('coupons')->nullOnDelete();
+    foreignId('customer_id')->constrained('users')->cascadeOnDelete();
+    timestamps();
+
+    index(['customer_id', 'status']);
+    index('order_number');
+    index('shop_id');
+    index(['order_status', 'payment_status']);
+    index('created_at');
+});
+
+Schema::create('order_items', function (Blueprint $table) {
+    id();
+    integer('quantity');
+    decimal('unit_price', 12, 2);
+    decimal('discount', 12, 2)->default(0);
+    decimal('total_price', 12, 2);
+
+    // Snapshot of product info (in case product is deleted later)
+    string('product_name_snapshot', 200);
+    string('product_sku_snapshot', 100);
+    foreignId('order_id')->constrained('orders')->cascadeOnDelete();
+    foreignId('product_id')->constrained('products')->nullOnDelete();
+    timestamps();
+
+    index(['order_id']);
+    index(['product_id']);
+    index(['order_id', 'product_id']);
+});
+
+Schema::create('payments', function (Blueprint $table) {
+    id();
+    uuid()->unique();
+    string('transaction_id')->unique(); // From payment gateway
+    decimal('amount', 12, 2);
+    unsignedTinyInteger('payment_status')->default(0); // ENUM: 0 = pending, 1 = paid, 2 = cancelled
+    unsignedTinyInteger('payment_method')->nullable(); // ENUM: 0 = mpesa, 1 = stripe
+    json('gateway_response')->nullable(); // Store webhook data
+    string('failure_reason')->nullable();
+    foreignId('order_id')->constrained('orders')->cascadeOnDelete();
+    timestamps();
+
+    index('transaction_id');
+});
 ```
