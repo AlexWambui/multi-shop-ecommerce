@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Exception;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
@@ -123,6 +124,16 @@ class CartService
 
             foreach ($guest_cart->items as $guestItem) {
                 try {
+                    // Load the product to check stock
+                    $product = Product::findOrFail($guestItem->product_id);
+
+                    if (!$product->is_active) {
+                        Log::warning('Product not active during merge', [
+                            'product_id' => $guestItem->product_id
+                        ]);
+                        continue;
+                    }
+
                     $existingItem = CartItem::where([
                         'cart_id' => $user_cart->id,
                         'product_id' => $guestItem->product_id,
@@ -131,15 +142,19 @@ class CartService
 
                     if ($existingItem) {
                         $total_quantity = $existingItem->quantity + $guestItem->quantity;
-                        $this->updateQuantity($existingItem, $total_quantity);
+                        // Direct update, don't use updateQuantity to avoid nested transaction
+                        $existingItem->quantity = $total_quantity;
+                        $existingItem->save();
                     } else {
-                        $this->addItem(
-                            $user_cart,
-                            $guestItem->product_id,
-                            $guestItem->quantity,
-                        );
+                        // Direct creation, don't use addItem
+                        CartItem::create([
+                            'cart_id' => $user_cart->id,
+                            'product_id' => $guestItem->product_id,
+                            'shop_id' => $guestItem->shop_id,
+                            'quantity' => $guestItem->quantity,
+                        ]);
                     }
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     Log::warning('Failed to merge cart item: ' . $e->getMessage(), [
                         'item_id' => $guestItem->id,
                         'product_id' => $guestItem->product_id
@@ -147,8 +162,11 @@ class CartService
                 }
             }
 
+            // Delete guest cart and its items
+            $guest_cart->items()->delete();
             $guest_cart->delete();
-            return $user_cart->load('items.product', 'items.shop');
+
+            return $user_cart->fresh(['items.product', 'items.shop']);
         });
     }
 }
