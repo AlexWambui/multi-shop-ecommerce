@@ -22,9 +22,11 @@ class CartService
         }
 
         if ($session_id) {
+            // Clean expired carts
+            $this->cleanExpiredCarts();
+
             $cart = Cart::where('session_id', $session_id)->first();
 
-            // Check if cart exists and is expired
             if ($cart && $cart->expires_at && $cart->expires_at->isPast()) {
                 $cart->items()->delete();
                 $cart->delete();
@@ -35,14 +37,28 @@ class CartService
                 $cart = Cart::create([
                     'session_id' => $session_id,
                     'currency' => 'KES',
-                    'expires_at' => now()->addDays(7)
+                    'expires_at' => now()->addHours(4) // Changed to 4 hours
                 ]);
             }
+
+            // Store cart ID in session for later retrieval
+            session(['guest_cart_id' => $cart->id]);
 
             return $cart;
         }
 
         throw new \RuntimeException('Either user or session ID is required');
+    }
+
+    // Add this method
+    public function cleanExpiredCarts(): void
+    {
+        Cart::where('expires_at', '<', now())
+            ->whereNull('user_id')
+            ->each(function ($cart) {
+                $cart->items()->delete();
+                $cart->delete();
+            });
     }
 
     public function addItem(Cart $cart, int $product_id, int $quantity = 1): CartItem
@@ -117,56 +133,36 @@ class CartService
         $cart->items()->delete();
     }
 
-    public function mergeCarts(Cart $guest_cart, User $user): Cart
+    public function mergeCarts(Cart $guestCart, User $user): Cart
     {
-        return DB::transaction(function () use ($guest_cart, $user) {
-            $user_cart = $this->getCart($user);
+        return DB::transaction(function () use ($guestCart, $user) {
+            // Get or create user's cart
+            $userCart = Cart::firstOrCreate(
+                ['user_id' => $user->id],
+                ['currency' => 'KES', 'expires_at' => null]
+            );
 
-            foreach ($guest_cart->items as $guestItem) {
-                try {
-                    // Load the product to check stock
-                    $product = Product::findOrFail($guestItem->product_id);
+            // Merge items
+            foreach ($guestCart->items as $guestItem) {
+                $existingItem = CartItem::where([
+                    'cart_id' => $userCart->id,
+                    'product_id' => $guestItem->product_id,
+                    'shop_id' => $guestItem->shop_id,
+                ])->first();
 
-                    if (!$product->is_active) {
-                        Log::warning('Product not active during merge', [
-                            'product_id' => $guestItem->product_id
-                        ]);
-                        continue;
-                    }
-
-                    $existingItem = CartItem::where([
-                        'cart_id' => $user_cart->id,
-                        'product_id' => $guestItem->product_id,
-                        'shop_id' => $guestItem->shop_id,
-                    ])->first();
-
-                    if ($existingItem) {
-                        $total_quantity = $existingItem->quantity + $guestItem->quantity;
-                        // Direct update, don't use updateQuantity to avoid nested transaction
-                        $existingItem->quantity = $total_quantity;
-                        $existingItem->save();
-                    } else {
-                        // Direct creation, don't use addItem
-                        CartItem::create([
-                            'cart_id' => $user_cart->id,
-                            'product_id' => $guestItem->product_id,
-                            'shop_id' => $guestItem->shop_id,
-                            'quantity' => $guestItem->quantity,
-                        ]);
-                    }
-                } catch (Exception $e) {
-                    Log::warning('Failed to merge cart item: ' . $e->getMessage(), [
-                        'item_id' => $guestItem->id,
-                        'product_id' => $guestItem->product_id
-                    ]);
+                if ($existingItem) {
+                    $existingItem->quantity += $guestItem->quantity;
+                    $existingItem->save();
+                } else {
+                    // Transfer the item to user's cart
+                    $guestItem->update(['cart_id' => $userCart->id]);
                 }
             }
 
-            // Delete guest cart and its items
-            $guest_cart->items()->delete();
-            $guest_cart->delete();
+            // Delete the empty guest cart
+            $guestCart->delete();
 
-            return $user_cart->fresh(['items.product', 'items.shop']);
+            return $userCart->load('items.product');
         });
     }
 }
