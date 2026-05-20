@@ -55,6 +55,7 @@ class CartService
     {
         Cart::where('expires_at', '<', now())
             ->whereNull('user_id')
+            ->get()
             ->each(function ($cart) {
                 $cart->items()->delete();
                 $cart->delete();
