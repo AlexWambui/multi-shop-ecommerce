@@ -166,4 +166,76 @@ class CartService
             return $userCart->load('items.product');
         });
     }
+
+    /**
+     * Get cart items as an array for order creation
+     * This is DIFFERENT from getCart() which returns a Cart object
+     */
+    public function getCartItems($user = null, $session_id = null): array
+    {
+        $cart = $this->getCart($user, $session_id);
+
+        return $cart->items()
+            ->with('product')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'product_id' => $item->product_id,
+                    'product_name' => $item->product->name,
+                    'product_sku' => $item->product->sku ?? '',
+                    'quantity' => $item->quantity,
+                    'unit_price' => $item->product->price,
+                    'subtotal' => $item->quantity * $item->product->price,
+                    'shop_id' => $item->shop_id,
+                ];
+            })
+            ->toArray();
+    }
+
+    /**
+     * Get cart total as float
+     */
+    public function getCartTotal($user = null, $session_id = null): float
+    {
+        $cart = $this->getCart($user, $session_id);
+
+        return $cart->items()
+            ->with('product')
+            ->get()
+            ->sum(function ($item) {
+                return $item->quantity * $item->product->price;
+            });
+    }
+
+    /**
+     * Clear cart for a user
+     */
+    public function clearCartForUser($user = null, $session_id = null): void
+    {
+        $cart = $this->getCart($user, $session_id);
+        $cart->items()->delete();
+    }
+
+    /**
+     * Verify stock availability for cart items (expects array from getCartItems)
+     */
+    public function verifyStockAvailability(array $cartItems): array
+    {
+        $issues = [];
+
+        foreach ($cartItems as $item) {
+            $product = Product::find($item['product_id']);
+
+            if (!$product) {
+                $issues[] = "Product not found: {$item['product_name']}";
+            } elseif (!$product->is_active) {
+                $issues[] = "{$item['product_name']} is no longer available.";
+            } elseif ($product->current_stock < $item['quantity']) {
+                $issues[] = "{$item['product_name']} only has {$product->current_stock} in stock. You requested {$item['quantity']}.";
+            }
+        }
+
+        return $issues;
+    }
 }

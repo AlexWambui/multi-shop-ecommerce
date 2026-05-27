@@ -107,10 +107,10 @@
 
                 .order {
                     @apply flex justify-between items-center mb-2;
+                }
 
-                    &:total {
-                        @apply border-t-2 border-border mt-2 pt-2;
-                    }
+                .total {
+                    @apply border-t-2 border-border mt-2 pt-2;
                 }
             }
 

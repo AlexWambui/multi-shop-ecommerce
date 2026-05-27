@@ -21,6 +21,7 @@ use App\Http\Controllers\DeliveryLocations\DeliveryLocationController;
 use App\Http\Controllers\DeliveryLocations\DeliveryAreaController;
 use App\Http\Controllers\Payments\MpesaController;
 use App\Http\Controllers\Payments\StripeController;
+use App\Http\Controllers\Sales\OrderController;
 
 Route::get('/', [HomePageController::class, 'homePage'])->name('home');
 Route::get('/deals-page', [DealsPageController::class, 'index'])->name('deals-page');
@@ -35,6 +36,8 @@ Route::put('cart/item/{cartItem}', [CartController::class, 'update'])->name('car
 Route::delete('cart/item/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
 Route::delete('cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
+Route::get('order-details/{order:uuid}', [OrderController::class, 'orderDetailsPage'])->name('order-details-page');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -43,6 +46,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('payment')->group(function() {
         Route::get('/mpesa', [MpesaController::class, 'index'])->name('payment.mpesa');
         Route::post('/mpesa/process', [MpesaController::class, 'process'])->name('payment.mpesa.process');
+        Route::get('/mpesa/{order:uuid}/status', [MpesaController::class, 'status'])->name('payment.mpesa.status');
+        Route::get('/mpesa/{order:uuid}/query-status', [MpesaController::class, 'queryStatus'])->name('payment.mpesa.query');
 
         Route::get('/stripe', [StripeController::class, 'index'])->name('payment.stripe');
         Route::post('/stripe/process', [StripeController::class, 'process'])->name('payment.stripe.process');

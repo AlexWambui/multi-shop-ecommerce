@@ -17,6 +17,8 @@ class Payment extends Model
     protected $casts = [
         'payment_status' => PaymentStatus::class,
         'payment_method' => PaymentMethod::class,
+        'gateway_response' => 'array',
+        'amount' => 'decimal:2'
     ];
 
     public function order(): BelongsTo

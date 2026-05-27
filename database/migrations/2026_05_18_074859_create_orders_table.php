@@ -40,7 +40,6 @@ return new class extends Migration
             $table->json('payment_snapshot')->nullable();
 
             $table->foreignId('shop_id')->constrained('shops')->cascadeOnDelete();
-            $table->foreignId('coupon_id')->nullable()->constrained('coupons')->nullOnDelete();
             $table->foreignId('customer_id')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
 
