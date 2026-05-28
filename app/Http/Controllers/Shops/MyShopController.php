@@ -105,15 +105,24 @@ class MyShopController extends Controller
             abort(403);
         }
 
-        $shop->load('category');
+        $totalOrders = $shop->orders()->count();
+        $totalOrdersToday = $shop->orders()->whereDate('created_at', today())->count();
+        $totalOrdersYesterday = $shop->orders()->whereDate('created_at', now()->subDay())->count();
 
-        $total_products = $shop->products()->count();
+        $stats = [
+            'total_products' => $shop->products()->count(),
+            'total_orders' => $totalOrders,
+            'total_orders_today' => $totalOrdersToday,
+            'total_orders_yesterday' => $totalOrdersYesterday,
+            'trend' => $totalOrdersToday - $totalOrdersYesterday,
+            'percentage_change' => $totalOrdersYesterday > 0
+                ? round(($totalOrdersToday - $totalOrdersYesterday) / $totalOrdersYesterday * 100, 1)
+                : ($totalOrdersToday > 0 ? 100 : 0)
+        ];
 
         return inertia('app/shops/my-shops/Show', [
             'shop' => $shop,
-            'stats' => [
-                'total_products' => $total_products
-            ],
+            'stats' => $stats,
         ]);
     }
 
@@ -163,7 +172,7 @@ class MyShopController extends Controller
                         Storage::disk('public')->delete($oldPath);
                     }
                 }
-                
+
                 $logo_path = $this->uploadImage($request->file('logo_image'), 'logo', $shop);
                 $shop->update(['logo_image' => $logo_path]);
             }
@@ -176,7 +185,7 @@ class MyShopController extends Controller
                         Storage::disk('public')->delete($oldPath);
                     }
                 }
-                
+
                 $cover_path = $this->uploadImage($request->file('cover_image'), 'cover', $shop);
                 $shop->update(['cover_image' => $cover_path]);
             }
@@ -229,10 +238,10 @@ class MyShopController extends Controller
 
         // Determine directory
         $directory = $type === 'logo' ? 'shops/logos' : 'shops/covers';
-        
+
         // Store the file and get the path
         $path = $file->storeAs($directory, $filename, 'public');
-        
+
         // Return the file name
         return $filename;
     }
