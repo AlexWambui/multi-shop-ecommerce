@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Enums\UserRoles;
+use App\Http\Resources\Orders\OrderResource;
 
 class DashboardController extends Controller
 {
@@ -35,12 +36,25 @@ class DashboardController extends Controller
         }
 
         if ($user->role === UserRoles::CUSTOMER) {
+            $ordersQuery = $user->orders();
+
+            $stats = [
+                'total_orders' => $ordersQuery->count(),
+                'pending_orders' => (clone $ordersQuery)->pending()->count(),
+                'processing_orders' => (clone $ordersQuery)->processing()->count(),
+                'shipped_orders' => (clone $ordersQuery)->shipped()->count(),
+                'delivered_orders' => (clone $ordersQuery)->delivered()->count(),
+                'cancelled_orders' => (clone $ordersQuery)->cancelled()->count(),
+                'active_orders' => (clone $ordersQuery)->active()->count(), // Using the new scope
+                'total_spent' => (clone $ordersQuery)->paid()->sum('total_amount'),
+                'recent_orders' => OrderResource::collection($ordersQuery->latest()->paginate(20)),
+            ];
+
             return inertia('app/dashboards/Customer', [
                 'user' => $user,
-                'stats' => ''
+                'stats' => $stats
             ]);
         }
-
         return inertia('app/dashboards/Dashboard');
     }
 }

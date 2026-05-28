@@ -82,14 +82,28 @@ class Order extends Model
         }
     }
 
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->whereIn('order_status', [
+            OrderStatus::PENDING,
+            OrderStatus::PROCESSING,
+            OrderStatus::SHIPPED
+        ]);
+    }
+
+    public function scopeCompleted(Builder $query): Builder
+    {
+        return $query->where('order_status', OrderStatus::DELIVERED);
+    }
+
+    public function scopeForCustomer(Builder $query, int $customerId): Builder
+    {
+        return $query->where('customer_id', $customerId);
+    }
+
     public function scopePending(Builder $query): Builder
     {
         return $query->where('order_status', OrderStatus::PENDING);
-    }
-
-    public function scopePaid(Builder $query): Builder
-    {
-        return $query->where('payment_status', PaymentStatus::PAID);
     }
 
     public function scopeProcessing(Builder $query): Builder
@@ -100,6 +114,21 @@ class Order extends Model
     public function scopeShipped(Builder $query): Builder
     {
         return $query->where('order_status', OrderStatus::SHIPPED);
+    }
+
+    public function scopeDelivered(Builder $query): Builder
+    {
+        return $query->where('order_status', OrderStatus::DELIVERED);
+    }
+
+    public function scopeCancelled(Builder $query): Builder
+    {
+        return $query->where('order_status', OrderStatus::CANCELLED);
+    }
+
+    public function scopePaid(Builder $query): Builder
+    {
+        return $query->where('payment_status', PaymentStatus::PAID);
     }
 
     public function scopeByShop(Builder $query, int $shopId): Builder

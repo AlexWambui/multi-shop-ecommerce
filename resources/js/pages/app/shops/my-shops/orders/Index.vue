@@ -115,8 +115,20 @@ const hasActiveFilters = computed(() =>
                         <TableCell class="id">{{ (orders.meta.current_page - 1) * orders.meta.per_page + index + 1 }}</TableCell>
                         <TableCell>{{ order.order_number }}</TableCell>
                         <TableCell>{{ formatPrice(order.total_amount) }}</TableCell>
-                        <TableCell :class="{ 'font-semibold text-green-600' : order.order_status_label === 'Delivered' }">{{ order.order_status_label }}</TableCell>
-                        <TableCell :class="{ 'font-semibold text-green-600' : order.payment_status_label === 'Paid' }">{{ order.payment_status_label }}</TableCell>
+                        <TableCell :class="{
+                                'font-semibold text-green-600' : order.order_status_label === 'Delivered',
+                                'font-semibold text-yellow-500' : order.order_status_label === 'Shipped',
+                            }"
+                        >
+                            {{ order.order_status_label }}
+                        </TableCell>
+                        <TableCell :class="{
+                                'font-semibold text-green-600' : order.payment_status_label === 'Paid',
+                                'font-semibold text-red-600' : order.payment_status_label === 'Cancelled',
+                            }"
+                        >
+                            {{ order.payment_status_label }}
+                        </TableCell>
                         <TableCell>{{ order.created_at }}</TableCell>
                         <TableCell class="actions">
                             <div class="actions-wrapper">
