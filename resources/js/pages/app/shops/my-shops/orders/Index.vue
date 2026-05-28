@@ -19,9 +19,9 @@ interface Order {
     id: number;
     order_number: string;
     total_amount: number;
-    order_status: boolean;
+    order_status: number | null;
     order_status_label: string;
-    payment_status: boolean;
+    payment_status: number | null;
     payment_status_label: string;
     created_at: string;
 };
@@ -120,13 +120,13 @@ const hasActiveFilters = computed(() =>
                         <TableCell>{{ order.created_at }}</TableCell>
                         <TableCell class="actions">
                             <div class="actions-wrapper">
-                                <Link :href="myShopOrdersRoutes.edit({ shop: shop.uuid, order: order.id}).url" class="action edit">
+                                <Link :href="myShopOrdersRoutes.edit({ shop: shop.slug, order: order.id}).url" class="action edit">
                                     <Pencil class="icon edit" />
                                 </Link>
 
                                 <span class="divider">|</span>
 
-                                <DeleteConfirmationDialog :url="myShopOrdersRoutes.destroy({ shop: shop.uuid, order: order.id}).url" title="Delete Order?" description="This order will be deleted permanently!" confirm-text="Delete Order">
+                                <DeleteConfirmationDialog :url="myShopOrdersRoutes.destroy({ shop: shop.slug, order: order.id}).url" title="Delete Order?" description="This order will be deleted permanently! Be careful, this might affect your fiscal calculations" confirm-text="Delete Order">
                                     <template #trigger>
                                         <button class="action delete">
                                             <Trash2 class="icon delete" />

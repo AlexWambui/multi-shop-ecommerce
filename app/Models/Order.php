@@ -37,7 +37,7 @@ class Order extends Model
 
     public function orderItems(): HasMany
     {
-        return $this->hasMany(OrderItem::class);
+        return $this->hasMany(OrderItem::class, 'order_id');
     }
 
     public function customer(): BelongsTo
@@ -49,6 +49,20 @@ class Order extends Model
     {
         return $this->customer_details_snapshot['name'] ??
             $this->customer?->name ?? null;
+    }
+
+    public function getDeliveryLocationAttribute(): ?DeliveryLocation
+    {
+        $location_id = $this->delivery_details_snapshot['delivery_location_id'] ?? null;
+
+        return $location_id ? DeliveryLocation::find($location_id) : null;
+    }
+
+    public function getDeliveryAreaAttribute(): ?DeliveryArea
+    {
+        $area_id = $this->delivery_details_snapshot['delivery_area_id'] ?? null;
+
+        return $area_id ? DeliveryArea::find($area_id) : null;
     }
 
     public function payment(): HasOne
@@ -118,5 +132,10 @@ class Order extends Model
     public function getPaymentStatusLabelAttribute(): string
     {
         return $this->payment_status?->label();
+    }
+
+    public function getPaymentMethodLabelAttribute(): string
+    {
+        return $this->payment_method?->label();
     }
 }

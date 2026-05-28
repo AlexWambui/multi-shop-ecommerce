@@ -21,6 +21,14 @@ enum OrderStatus: int
         };
     }
 
+    public static function options(): array
+    {
+        return collect(self::cases())->map(fn($case) => [
+            'id' => $case->value,
+            'name' => $case->label()
+        ])->toArray();
+    }
+
     public function color(): string
     {
         return match($this) {

@@ -1,0 +1,54 @@
+.EditOrderDetails {
+    @apply p-6 mt-4 mb-8 rounded-xl border border-border lg:w-[80vw] lg:mx-auto;
+
+    .content-wrapper {
+        @apply grid lg:grid-cols-2 gap-8;
+
+        .order-details div,
+        .order-specifics .fiscals,
+        .payment div {
+            @apply grid grid-cols-12 gap-4;
+
+            span {
+                &:first-of-type {
+                    @apply col-span-5 text-muted-foreground;
+                }
+
+                &:last-of-type {
+                    @apply col-span-7;
+                }
+            }
+        }
+
+        .order-specifics .total,
+        .payment .amount {
+            @apply font-semibold text-green-600;
+
+            span {
+                &:first-of-type {
+                    @apply col-span-5 text-foreground;
+                }
+            }
+        }
+
+        .order-specifics {
+            .order {
+                .items {
+                    @apply flex justify-between mb-4;
+                }
+
+                .fiscals {
+                    span {
+                        &:last-of-type {
+                            @apply text-right;
+                        }
+                    }
+                }
+            }
+
+            .payment {
+                @apply mt-8;
+            }
+        }
+    }
+}
