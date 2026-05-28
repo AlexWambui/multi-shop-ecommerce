@@ -30,6 +30,11 @@ class Order extends Model
         'cancelled_at' => 'datetime'
     ];
 
+    public function shop(): BelongsTo
+    {
+        return $this->belongsTo(Shop::class, 'shop_id');
+    }
+
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);
@@ -91,5 +96,15 @@ class Order extends Model
     public function scopeDateRange(Builder $query, $start, $end): Builder
     {
         return $query->whereBetween('created_at', [$start, $end]);
+    }
+
+    public function getOrderStatusLabelAttribute(): string
+    {
+        return $this->order_status?->label();
+    }
+
+    public function getPaymentStatusLabelAttribute(): string
+    {
+        return $this->payment_status?->label();
     }
 }

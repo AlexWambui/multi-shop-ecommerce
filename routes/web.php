@@ -13,6 +13,7 @@ use App\Http\Controllers\Users\UserController;
 use App\Http\Controllers\Shops\ShopController;
 use App\Http\Controllers\Shops\ShopCategoryController;
 use App\Http\Controllers\Shops\MyShopController;
+use App\Http\Controllers\Shops\MyShopOrderController;
 use App\Http\Controllers\Shops\MyShopProductController;
 use App\Http\Controllers\Shops\MyShopDiscountController;
 use App\Http\Controllers\Shops\MyShopInventoryController;
@@ -145,6 +146,17 @@ Route::middleware(['auth', 'verified', 'role:seller'])->group(function () {
         Route::get('/{shop}/edit', 'edit')->name('edit');
         Route::put('/{shop}', 'update')->name('update');
         Route::delete('/{shop}', 'destroy')->name('destroy');
+
+        Route::prefix('{shop:slug}/orders')
+            ->name('orders.')
+            ->controller(MyShopOrderController::class)
+            ->group(function()
+        {
+            Route::get('/', 'index')->name('index');
+            Route::get('/{order}/edit', 'edit')->name('edit');
+            Route::put('/{order}', 'update')->name('update');
+            Route::delete('/{order}', 'destroy')->name('destroy');
+        });
 
         Route::prefix('{shop:slug}/products')
             ->name('products.')
