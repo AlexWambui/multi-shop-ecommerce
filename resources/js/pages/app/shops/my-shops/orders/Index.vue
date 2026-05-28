@@ -23,6 +23,7 @@ interface Order {
     order_status_label: string;
     payment_status: boolean;
     payment_status_label: string;
+    created_at: string;
 };
 
 interface Shop {
@@ -77,7 +78,7 @@ const hasActiveFilters = computed(() =>
     <div class="app-container">
         <div class="header">
             <div class="info">
-                <h1 class="title">orders</h1>
+                <h1 class="title">Orders</h1>
             </div>
 
             <div class="search">
@@ -104,6 +105,7 @@ const hasActiveFilters = computed(() =>
                         <TableHead>Amount</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Payment</TableHead>
+                        <TableHead>Date</TableHead>
                         <TableHead class="actions">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -113,8 +115,9 @@ const hasActiveFilters = computed(() =>
                         <TableCell class="id">{{ (orders.meta.current_page - 1) * orders.meta.per_page + index + 1 }}</TableCell>
                         <TableCell>{{ order.order_number }}</TableCell>
                         <TableCell>{{ formatPrice(order.total_amount) }}</TableCell>
-                        <TableCell>{{ order.order_status_label }}</TableCell>
-                        <TableCell :class="{ 'font-semibold text-green-500' : order.payment_status_label === 'Paid' }">{{ order.payment_status_label }}</TableCell>
+                        <TableCell :class="{ 'font-semibold text-green-600' : order.order_status_label === 'Delivered' }">{{ order.order_status_label }}</TableCell>
+                        <TableCell :class="{ 'font-semibold text-green-600' : order.payment_status_label === 'Paid' }">{{ order.payment_status_label }}</TableCell>
+                        <TableCell>{{ order.created_at }}</TableCell>
                         <TableCell class="actions">
                             <div class="actions-wrapper">
                                 <Link :href="myShopOrdersRoutes.edit({ shop: shop.uuid, order: order.id}).url" class="action edit">

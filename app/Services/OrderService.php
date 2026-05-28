@@ -88,7 +88,7 @@ class OrderService
      */
     protected function generateOrderNumber(): string
     {
-        $prefix = 'INV-' . date('Ymd') . '-';
+        $prefix = 'INV-' . date('dmy') . '-';
         $lastOrder = Order::where('order_number', 'like', $prefix . '%')
             ->orderBy('id', 'desc')
             ->first();

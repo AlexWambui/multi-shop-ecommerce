@@ -21,7 +21,12 @@ class OrderResource extends JsonResource
             'order_status' => $this->order_status,
             'order_status_label' => $this->order_status_label,
             'payment_status' => $this->payment_status,
-            'payment_status_label' => $this->payment_status_label
+            'payment_status_label' => $this->payment_status_label,
+            'created_at' => $this->created_at
+                ->setTimezone('Africa/Nairobi')
+                ->format('d M, Y g:i A') . ' (' .
+                $this->created_at->setTimezone('Africa/Nairobi')->diffForHumans() . ')',
+                // Output: "Jan 15, 2024 5:30 PM (2 hours ago)"
         ];
     }
 }

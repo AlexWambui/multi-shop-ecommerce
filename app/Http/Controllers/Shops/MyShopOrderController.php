@@ -12,7 +12,7 @@ class MyShopOrderController extends Controller
 
     public function index(Shop $shop)
     {
-        $orders = $shop->orders()->paginate(50);
+        $orders = $shop->orders()->latest()->paginate(50);
 
         return inertia('app/shops/my-shops/orders/Index', [
             'orders' => OrderResource::collection($orders),

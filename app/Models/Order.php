@@ -98,6 +98,18 @@ class Order extends Model
         return $query->whereBetween('created_at', [$start, $end]);
     }
 
+    public function scopeCurrentMonth(Builder $query): Builder
+    {
+        return $query->whereMonth('created_at', now()->month)
+                    ->whereYear('created_at', now()->year);
+    }
+
+    public function scopeLastMonth(Builder $query): Builder
+    {
+        return $query->whereMonth('created_at', now()->subMonth()->month)
+                    ->whereYear('created_at', now()->subMonth()->year);
+    }
+
     public function getOrderStatusLabelAttribute(): string
     {
         return $this->order_status?->label();

@@ -13,6 +13,7 @@ use Exception;
 use App\Models\Shop;
 use App\Models\ShopCategory;
 use App\Models\User;
+use App\Enums\PaymentStatus;
 use App\Http\Requests\Shops\ShopRequest;
 use App\Services\ShopLimitService;
 
@@ -109,6 +110,15 @@ class MyShopController extends Controller
         $totalOrdersToday = $shop->orders()->whereDate('created_at', today())->count();
         $totalOrdersYesterday = $shop->orders()->whereDate('created_at', now()->subDay())->count();
 
+        // Revenue calculations
+        $currentMonthRevenue = $shop->orders()->paid()->currentMonth()->sum('total_amount');
+        $lastMonthRevenue = $shop->orders()->paid()->lastMonth()->sum('total_amount');
+
+        $revenueTrend = $currentMonthRevenue - $lastMonthRevenue;
+        $revenuePercentageChange = $lastMonthRevenue > 0
+            ? round(($currentMonthRevenue - $lastMonthRevenue) / $lastMonthRevenue * 100, 1)
+            : ($currentMonthRevenue > 0 ? 100 : 0);
+
         $stats = [
             'total_products' => $shop->products()->count(),
             'total_orders' => $totalOrders,
@@ -117,7 +127,13 @@ class MyShopController extends Controller
             'trend' => $totalOrdersToday - $totalOrdersYesterday,
             'percentage_change' => $totalOrdersYesterday > 0
                 ? round(($totalOrdersToday - $totalOrdersYesterday) / $totalOrdersYesterday * 100, 1)
-                : ($totalOrdersToday > 0 ? 100 : 0)
+                : ($totalOrdersToday > 0 ? 100 : 0),
+            'revenue' => $currentMonthRevenue,
+            'revenue_last_month' => $lastMonthRevenue,
+            'revenue_trend' => $revenueTrend,
+            'revenue_percentage_change' => $revenuePercentageChange,
+            'current_month' => now()->format('F'), // "May"
+            'last_month' => now()->subMonth()->format('F'), // "April"
         ];
 
         return inertia('app/shops/my-shops/Show', [
