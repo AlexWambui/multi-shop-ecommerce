@@ -1,0 +1,194 @@
+.BusinessCommunityPage {
+    @apply py-4;
+
+    .business-community-header {
+        @apply flex justify-between items-center mb-2;
+
+        h1 {
+            @apply text-lg font-semibold;
+        }
+
+        .action-btn {
+            a {
+                @apply text-sm font-medium;
+            }
+        }
+    }
+
+    .business-community-wrapper {
+        @apply lg:grid lg:grid-cols-12 lg:gap-8;
+
+        .dot-circle {
+            @apply w-2 h-2 rounded-full;
+        }
+
+        .dot-circle.green {
+            @apply bg-green-600;
+        }
+
+        .posts-wrapper {
+            @apply lg:col-span-8 flex flex-col gap-4;
+
+            .post {
+                @apply rounded-lg p-4 border border-border flex flex-col gap-4;
+
+                .user {
+                    @apply flex gap-2 items-center;
+
+                    .image {
+                        @apply w-9 h-9 border border-border rounded-full flex items-center justify-center;
+                    }
+
+                    .info {
+                        .account {
+                            @apply font-medium flex gap-2 items-center;
+
+                            span {
+                                @apply bg-green-100 text-green-900 text-xs py-0.5 px-2 rounded-xl;
+                            }
+                        }
+
+                        .extras {
+                            @apply text-xs text-muted-foreground flex gap-1 items-center;
+                        }
+                    }
+                }
+
+                .content {
+                    p {
+                        @apply text-sm;
+                    }
+                }
+
+                .stats {
+                    @apply flex gap-8;
+
+                    p {
+                        @apply flex items-center gap-1;
+
+                        .icon {
+                            svg {
+                                @apply w-4 h-4;
+                            }
+                        }
+
+                        .likes {
+                            svg {
+                                @apply fill-red-600 stroke-red-600;
+                            }
+                        }
+
+                        span {
+                            @apply text-sm text-muted-foreground;
+                        }
+                    }
+                }
+            }
+        }
+
+        .livechat-wrapper {
+            @apply lg:col-span-4 grid gap-8;
+
+            .business-chat,
+            .online-users {
+                @apply px-4 rounded-lg;
+            }
+
+            .business-chat {
+                 @apply border border-border;
+
+                 .header,
+                 .header-title {
+                    @apply flex items-center;
+                 }
+
+                 .header {
+                    @apply justify-between border-b border-border text-sm;
+
+                    .header-title {
+                        @apply gap-1;
+
+                        .title {
+                            @apply font-medium;
+                        }
+                    }
+
+                    .shops-online-stat {
+                        @apply text-muted-foreground text-xs;
+                    }
+                 }
+
+                 .chat-area {
+                    @apply py-4 grid gap-2 border-b border-border;
+
+                    .received,
+                    .sent {
+                        @apply text-sm rounded-lg w-3/4 py-2 px-4;
+                    }
+
+                    .received {
+                        @apply bg-gray-200 grid gap-1;
+
+                        .shop-name {
+                            @apply text-xs text-muted-foreground;
+                        }
+                    }
+
+                    .sent {
+                        @apply bg-gray-800 text-white justify-self-end;
+                    }
+                }
+
+                .chat-input-area {
+                    @apply py-4;
+
+                    form {
+                        @apply grid grid-cols-12 gap-4;
+
+                        input {
+                            @apply col-span-10 w-full px-4;
+                        }
+
+                        button {
+                            @apply col-span-2 text-sm bg-gray-800 text-white rounded-sm font-medium;
+                        }
+                    }
+                }
+            }
+
+            .online-users {
+                @apply border border-border py-4;
+
+                .title {
+                    @apply mb-4 text-sm font-medium;
+                }
+
+                .shops-wrapper {
+                    @apply grid gap-4;
+
+                    .shop {
+                        @apply flex items-center justify-between gap-2;
+
+                        .shop-details {
+                            @apply flex gap-2;
+
+                            .image {
+                                @apply w-9 h-9 rounded-full flex items-center justify-center border border-border;
+                            }
+
+                            .info {
+                                .shop-name {
+                                    @apply font-medium text-sm;
+                                }
+
+                                .shop-category {
+                                    @apply text-xs;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

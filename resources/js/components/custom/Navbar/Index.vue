@@ -39,7 +39,7 @@ watch(user, (newUser, oldUser) => {
             <div class="links">
                 <Link href="/all-shops">Discover</Link>
                 <Link href="/deals-page">Deals & Offers</Link>
-                <Link>Community</Link>
+                <Link href="/business-community">Community</Link>
             </div>
 
             <div class="extras">

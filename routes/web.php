@@ -23,6 +23,7 @@ use App\Http\Controllers\DeliveryLocations\DeliveryAreaController;
 use App\Http\Controllers\Payments\MpesaController;
 use App\Http\Controllers\Payments\StripeController;
 use App\Http\Controllers\Sales\OrderController;
+use App\Http\Controllers\Community\BusinessCommunityController;
 
 Route::get('/', [HomePageController::class, 'homePage'])->name('home');
 Route::get('/deals-page', [DealsPageController::class, 'index'])->name('deals-page');
@@ -197,6 +198,8 @@ Route::middleware(['auth', 'verified', 'role:seller'])->group(function () {
             Route::get('/{product}/history', 'history')->name('history');
         });
     });
+
+    Route::get('business-community', [BusinessCommunityController::class, 'index'])->name('business-community.index');
 });
 
 Route::inertia('/welcome', 'Welcome', [

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Menu, Search, Users, Sun, Moon, Store, Barcode, Truck } from 'lucide-vue-next';
+import { LayoutGrid, Menu, Search, Users, Sun, Moon, Store, Barcode, Truck, MessageCircleMore } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
@@ -22,6 +22,7 @@ import userRoutes from '@/routes/users';
 import shopCategoriesRoutes from '@/routes/shop-categories';
 import productCategoriesRoutes from '@/routes/product-categories';
 import deliveryLocationsRoutes from '@/routes/delivery-locations';
+import businessCommunityRoutes from '@/routes/business-community';
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[];
@@ -84,7 +85,11 @@ const mainNavItems = computed(() =>{
 
     if (isSeller.value) {
         items.push(
-            //
+            {
+                title: 'Community',
+                href: businessCommunityRoutes.index(),
+                icon: MessageCircleMore
+            }
         );
     }
 
