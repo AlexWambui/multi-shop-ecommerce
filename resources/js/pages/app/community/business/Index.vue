@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { HeartIcon, MessageCircleMore } from 'lucide-vue-next';
+import { HeartIcon, MessageCircleMore, ImageIcon } from 'lucide-vue-next';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getInitials } from '@/composables/useInitials';
+import businessPostsRoutes from '@/routes/business-posts';
 
 interface Shop {
     id: number;
@@ -14,7 +16,23 @@ interface Shop {
 
 const props = defineProps<{
     shops: Shop[];
+    business_posts: {
+        data: any[];
+        links: any[];
+        meta: any[];
+    };
 }>();
+
+// Optional: Image modal state
+const selectedImage = ref<string | null>(null);
+
+const openImageModal = (imageUrl: string) => {
+    selectedImage.value = imageUrl;
+};
+
+const closeImageModal = () => {
+    selectedImage.value = null;
+};
 </script>
 
 <template>
@@ -24,40 +42,63 @@ const props = defineProps<{
         <div class="business-community-header">
             <h1>Business Community</h1>
             <div class="action-btn">
-                <Link href="/business-community/create" class="btn">New Post</Link>
+                <Link :href="businessPostsRoutes.create.url()" class="btn">New Post</Link>
             </div>
         </div>
 
         <div class="business-community-wrapper">
             <div class="posts-wrapper">
-                <div v-for="shop in shops" class="post">
+                <div v-for="post in business_posts.data" class="post">
                     <div class="user">
                         <div class="image">
                             <Avatar class="size-8 overflow-hidden rounded-full">
                                 <AvatarImage
-                                    :src="shop.logo_url"
-                                    :alt="shop.logo_url"
+                                    :src="post.shop_logo_url"
+                                    :alt="post.shop_name"
                                 />
                                 <AvatarFallback
                                     class="rounded-lg bg-neutral-200 font-semibold text-black dark:bg-neutral-700 dark:text-white"
                                 >
-                                    {{ getInitials(shop?.name) }}
+                                    {{ getInitials(post.shop_name) }}
                                 </AvatarFallback>
                             </Avatar>
                         </div>
 
                         <div class="info">
-                            <p class="account">{{ shop.name }} <span v-if="shop.is_verified" class="badge">Verified</span></p>
+                            <p class="account">{{ post.shop_name }} <span v-if="post.shop_is_verified" class="badge">Verified</span></p>
                             <p class="extras">
-                                <span class="time">2 hours ago</span>
+                                <span class="time">{{ post.published_at }}</span>
                                 <span class="divider">·</span>
-                                <span class="shop-category">Beaty & Wellness</span>
+                                <span class="shop-category">{{ post.shop_category_name }}</span>
                             </p>
                         </div>
                     </div>
 
                     <div class="content">
-                        <p>Excited to announce our new Moringa Glow Collection launches this Friday! We've been formulating for 6 months. Early access for Sokohub community members — drop a 🌿 below and I'll DM you the link before it goes live.</p>
+                        <p class="post-text" v-if="post.content">{{ post.content }}</p>
+
+                        <div v-if="post.image" class="post-image" @click="openImageModal(post.image)">
+                            <img
+                                :src="post.image"
+                                :alt="post.content || 'Post image'"
+                                loading="lazy"
+                            />
+
+                            <div class="image-overlay">
+                                <ImageIcon class="zoom-icon" />
+                            </div>
+                        </div>
+
+                        <Teleport to="body">
+                            <div v-if="selectedImage" class="image-modal" @click="closeImageModal">
+                                <div class="modal-content" @click.stop>
+                                    <button class="close-button" @click="closeImageModal">
+                                        X
+                                    </button>
+                                    <img :src="selectedImage" alt="Full size post image" />
+                                </div>
+                            </div>
+                        </Teleport>
                     </div>
 
                     <div class="stats">
@@ -65,13 +106,13 @@ const props = defineProps<{
                             <span class="icon likes">
                                 <HeartIcon />
                             </span>
-                            <span>47 Likes</span>
+                            <span>{{ post.likes_count }} Likes</span>
                         </p>
                         <p>
                             <span class="icon comments">
                                 <MessageCircleMore />
                             </span>
-                            <span>47 Comments</span>
+                            <span>{{ post.comments_count }} Comments</span>
                         </p>
                     </div>
                 </div>
