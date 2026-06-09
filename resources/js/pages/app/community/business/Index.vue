@@ -80,7 +80,7 @@ const closeImageModal = () => {
                         <div v-if="post.image" class="post-image" @click="openImageModal(post.image)">
                             <img
                                 :src="post.image"
-                                :alt="post.content || 'Post image'"
+                                :alt="post.shop_name || 'Post image'"
                                 loading="lazy"
                             />
 
