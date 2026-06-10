@@ -22,6 +22,29 @@ class BusinessPost extends Model
         return $this->belongsTo(Shop::class, 'shop_id');
     }
 
+    public function comments()
+    {
+        return $this->hasMany(BusinessPostComment::class)->latest();
+    }
+    
+    public function likes()
+    {
+        return $this->belongsToMany(User::class, 'business_post_likes', 'business_post_id', 'user_id')->withTimestamps();
+    }
+
+    public function toggleLike(User $user)
+    {
+        if ($this->likes()->where('user_id', $user->id)->exists()) {
+            $this->likes()->detach($user);
+            $this->decrement('likes_count');
+            return false;
+        }
+        
+        $this->likes()->attach($user);
+        $this->increment('likes_count');
+        return true;
+    }
+
     public function getImageUrlAttribute(): ?string
     {
         if (!$this->image) {

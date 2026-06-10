@@ -1,0 +1,23 @@
+{
+	"Simple Vue Script and Template": {
+		"prefix": "script-template",
+		"body": [
+			"<script setup lang=\"ts\">",
+			"",
+			"</script>",
+			"",
+			"<template>",
+			"    <div>",
+			"        <h1>${1:Hello!}</h1>",
+			"    </div>",
+			"</template>",
+			""
+		]
+	},
+	"Show data as JSON stringified": {
+		"prefix": "json-stringify",
+		"body": [
+			"<pre>{{  JSON.stringify(products, null, 2)  }}</pre>"
+		]
+	}
+}

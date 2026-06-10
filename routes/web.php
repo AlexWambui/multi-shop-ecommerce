@@ -25,6 +25,7 @@ use App\Http\Controllers\Payments\StripeController;
 use App\Http\Controllers\Sales\OrderController;
 use App\Http\Controllers\Community\BusinessCommunityController;
 use App\Http\Controllers\Community\BusinessPostController;
+use App\Http\Controllers\Community\BusinessPostLikeController;
 
 Route::get('/', [HomePageController::class, 'homePage'])->name('home');
 Route::get('/deals-page', [DealsPageController::class, 'index'])->name('deals-page');
@@ -204,6 +205,8 @@ Route::middleware(['auth', 'verified', 'role:seller'])->group(function () {
 
     Route::get('business-posts/create', [BusinessPostController::class, 'create'])->name('business-posts.create');
     Route::post('business-posts', [BusinessPostController::class, 'store'])->name('business-posts.store');
+
+    Route::post('business-posts/{post}/like', [BusinessPostLikeController::class, 'like'])->name('business-posts.like');
 });
 
 Route::inertia('/welcome', 'Welcome', [

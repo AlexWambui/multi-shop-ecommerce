@@ -13,7 +13,12 @@ class BusinessCommunityController extends Controller
     public function index()
     {
         $shops = Shop::get();
-        $business_posts = BusinessPost::latest()->paginate(10);
+        $business_posts = BusinessPost::with(['shop', 'comments' => function ($query) {
+            $query->latest()->limit(3);
+        }])
+        ->withCount(['likes', 'comments'])
+        ->latest()
+        ->paginate(10);
 
         return inertia('app/community/business/Index', [
             'shops' => $shops,
