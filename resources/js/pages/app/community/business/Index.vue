@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Head, Link } from '@inertiajs/vue3';
-import { HeartIcon, MessageCircleMore, ImageIcon } from 'lucide-vue-next';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { Heart, MessageCircleMore, ImageIcon } from 'lucide-vue-next';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getInitials } from '@/composables/useInitials';
 import businessPostsRoutes from '@/routes/business-posts';
@@ -14,10 +14,24 @@ interface Shop {
     is_verified: boolean;
 };
 
+interface BusinessPost {
+    id: number;
+    content: string;
+    image: string | null;
+    likes_count: number;
+    comments_count: number;
+    is_liked_by_auth_user: boolean;
+    shop_name: string;
+    shop_logo_url: string;
+    shop_is_verified: boolean;
+    shop_category_name: string;
+    published_at: string;
+};
+
 const props = defineProps<{
     shops: Shop[];
     business_posts: {
-        data: any[];
+        data: BusinessPost[];
         links: any[];
         meta: any[];
     };
@@ -25,6 +39,8 @@ const props = defineProps<{
 
 // Optional: Image modal state
 const selectedImage = ref<string | null>(null);
+const animatingPostId = ref<number | null>(null);
+const likeButtonRefs = ref<Map<number, HTMLElement>>(new Map());
 
 const openImageModal = (imageUrl: string) => {
     selectedImage.value = imageUrl;
@@ -32,6 +48,47 @@ const openImageModal = (imageUrl: string) => {
 
 const closeImageModal = () => {
     selectedImage.value = null;
+};
+
+const setLikeButtonRef = (el: HTMLElement | null, postId: number) => {
+    if (el) {
+        likeButtonRefs.value.set(postId, el);
+    } else {
+        likeButtonRefs.value.delete(postId);
+    }
+};
+
+const toggleLike = async (post: BusinessPost) => {
+    const button = likeButtonRefs.value.get(post.id);
+    
+    // Add animation class to the icon directly
+    const icon = button?.querySelector('.like-icon');
+    if (icon) {
+        icon.classList.add('like-animation');
+        setTimeout(() => {
+            icon.classList.remove('like-animation');
+        }, 400);
+    }
+    
+    // Store the current state for rollback
+    const previousState = {
+        is_like_by_auth_user: post.is_liked_by_auth_user,
+        likes_count: post.likes_count
+    };
+    
+    // Optimistically update
+    post.is_liked_by_auth_user = !post.is_liked_by_auth_user;
+    post.likes_count = post.is_liked_by_auth_user ? post.likes_count + 1 : post.likes_count - 1;
+    
+    router.post(`/business-posts/${post.id}/like`, {}, {
+        preserveScroll: true,
+        preserveState: true,
+        onError: () => {
+            // Revert on error
+            post.is_liked_by_auth_user = previousState.is_like_by_auth_user;
+            post.likes_count = previousState.likes_count;
+        }
+    });
 };
 </script>
 
@@ -102,18 +159,24 @@ const closeImageModal = () => {
                     </div>
 
                     <div class="stats">
-                        <p>
-                            <span class="icon likes">
-                                <HeartIcon />
-                            </span>
+                        <button 
+                            :ref="(el) => setLikeButtonRef(el as HTMLElement, post.id)"
+                            @click="toggleLike(post)" 
+                            class="like-button"
+                            :class="{ 'liked': post.is_liked_by_auth_user, 'animating': animatingPostId === post.id }"
+                        >
+                            <Heart 
+                                class="like-icon" 
+                                :size="16"
+                                :fill="post.is_liked_by_auth_user ? '#ef4444' : 'none'"
+                                :stroke="post.is_liked_by_auth_user ? '#ef4444' : 'currentColor'"
+                            />
                             <span>{{ post.likes_count }} Likes</span>
-                        </p>
-                        <p>
-                            <span class="icon comments">
-                                <MessageCircleMore />
-                            </span>
+                        </button>
+                        <button>
+                            <MessageCircleMore :size="16" />
                             <span>{{ post.comments_count }} Comments</span>
-                        </p>
+                        </button>
                     </div>
                 </div>
             </div>

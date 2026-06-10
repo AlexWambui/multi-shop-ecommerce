@@ -4,6 +4,7 @@ namespace App\Http\Resources\Community;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 
 class BusinessPostResource extends JsonResource
 {
@@ -30,6 +31,7 @@ class BusinessPostResource extends JsonResource
             "shop_name" => $this->shop->name,
             "shop_category_name" => $this->shop->category_name,
             "shop_logo_url" => $this->shop->logo_url,
+            "is_liked_by_auth_user" => $this->isLikedBy(Auth::user()),
         ];
     }
 }

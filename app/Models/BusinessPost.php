@@ -45,6 +45,11 @@ class BusinessPost extends Model
         return true;
     }
 
+    public function isLikedBy(User $user)
+    {
+        return $this->likes()->where('user_id', $user->id)->exists();
+    }
+
     public function getImageUrlAttribute(): ?string
     {
         if (!$this->image) {
