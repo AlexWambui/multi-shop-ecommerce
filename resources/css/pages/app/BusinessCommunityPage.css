@@ -184,6 +184,10 @@
                             }
                         }
                     }
+
+                    .empty-chat-area-messages {
+                        @apply p-4 text-center;
+                    }
                 }
 
                 .chat-input-area {
