@@ -284,4 +284,40 @@ Schema::create('business_post_comments', function (Blueprint $table) {
 
     index(['business_post_id', 'created_at']);
 });
+
+Schema::create('chat_messages', function (Blueprint $table) {
+    id();
+    foreignId('sender_shop_id')->constrained('shops')->onDelete('cascade');
+    foreignId('receiver_shop_id')->constrained('shops')->onDelete('cascade');
+    text('message');
+    boolean('is_read')->default(false);
+    timestamp('read_at')->nullable();
+    timestamps();
+    
+    index(['sender_shop_id', 'receiver_shop_id']);
+    index('receiver_shop_id');
+    index('is_read');
+    index('created_at');
+});
+
+Schema::create('online_activities', function (Blueprint $table) {
+    id();
+    foreignId('shop_id')->constrained()->onDelete('cascade');
+    timestamp('last_activity_at');
+    string('session_id')->unique();
+    timestamps();
+    
+    index('last_activity_at');
+    index('shop_id');
+});
+
+Schema::create('follows', function (Blueprint $table) {
+    id();
+    foreignId('follower_shop_id')->constrained('shops')->onDelete('cascade');
+    foreignId('following_shop_id')->constrained('shops')->onDelete('cascade');
+    timestamps();
+    
+    unique(['follower_shop_id', 'following_shop_id']);
+    index('following_shop_id');
+});
 ```
