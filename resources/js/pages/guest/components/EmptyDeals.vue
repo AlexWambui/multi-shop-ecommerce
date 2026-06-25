@@ -13,32 +13,32 @@ const content = computed(() => {
                 icon: '⚡',
                 title: 'No Flash Offers Available',
                 message: 'Check back soon for exciting flash deals!',
-                buttonText: 'Browse Products',
-                buttonLink: '/'
+                buttonText: 'View All Shops',
+                buttonLink: '/all-shops'
             };
         case 'clearance':
             return {
                 icon: '🏷️',
                 title: 'No Clearance Items Available',
                 message: 'Check back soon for great clearance deals!',
-                buttonText: 'Shop Now',
-                buttonLink: '/deals'
+                buttonText: 'View All Shops',
+                buttonLink: '/all-shops'
             };
         case 'hot':
             return {
                 icon: '🔥',
                 title: 'No Hot Deals Available',
                 message: 'Check back soon for amazing hot deals!',
-                buttonText: 'View All Deals',
-                buttonLink: '/deals'
+                buttonText: 'View All Shops',
+                buttonLink: '/all-shops'
             };
         default:
             return {
                 icon: '🛍️',
-                title: 'No Deals Available',
+                title: 'No Hot Deals Available',
                 message: 'Check back soon for exciting deals!',
-                buttonText: 'Browse Products',
-                buttonLink: '/'
+                buttonText: 'View All Shops',
+                buttonLink: '/all-shops'
             };
     }
 });
