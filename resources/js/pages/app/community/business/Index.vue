@@ -171,12 +171,12 @@ const toggleLike = async (post: BusinessPost) => {
                                 :fill="post.is_liked_by_auth_user ? '#ef4444' : 'none'"
                                 :stroke="post.is_liked_by_auth_user ? '#ef4444' : 'currentColor'"
                             />
-                            <span>{{ post.likes_count }} Likes</span>
+                            <span>{{ post.likes_count }}</span>
                         </button>
-                        <button>
+                        <!-- <button>
                             <MessageCircleMore :size="16" />
-                            <span>{{ post.comments_count }} Comments</span>
-                        </button>
+                            <span>{{ post.comments_count }}</span>
+                        </button> -->
                     </div>
                 </div>
             </div>

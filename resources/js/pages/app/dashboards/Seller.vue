@@ -4,16 +4,6 @@ import { Head, usePage } from '@inertiajs/vue3';
 import { dashboard } from '@/routes';
 import shopsRoutes from '@/routes/my-shops';
 
-defineOptions({
-    layout: {
-        breadcrumbs: [
-            { title: 'Dashboard', href: dashboard() },
-            { title: 'Shops', href: shopsRoutes.index() },
-            { title: '', description: ''}
-        ],
-    },
-});
-
 const page = usePage();
 const user = computed(() => page.props.auth.user);
 </script>

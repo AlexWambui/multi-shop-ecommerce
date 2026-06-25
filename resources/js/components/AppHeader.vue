@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { LayoutGrid, Menu, Search, Users, Sun, Moon, Store, Barcode, Truck, MessageCircleMore } from 'lucide-vue-next';
+import { LayoutGrid, Menu, Search, Users, Sun, Moon, Store, Barcode, Truck, MessageCircleMore, StoreIcon } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
@@ -18,7 +18,9 @@ import { toUrl } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import type { BreadcrumbItem, NavItem } from '@/types';
 import { useAppearance } from '@/composables/useAppearance';
+
 import userRoutes from '@/routes/users';
+import shopsRoutes from '@/routes/my-shops';
 import shopCategoriesRoutes from '@/routes/shop-categories';
 import productCategoriesRoutes from '@/routes/product-categories';
 import deliveryLocationsRoutes from '@/routes/delivery-locations';
@@ -85,6 +87,11 @@ const mainNavItems = computed(() =>{
 
     if (isSeller.value) {
         items.push(
+            {
+                title: 'Shops',
+                href: shopsRoutes.index(),
+                icon: StoreIcon
+            },
             {
                 title: 'Community',
                 href: businessCommunityRoutes.index(),
