@@ -1,0 +1,8 @@
+{
+	"Import Auth Facade": {
+		"prefix": "imp-Auth",
+		"body": [
+			"use Illuminate\\Support\\Facades\\Auth;"
+		]
+	},
+}
