@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Community\BusinessChatMessageController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\Guest\HomePageController;
@@ -207,6 +208,8 @@ Route::middleware(['auth', 'verified', 'role:seller'])->group(function () {
     Route::post('business-posts', [BusinessPostController::class, 'store'])->name('business-posts.store');
 
     Route::post('business-posts/{post}/like', [BusinessPostLikeController::class, 'like'])->name('business-posts.like');
+
+    Route::post('business-chat', [BusinessChatMessageController::class, 'store'])->name('business-chat.store');
 });
 
 Route::inertia('/welcome', 'Welcome', [

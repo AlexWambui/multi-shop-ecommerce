@@ -181,6 +181,11 @@ class Shop extends Model
         return $this->hasMany(BusinessPost::class, 'shop_id');
     }
 
+    public function businessChatMessages(): HasMany
+    {
+        return $this->hasMany(BusinessChatMessage::class, 'shop_id');
+    }
+
     public function scopeSearch(Builder $query, ?string $searchTerm): Builder
     {
         if (!$searchTerm) {

@@ -290,12 +290,13 @@ Schema::create('business_chat_messages', function (Blueprint $table) {
     text('message');
     boolean('is_read')->default(false);
 
-    foreignId('shop')->constrained('shops')->cascadeOnDelete();
-    foreignId('reply_to_id')->nullable()->constrained('chat_message')->cascadeOnDelete();
+    foreignId('shop_id')->constrained('shops')->cascadeOnDelete();
+    foreignId('reply_to_id')->nullable()->constrained('business_chat_messages')->cascadeOnDelete();
     timestamps();
     
     index('created_at');
     index('reply_to_id');
+    index('shop_id');
 });
 
 Schema::create('online_activities', function (Blueprint $table) {

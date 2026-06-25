@@ -157,23 +157,32 @@
                  }
 
                  .chat-area {
-                    @apply py-4 grid gap-2 border-b border-border;
+                    @apply py-4 border-b border-border space-y-2;
 
-                    .received,
-                    .sent {
-                        @apply text-sm rounded-lg w-3/4 py-2 px-4;
-                    }
+                    .chat-area-messages {
+                        @apply grid gap-2;
+                        
+                        .chat-message {
+                            @apply grid gap-2;
 
-                    .received {
-                        @apply bg-gray-200 grid gap-1;
+                            .received,
+                            .sent {
+                                @apply grid gap-1 text-sm rounded-lg w-3/4 py-2 px-4;
 
-                        .shop-name {
-                            @apply text-xs text-muted-foreground;
+                                .time,
+                                .shop-name {
+                                    @apply text-xs text-muted-foreground;
+                                }
+                            }
+
+                            .received {
+                                @apply bg-gray-200 text-gray-900 grid gap-1;
+                            }
+
+                            .sent {
+                                @apply bg-gray-800 text-white justify-self-end;
+                            }
                         }
-                    }
-
-                    .sent {
-                        @apply bg-gray-800 text-white justify-self-end;
                     }
                 }
 
@@ -183,12 +192,16 @@
                     form {
                         @apply grid grid-cols-12 gap-4;
 
-                        input {
-                            @apply col-span-10 w-full px-4;
+                        .inputs-group {
+                            @apply col-span-10 mb-0;
+                            
+                            input {
+                                @apply w-full px-4;
+                            }
                         }
 
                         button {
-                            @apply col-span-2 text-sm bg-gray-800 text-white rounded-sm font-medium;
+                            @apply col-span-2 flex items-center justify-center px-2 bg-gray-800 text-white rounded-sm font-medium;
                         }
                     }
                 }

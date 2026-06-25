@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
-import { Heart, MessageCircleMore, ImageIcon } from 'lucide-vue-next';
+import { Form, Head, Link, router, useForm } from '@inertiajs/vue3';
+import { Heart, MessageCircleMore, ImageIcon, SendHorizonal } from 'lucide-vue-next';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import InputError from '@/components/InputError.vue';
 import { getInitials } from '@/composables/useInitials';
 import businessPostsRoutes from '@/routes/business-posts';
+import businessChatRoutes from '@/routes/business-chat';
 
 interface Shop {
     id: number;
@@ -28,6 +30,20 @@ interface BusinessPost {
     published_at: string;
 };
 
+interface ChatMessage {
+    id: number;
+    message: string;
+    shop_id: number;
+    shop: {
+        id: number;
+        name: string;
+        logo_url: string;
+    };
+    created_at: string;
+    reply_to_id: number | null;
+    reply_to?: ChatMessage;
+}
+
 const props = defineProps<{
     shops: Shop[];
     business_posts: {
@@ -35,6 +51,8 @@ const props = defineProps<{
         links: any[];
         meta: any[];
     };
+    shop: { id: number; name: string; slug: string };
+    chat_messages: ChatMessage[];
 }>();
 
 // Optional: Image modal state
@@ -87,6 +105,19 @@ const toggleLike = async (post: BusinessPost) => {
             // Revert on error
             post.is_liked_by_auth_user = previousState.is_like_by_auth_user;
             post.likes_count = previousState.likes_count;
+        }
+    });
+};
+
+const chatForm = useForm({
+    message: ''
+});
+
+const submitChat = () => {
+    chatForm.post(businessChatRoutes.store.url(), {
+        preserveScroll: true,
+        onSuccess: () => {
+            chatForm.reset('message');
         }
     });
 };
@@ -188,31 +219,43 @@ const toggleLike = async (post: BusinessPost) => {
                             <span class="dot-circle green"></span>
                             <span class="title">Business Chat</span>
                         </div>
-                        <span class="shops-online-stat">24 online</span>
+                        <span class="shops-online-stat">{{ shops.length }} online</span>
                     </div>
 
                     <div class="chat-area">
-                        <p class="received">
-                            <span class="shop-name">Mama's Pantry</span>
-                            <span class="message">Anyone know a reliable courier in Mombasa?</span>
-                        </p>
-                        <p class="received">
-                            <span class="shop-name">Amani Botanics</span>
-                            <span class="message">Try Sendy! They've been great for us 🙌</span>
-                        </p>
-                        <p class="sent">
-                            <span class="message">Yes Sendy is solid. G4S also works for bulk.</span>
-                        </p>
-                        <p class="received">
-                            <span class="shop-name">Tech Nairobi</span>
-                            <span class="message">Agreed on Sendy. Their API is handy too.</span>
-                        </p>
+                        <div v-if="chat_messages.length > 0" class="chat-area-messages">
+                            <div v-for="message in chat_messages" :key="message.id" class="chat-message">
+                                <!-- Show replied message if exists -->
+                                <div v-if="message.reply_to_id" class="reply-preview">
+                                    <span class="reply-name">{{ message.reply_to?.shop?.name || 'Unknown' }}</span>
+                                    <span class="reply-text">{{ message.reply_to?.message?.substring(0, 60) }}...</span>
+                                </div>
+                                
+                                <!-- Message wrapper -->
+                                <div :class="[message.shop_id === shop.id ? 'sent' : 'received']">
+                                    <span v-if="message.shop_id !== shop.id" class="shop-name">
+                                        {{ message.shop.name }}
+                                    </span>
+                                    <span class="message">{{ message.message }}</span>
+                                    <span class="time">{{ new Date(message.created_at).toLocaleTimeString() }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-else class="empty-chat-area-messages">
+                            <p>No messages yet. Be the first to send a message!</p>
+                        </div>
                     </div>
 
                     <div class="chat-input-area">
-                        <form action="">
-                            <input type="text" name="message" id="message" placeholder="Type a message">
-                            <button type="submit">Send</button>
+                        <form @submit.prevent="submitChat">
+                            <div class="inputs-group">
+                                <input type="text" v-model="chatForm.message" id="message" placeholder="Type your message">
+                                <InputError :message="chatForm.errors.message" />
+                            </div>
+                            <button type="submit">
+                                <SendHorizonal class="w-5 h-5" />
+                            </button>
                         </form>
                     </div>
                 </div>
