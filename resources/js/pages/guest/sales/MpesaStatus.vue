@@ -12,9 +12,13 @@ const props = defineProps<{
 
 const status = ref('pending');
 const message = ref('Waiting for payment confirmation...');
-let pollingInterval: number | null = null;
+const attempt = ref(0);
+const MAX_ATTEMPTS = 25;
+let timeoutId: number | null = null;
 
 const checkPaymentStatus = async () => {
+    attempt.value++;
+    
     try {
         const response = await fetch(`/payment/mpesa/${props.order_uuid}/query-status`);
         const data = await response.json();
@@ -22,36 +26,77 @@ const checkPaymentStatus = async () => {
         if (data.success && data.status === 'completed') {
             status.value = 'completed';
             message.value = data.message;
-            if (pollingInterval) {
-                clearInterval(pollingInterval);
+            if (timeoutId) {
+                clearTimeout(timeoutId);
             }
             setTimeout(() => {
                 router.visit(`/order-details/${props.order_uuid}`);
             }, 3000);
-        } else if (data.status === 'cancelled') {
+            return;
+        } 
+        
+        if (data.status === 'cancelled') {
             status.value = 'cancelled';
             message.value = data.message;
-            if (pollingInterval) clearInterval(pollingInterval);
-        } else if (data.status === 'failed') {
+            if (timeoutId) clearTimeout(timeoutId);
+            return;
+        } 
+        
+        if (data.status === 'failed') {
             status.value = 'failed';
             message.value = data.message;
-            if (pollingInterval) clearInterval(pollingInterval);
+            if (timeoutId) clearTimeout(timeoutId);
+            return;
+        }
+        
+        // Still pending - schedule next check with exponential backoff
+        if (attempt.value < MAX_ATTEMPTS) {
+            // Exponential backoff: 3s, 6s, 10s, 15s, 22s, 32s, ...
+            const delay = Math.min(3000 * Math.pow(1.4, attempt.value - 1), 30000);
+            // Add jitter to prevent thundering herd
+            const jitter = Math.random() * 2000;
+            const actualDelay = Math.min(delay + jitter, 30000);
+            
+            console.log(`Attempt ${attempt.value}, next check in ${(actualDelay/1000).toFixed(1)}s`);
+            
+            timeoutId = window.setTimeout(checkPaymentStatus, actualDelay);
+        } else {
+            // Max attempts reached - show timeout message
+            status.value = 'pending';
+            message.value = 'Payment is taking longer than expected. Please check your M-Pesa messages.';
+            // Add a retry button
         }
     } catch (error) {
         console.error('Failed to check payment status:', error);
+        // Retry with exponential backoff on error too
+        if (attempt.value < MAX_ATTEMPTS) {
+            const delay = Math.min(3000 * Math.pow(1.5, attempt.value - 1), 30000);
+            timeoutId = window.setTimeout(checkPaymentStatus, delay);
+        }
     }
 };
 
+// Start polling with initial delay
 onMounted(() => {
-    pollingInterval = window.setInterval(checkPaymentStatus, 3000);
-    checkPaymentStatus();
+    // First check after 3 seconds, then exponential backoff
+    timeoutId = window.setTimeout(checkPaymentStatus, 3000);
 });
 
 onUnmounted(() => {
-    if (pollingInterval) {
-        clearInterval(pollingInterval);
+    if (timeoutId) {
+        clearTimeout(timeoutId);
     }
 });
+
+// Manual retry function
+const retryCheck = () => {
+    if (timeoutId) {
+        clearTimeout(timeoutId);
+    }
+    attempt.value = 0;
+    message.value = 'Retrying...';
+    timeoutId = window.setTimeout(checkPaymentStatus, 1000);
+};
 </script>
 
 <template>
@@ -77,7 +122,13 @@ onUnmounted(() => {
                     <div v-if="status === 'pending'" class="loading-spinner">
                         <div class="spinner"></div>
                         <p>Please check your phone and enter your M-Pesa PIN</p>
-                        <p class="small-note">This page will update automatically once payment is confirmed.</p>
+                        <p class="small-note">
+                            Attempt {{ attempt }} of {{ MAX_ATTEMPTS }} • 
+                            Checking every few seconds...
+                        </p>
+                        <button @click="retryCheck" class="retry-btn">
+                            Check Now
+                        </button>
                     </div>
 
                     <div v-if="status !== 'pending'" class="action-buttons">
@@ -92,100 +143,26 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.MpesaStatusPage {
-    min-height: 100vh;
-    background: #f5f5f5;
-    padding: 40px 20px;
-}
+/* ... keep your existing styles ... */
 
-.Hero {
-    text-align: center;
-    margin-bottom: 40px;
-}
-
-.Hero h1 {
-    font-size: 32px;
-    color: #333;
-}
-
-.status-wrapper {
-    max-width: 500px;
-    margin: 0 auto;
-}
-
-.status-card {
-    background: white;
-    border-radius: 12px;
-    padding: 40px;
-    text-align: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.status-icon span {
-    font-size: 64px;
-    display: inline-block;
-    margin-bottom: 20px;
-}
-
-.status-card.pending .status-icon span {
-    animation: pulse 1.5s infinite;
-}
-
-.loading-spinner {
-    margin-top: 30px;
-}
-
-.spinner {
-    width: 50px;
-    height: 50px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #4CAF50;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 20px;
-}
-
-.small-note {
-    font-size: 12px;
-    color: #666;
-    margin-top: 10px;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-}
-
-.action-buttons {
-    margin-top: 30px;
-}
-
-.try-again {
-    padding: 12px 24px;
-    background: #4CAF50;
+.retry-btn {
+    margin-top: 15px;
+    padding: 8px 20px;
+    background: #2196F3;
     color: white;
     border: none;
     border-radius: 6px;
-    font-size: 16px;
+    font-size: 14px;
     cursor: pointer;
 }
 
-.status-card.completed .status-icon span {
-    color: #4CAF50;
+.retry-btn:hover {
+    background: #1976D2;
 }
 
-.status-card.cancelled .status-icon span,
-.status-card.failed .status-icon span {
-    color: #f44336;
-}
-
-.status-card.completed h2,
-.status-card.completed .status-icon span {
-    animation: none;
+.small-note {
+    font-size: 13px;
+    color: #666;
+    margin: 10px 0;
 }
 </style>
