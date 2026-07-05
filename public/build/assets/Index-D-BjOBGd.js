@@ -1,0 +1,1 @@
+import{R as e,y as t}from"./vue.runtime.esm-bundler-BuVIQ2sv.js";import{t as n}from"./_plugin-vue_export-helper-CLauZ_-K.js";var r={};function i(n,r){return e(),t(`h1`,null,`Product Index`)}var a=n(r,[[`render`,i]]);export{a as default};

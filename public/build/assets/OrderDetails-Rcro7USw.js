@@ -1,0 +1,1 @@
+import{C as e,R as t,St as n,f as r,g as i,y as a}from"./vue.runtime.esm-bundler-BuVIQ2sv.js";var o=e({__name:`OrderDetails`,props:{order:{}},setup(e){return(o,s)=>(t(),a(r,null,[s[0]||=i(`h1`,null,`Order details page.`,-1),i(`pre`,null,n(JSON.stringify(e.order,null,2)),1)],64))}});export{o as default};
