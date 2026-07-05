@@ -257,7 +257,7 @@ public function queryStatus(Request $request, Order $order)
         try {
             $mpesa_response = $this->mpesaService->queryStatus($payment->transaction_id);
             
-            Log::info('M-Pesa Query Status Result', [
+            \Illuminate\Support\Facades\Log::info('M-Pesa Query Status Result', [
                 'checkout_request_id' => $payment->transaction_id,
                 'response' => $mpesa_response
             ]);
@@ -301,7 +301,7 @@ public function queryStatus(Request $request, Order $order)
                 }
             }
         } catch (\Exception $e) {
-            Log::error('M-Pesa Query Exception', [
+            \Illuminate\Support\Facades\Log::error('M-Pesa Query Exception', [
                 'error' => $e->getMessage(),
                 'checkout_request_id' => $payment->transaction_id
             ]);
