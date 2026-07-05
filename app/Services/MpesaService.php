@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class MpesaService
 {
@@ -28,10 +29,20 @@ class MpesaService
     }
 
     /**
-     * Generate OAuth Access Token
+     * Generate OAuth Access Token with Caching
      */
     public function generateAccessToken(): ?string
     {
+        // Check if we have a cached token
+        $cacheKey = 'mpesa_access_token_' . $this->shortcode;
+        
+        if (Cache::has($cacheKey)) {
+            Log::info('M-Pesa: Using cached access token');
+            return Cache::get($cacheKey);
+        }
+
+        Log::info('M-Pesa: Generating new access token');
+        
         $url = "{$this->baseUrl}/oauth/v1/generate?grant_type=client_credentials";
 
         $response = Http::withBasicAuth($this->consumerKey, $this->consumerSecret)
@@ -39,7 +50,13 @@ class MpesaService
             ->get($url);
 
         if ($response->successful()) {
-            return $response->json()['access_token'];
+            $token = $response->json()['access_token'];
+            
+            // Cache for 50 minutes (tokens expire in 1 hour)
+            Cache::put($cacheKey, $token, 3000);
+            
+            Log::info('M-Pesa: Access token generated and cached successfully');
+            return $token;
         }
 
         Log::error('M-Pesa: Failed to generate access token', [
@@ -87,7 +104,6 @@ class MpesaService
             'Timestamp' => $timestamp,
             'TransactionType' => 'CustomerPayBillOnline',
             'Amount' => (int)round($amount),
-            // 'Amount' => 1,
             'PartyA' => (int)$phoneNumber,
             'PartyB' => (int)$this->shortcode,
             'PhoneNumber' => (int)$phoneNumber,
@@ -96,6 +112,13 @@ class MpesaService
             'TransactionDesc' => substr($transactionDesc, 0, 13),
         ];
 
+        Log::info('M-Pesa STKPush Request', [
+            'phone' => $phoneNumber,
+            'amount' => $amount,
+            'account_reference' => $accountReference,
+            'callback_url' => $this->callbackUrl
+        ]);
+
         $url = "{$this->baseUrl}/mpesa/stkpush/v1/processrequest";
 
         $response = Http::withToken($accessToken)
@@ -103,29 +126,33 @@ class MpesaService
             ->timeout(30)
             ->post($url, $payload);
 
-        if ($response->successful()) {
-            $data = $response->json();
+        $responseData = $response->json();
 
-            if (isset($data['ResponseCode']) && $data['ResponseCode'] == '0') {
-                return [
-                    'success' => true,
-                    'message' => $data['ResponseDescription'],
-                    'data' => [
-                        'merchant_request_id' => $data['MerchantRequestID'],
-                        'checkout_request_id' => $data['CheckoutRequestID'],
-                        'response_code' => $data['ResponseCode'],
-                    ]
-                ];
-            }
+        Log::info('M-Pesa STKPush Response', [
+            'status' => $response->status(),
+            'response' => $responseData
+        ]);
+
+        if ($response->successful() && isset($responseData['ResponseCode']) && $responseData['ResponseCode'] == '0') {
+            return [
+                'success' => true,
+                'message' => $responseData['ResponseDescription'],
+                'data' => [
+                    'merchant_request_id' => $responseData['MerchantRequestID'],
+                    'checkout_request_id' => $responseData['CheckoutRequestID'],
+                    'response_code' => $responseData['ResponseCode'],
+                ]
+            ];
         }
 
         // Handle error
-        $error = $this->parseError($response->json());
+        $error = $this->parseError($responseData);
 
         return [
             'success' => false,
             'message' => $error['message'],
-            'error_code' => $error['code'] ?? null
+            'error_code' => $error['code'] ?? null,
+            'raw_response' => $responseData
         ];
     }
 
@@ -139,6 +166,7 @@ class MpesaService
         $accessToken = $this->generateAccessToken();
 
         if (!$accessToken) {
+            Log::error('M-Pesa Query: Failed to get access token');
             return [
                 'success' => false,
                 'message' => 'Failed to authenticate with M-Pesa'
@@ -152,6 +180,11 @@ class MpesaService
             'CheckoutRequestID' => $checkoutRequestId,
         ];
 
+        Log::info('M-Pesa Query Request', [
+            'checkout_request_id' => $checkoutRequestId,
+            'shortcode' => $this->shortcode
+        ]);
+
         $url = "{$this->baseUrl}/mpesa/stkpushquery/v1/query";
 
         $response = Http::withToken($accessToken)
@@ -159,20 +192,31 @@ class MpesaService
             ->timeout(30)
             ->post($url, $payload);
 
-        if ($response->successful()) {
-            $data = $response->json();
+        $responseData = $response->json();
 
+        Log::info('M-Pesa Query Response', [
+            'status' => $response->status(),
+            'response' => $responseData
+        ]);
+
+        if ($response->successful()) {
             return [
                 'success' => true,
-                'result_code' => $data['ResultCode'] ?? null,
-                'result_desc' => $data['ResultDesc'] ?? null,
-                'data' => $data
+                'result_code' => $responseData['ResultCode'] ?? null,
+                'result_desc' => $responseData['ResultDesc'] ?? null,
+                'data' => $responseData
             ];
         }
 
+        Log::error('M-Pesa Query Failed', [
+            'status' => $response->status(),
+            'response' => $responseData
+        ]);
+
         return [
             'success' => false,
-            'message' => 'Failed to query transaction status'
+            'message' => 'Failed to query transaction status',
+            'status_code' => $response->status()
         ];
     }
 
@@ -205,20 +249,38 @@ class MpesaService
      */
     protected function parseError(array $response): array
     {
-        $errorCode = $response['errorCode'] ?? 'UNKNOWN';
-        $errorMessage = $response['errorMessage'] ?? 'An unknown error occurred';
+        // Check for different error response structures
+        $errorCode = $response['errorCode'] ?? $response['ResponseCode'] ?? 'UNKNOWN';
+        $errorMessage = $response['errorMessage'] ?? $response['ResponseDescription'] ?? 'An unknown error occurred';
 
+        // Common M-Pesa error codes
         $errorMap = [
             '400.002.02' => 'Invalid Business Shortcode. Please contact support.',
             '404.001.03' => 'Invalid Access Token. Please try again.',
             '500.001.1001' => 'Invalid credentials or merchant does not exist.',
             '500.003.02' => 'System is busy. Please try again in a few minutes.',
             '500.003.03' => 'Rate limit exceeded. Please wait before trying again.',
+            '1' => 'Insufficient balance or invalid amount.',
+            '1037' => 'Transaction cancelled by user.',
+            '1032' => 'Transaction cancelled by user.',
+            '1001' => 'Invalid phone number format.',
+            '2001' => 'Insufficient balance.',
+            '2002' => 'Transaction limit exceeded.',
         ];
 
         return [
             'code' => $errorCode,
-            'message' => $errorMap[$errorCode] ?? $errorMessage
+            'message' => $errorMap[(string)$errorCode] ?? $errorMessage
         ];
+    }
+
+    /**
+     * Clear cached token (useful for testing)
+     */
+    public function clearTokenCache(): void
+    {
+        $cacheKey = 'mpesa_access_token_' . $this->shortcode;
+        Cache::forget($cacheKey);
+        Log::info('M-Pesa: Token cache cleared');
     }
 }

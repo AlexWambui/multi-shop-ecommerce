@@ -209,59 +209,64 @@ class MpesaController extends Controller
         ]);
     }
 
-    public function queryStatus(Request $request, Order $order)
-    {
-        if ($order->customer_id !== Auth::id()) {
-            abort(403);
-        }
+public function queryStatus(Request $request, Order $order)
+{
+    if ($order->customer_id !== Auth::id()) {
+        abort(403);
+    }
 
-        $payment = Payment::where('order_id', $order->id)->first();
+    $payment = Payment::where('order_id', $order->id)->first();
 
-        \Illuminate\Support\Facades\Log::info('Query Status Check', [
-            'order_id' => $order->id,
-            'payment_exists' => $payment ? true : false,
-            'payment_status' => $payment ? $payment->payment_status->value : null,
-            'order_payment_status' => $order->payment_status->value ?? null,
+    \Illuminate\Support\Facades\Log::info('Query Status Check', [
+        'order_id' => $order->id,
+        'payment_exists' => $payment ? true : false,
+        'payment_status' => $payment ? $payment->payment_status->value : null,
+        'order_payment_status' => $order->payment_status->value ?? null,
+    ]);
+
+    if (!$payment) {
+        return response()->json([
+            'success' => false,
+            'status' => 'error',
+            'message' => 'Payment record not found'
         ]);
+    }
 
-        if (!$payment) {
-            return response()->json([
-                'success' => false,
-                'status' => 'error',
-                'message' => 'Payment record not found'
-            ]);
-        }
+    // Check payment status from database
+    $paymentStatus = $payment->payment_status->value;
 
-        // Check payment status from database
-        $paymentStatus = $payment->payment_status->value;
+    if ($paymentStatus === 1) {
+        return response()->json([
+            'success' => true,
+            'status' => 'completed',
+            'message' => 'Payment successful!'
+        ]);
+    }
 
-        if ($paymentStatus === 1) {
-            return response()->json([
-                'success' => true,
-                'status' => 'completed',
-                'message' => 'Payment successful!'
-            ]);
-        }
+    if ($paymentStatus === 2) {
+        $isCancelled = str_contains($payment->failure_reason ?? '', 'cancelled');
+        return response()->json([
+            'success' => false,
+            'status' => $isCancelled ? 'cancelled' : 'failed',
+            'message' => $payment->failure_reason ?? 'Payment failed or was cancelled'
+        ]);
+    }
 
-        if ($paymentStatus === 2) {
-            // Check if it was cancelled vs failed
-            $isCancelled = str_contains($payment->failure_reason ?? '', 'cancelled');
-            return response()->json([
-                'success' => false,
-                'status' => $isCancelled ? 'cancelled' : 'failed',
-                'message' => $payment->failure_reason ?? 'Payment failed or was cancelled'
-            ]);
-        }
-
-        // Still pending - optionally query M-Pesa API as fallback
-        if ($paymentStatus === 0 && $payment->transaction_id) {
+    // Still pending - query M-Pesa API as fallback
+    if ($paymentStatus === 0 && $payment->transaction_id) {
+        try {
             $mpesa_response = $this->mpesaService->queryStatus($payment->transaction_id);
+            
+            Log::info('M-Pesa Query Status Result', [
+                'checkout_request_id' => $payment->transaction_id,
+                'response' => $mpesa_response
+            ]);
 
             if ($mpesa_response['success'] && isset($mpesa_response['result_code'])) {
                 $resultCode = $mpesa_response['result_code'];
 
                 if ($resultCode === '0') {
-                    // Manually update if callback was missed
+                    // Payment successful - update records
                     $payment->update(['payment_status' => 1]);
                     $order->update([
                         'payment_status' => 1,
@@ -274,7 +279,8 @@ class MpesaController extends Controller
                         'status' => 'completed',
                         'message' => 'Payment successful!'
                     ]);
-                } elseif ($resultCode === '1032') {
+                } elseif ($resultCode === '1032' || $resultCode === '1037') {
+                    // User cancelled
                     $payment->update([
                         'payment_status' => 2,
                         'failure_reason' => 'User cancelled the transaction'
@@ -285,7 +291,8 @@ class MpesaController extends Controller
                         'status' => 'cancelled',
                         'message' => 'Payment was cancelled'
                     ]);
-                } elseif ($resultCode !== '0' && $resultCode !== '1032') {
+                } elseif ($resultCode !== '0' && $resultCode !== '1032' && $resultCode !== '1037') {
+                    // Other errors - keep pending
                     return response()->json([
                         'success' => false,
                         'status' => 'pending',
@@ -293,14 +300,20 @@ class MpesaController extends Controller
                     ]);
                 }
             }
+        } catch (\Exception $e) {
+            Log::error('M-Pesa Query Exception', [
+                'error' => $e->getMessage(),
+                'checkout_request_id' => $payment->transaction_id
+            ]);
         }
-
-        return response()->json([
-            'success' => false,
-            'status' => 'pending',
-            'message' => 'Waiting for payment confirmation...'
-        ]);
     }
+
+    return response()->json([
+        'success' => false,
+        'status' => 'pending',
+        'message' => 'Waiting for payment confirmation...'
+    ]);
+}
 
     public function callback(Request $request)
     {
